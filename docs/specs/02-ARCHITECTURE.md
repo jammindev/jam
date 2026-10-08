@@ -27,14 +27,15 @@ flowchart LR
 
 | Composant | Rôle | Étape |
 |---|---|---|
-| Renderer (React) | Tableau des tâches, file « À toi », fil résumé, palette Cmd+K | E0 |
+| Renderer (React) | Tableau des tâches, file « À toi », fil résumé, palette Cmd+K, écran « Métriques » (FR-037) | E0 |
 | Main (Electron) | Fenêtres, notifications natives, lancement du cœur | E0 |
-| **Pipeline** | Boucle extérieure : enchaîne les étapes et les rôles, boucles tests/relecture/CI, garde-fous, feux verts ([ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md)) | E0 |
+| **Pipeline** | Boucle extérieure : enchaîne les étapes et les rôles, boucles tests/relecture/CI, garde-fous, feux verts ([ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md)). Une étape peut lancer plusieurs instances d'un rôle : relecture par axes (FR-022) | E0 |
 | État persistant | Tâches, étapes, itérations, coûts, questions, feux verts. SQLite ([ADR 0010](../decisions/0010-persistance-sqlite.md)) | E0 |
 | Registre de commandes | Actions d'UI typées, partagées par la palette et l'agent ([ADR 0007](../decisions/0007-commandes-ui-partagees-agent.md)) | E0 |
-| Intégration GitHub | Issues, création de PR, suivi de CI, merge et nettoyage via `gh` | E0 |
-| Backend Claude Code | Lance `claude -p --output-format stream-json` avec un profil de rôle dans un worktree et normalise les événements | E0 |
-| Coordinateur | Agent conversationnel : cadrage, issues, pilotage de l'UI | E0.5 |
+| Intégration GitHub | Issues, création de PR, suivi de CI, merge et nettoyage via `gh`. Lecture des labels `incident` et des exécutions de workflow pour les métriques ([ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md)) | E0 |
+| Backend Claude Code | Lance `claude -p --output-format stream-json` avec un profil de rôle et son contexte d'environnement (FR-038) dans un worktree, et normalise les événements | E0 |
+| Mesure | Calcule par repo les métriques DORA et les indicateurs agents, à partir de l'état horodaté (FR-036) et de GitHub ([ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md)) | E0 (S4) |
+| Coordinateur | Agent conversationnel : orchestre le cadrage (rédacteur → relecteur → feu vert), arbitre, pilote l'UI. Ne produit aucun livrable (FR-040, RET-001) | E0.5 |
 | Backend harness maison | Boucle intérieure propre, rôles imposés | E1–E2 |
 
 ## Flux principaux

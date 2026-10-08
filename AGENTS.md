@@ -12,7 +12,14 @@ Un cockpit de *loop engineering*. Pour chaque issue GitHub, un pipeline codé da
 - `docs/specs/02-ARCHITECTURE.md` : composants et stack ;
 - `docs/specs/04-ROADMAP.md` : étape et jalon en cours ;
 - `docs/decisions/` : ADR. **Une décision actée ne se contourne pas.** En cas de désaccord, proposer une nouvelle ADR.
-- `docs/specs/GLOSSARY.md` : vocabulaire à respecter dans le code.
+- `docs/specs/GLOSSARY.md` : vocabulaire à respecter dans le code ;
+- `docs/specs/RETOURS.md` : retours du mainteneur en cours d'application.
+
+## Environnement
+
+- En attendant que jam déroule son pipeline, le développement se fait dans **Orca** : une tâche = une issue GitHub = un worktree (un cadrage : un worktree `cadrage-<slug>`, sans issue), que tu occupes peut-être en ce moment.
+- L'état des tâches et les passations passent par la CLI `orca` (statut et commentaire du worktree), pilotée par le coordinateur.
+- Le déroulé complet (rôles, feux verts, garde-fous) est dans `docs/process/README.md` : lis-le avant d'agir.
 
 ## Stack
 
@@ -29,7 +36,7 @@ Un cockpit de *loop engineering*. Pour chaque issue GitHub, un pipeline codé da
 3. **Un jalon livré = une fiche concept** dans `docs/concepts/` (format décrit dans le README de ce dossier).
 4. **Pas de sur-ingénierie.** On construit ce que demande le jalon, rien de plus. Tout ce qui vient « pour plus tard » est noté dans `docs/specs/OPEN-QUESTIONS.md`.
 5. **Aucune mention d'auteur IA**, nulle part : pas de trailer `Co-Authored-By`, pas de signature dans les PR, aucune référence à un assistant dans le code ou les docs.
-6. **Commit, push et PR uniquement avec l'accord explicite du mainteneur.** Les rôles du pipeline (`docs/process/roles/`) ne committent jamais. Seul le coordinateur committe, et seulement après un feu vert.
+6. **Commit, push et PR uniquement avec l'accord explicite du mainteneur.** Aucun rôle du pipeline ni du cadrage (rédacteur, planificateur, implémenteur, relecteur, recetteur) ne committe. Seul le coordinateur committe, et seulement après un feu vert (ADR 0012).
 7. **Repo public** : jamais de secret, de donnée personnelle ou de tiers, ni de chemin propre à une machine.
 8. **Langues** : docs, ADR et messages de commit en français. Code (identifiants, commentaires) en anglais.
 9. **Code repris d'Orca** (MIT) : conserver la mention de copyright et de licence, et l'ajouter dans `THIRD_PARTY_NOTICES.md`.
