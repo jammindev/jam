@@ -1,6 +1,6 @@
 # Référence — Construire un harness : API Claude, Agent SDK, MCP, Codex, OpenCode
 
-> Note de recherche du 2026-10-08, rédigée par un sous-agent. Sources citées inline. Plusieurs points sont en bêta ou changent vite (voir « Incertain »). **Revérifier avant d'implémenter.**
+> Note de recherche du 2026-10-08. Sources citées dans le texte. Plusieurs points sont en bêta ou changent vite (voir « Incertain »). **Revérifier avant d'implémenter.**
 
 ## TL;DR
 

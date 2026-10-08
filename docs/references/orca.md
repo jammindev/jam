@@ -1,6 +1,6 @@
 # Référence : Orca (stablyai/orca)
 
-> Note de recherche du 2026-10-08, rédigée par un sous-agent.
+> Note de recherche du 2026-10-08.
 >
 > **Sources** :
 > - clone partiel de `github.com/stablyai/orca`, branche `main`, 1.4.214 ;

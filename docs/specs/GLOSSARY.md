@@ -13,3 +13,5 @@
 | Tour (turn) | Un aller-retour modèle → éventuels appels d'outils. | Provisoire |
 | Outil (tool) | Capacité exposée au modèle (read, write, shell, search…), décrite par un schéma. | Provisoire |
 | Backend d'agent | Ce qui exécute réellement un agent derrière l'interface commune : Claude Code (E0) ou le harness maison (E2). | Provisoire |
+| Mainteneur | Ben : il décide, relit et merge. Il n'écrit pas le code. | Validé |
+| Headless / stream-json | Mode non interactif de Claude Code (`-p`), qui émet un événement JSON par ligne au lieu d'afficher une interface terminal. | Provisoire |
