@@ -1,36 +1,59 @@
 # 02 — Architecture
 
-> Statut : vide. Rempli aux thèmes 4 (orchestration) et 6 (plateforme et stack).
+> Statut : stack posée (thème 6), composants alignés sur l'ADR 0008. Les flux détaillés seront remplis aux thèmes 3 et 4.
 
 ## Vue d'ensemble
 
 ```mermaid
 flowchart LR
-  UI[Interface] <--> Core[Core / orchestrateur]
-  Core --> H1[Harness agent 1] --> W1[(Worktree 1)]
-  Core --> H2[Harness agent 2] --> W2[(Worktree 2)]
-  H1 & H2 --> LLM[API modèle]
+  subgraph App["App Electron (macOS)"]
+    R["Renderer<br/>tableau, file « À toi », palette"] <-->|IPC| M["Main<br/>fenêtres, notifications"]
+  end
+  M <-->|"protocole typé (local)"| C
+  subgraph C["Cœur (processus séparé, TS)"]
+    PL["Pipeline<br/>boucle extérieure"] --> ST[("État persistant")]
+    PL --> BA["Backends d'agent"]
+    PL --> GH["gh / git"]
+    CMD["Registre de commandes"]
+  end
+  BA --> B1["Claude Code headless<br/>(stream-json)"]
+  BA -.->|E2| B2["Harness maison"]
+  B1 --> W1[("Worktree issue #n")]
+  B1 --> W2[("Worktree issue #m")]
+  GH --> GHUB[(GitHub : issues, PR, CI)]
 ```
-
-_Schéma provisoire, à valider._
 
 ## Composants
 
-_À compléter._
+| Composant | Rôle | Étape |
+|---|---|---|
+| Renderer (React) | Tableau des tâches, file « À toi », fil résumé, palette Cmd+K | E0 |
+| Main (Electron) | Fenêtres, notifications natives, lancement du cœur | E0 |
+| **Pipeline** | Boucle extérieure : enchaîne les étapes et les rôles, boucles tests/relecture/CI, garde-fous, feux verts ([ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md)) | E0 |
+| État persistant | Tâches, étapes, itérations, coûts, questions, feux verts. Technologie à trancher (Q-011) | E0 |
+| Registre de commandes | Actions d'UI typées, partagées par la palette et l'agent ([ADR 0007](../decisions/0007-commandes-ui-partagees-agent.md)) | E0 |
+| Intégration GitHub | Issues, création de PR, suivi de CI, merge et nettoyage via `gh` | E0 |
+| Backend Claude Code | Lance `claude -p --output-format stream-json` avec un profil de rôle dans un worktree et normalise les événements | E0 |
+| Coordinateur | Agent conversationnel : cadrage, issues, pilotage de l'UI | E0.5 |
+| Backend harness maison | Boucle intérieure propre, rôles imposés | E1–E2 |
 
 ## Flux principaux
 
-_À compléter._
+_À compléter au thème 4._
 
 ## Stack
 
 | Couche | Choix | ADR |
 |---|---|---|
-| Shell desktop | _?_ | — |
-| Langage du harness | _?_ | — |
-| UI | _?_ | — |
-| Persistance | _?_ | — |
+| Shell desktop | Electron | [0005](../decisions/0005-electron-macos.md) |
+| OS | macOS uniquement (cœur portable) | [0005](../decisions/0005-electron-macos.md) |
+| UI | React + TypeScript | 0005 |
+| Cœur | Processus séparé, protocole typé, local uniquement au MVP | [0006](../decisions/0006-coeur-separe-ui.md) |
+| Langage du cœur | TypeScript strict + zod | [0006](../decisions/0006-coeur-separe-ui.md) |
+| Intégration de Claude Code | Headless `stream-json` | [0004](../decisions/0004-claude-code-headless-stream-json.md) |
+| Persistance | _Thème 8_ | — |
 
 ## Exécution locale / distante
 
-_À compléter._
+- Local uniquement au MVP (NFR-007).
+- Le cœur séparé permettra plus tard de le faire tourner sur le VPS, avec l'UI connectée par tunnel. C'est repoussé.

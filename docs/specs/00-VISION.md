@@ -4,16 +4,16 @@
 
 ## Pitch
 
-Un éditeur centré sur la gestion d'agents IA. Plusieurs agents travaillent en parallèle, chacun dans son git worktree, et on les suit, on relit leurs diffs et on merge depuis une seule interface.
+Un **cockpit de loop engineering**. L'outil déroule la méthode de travail du mainteneur sur chaque issue, dans son propre worktree. Pour cela, il fait travailler des rôles d'agents (plan, TDD, relecture, recette) jusqu'au merge, et n'interrompt le mainteneur que pour trois feux verts.
 
-Le projet se construit en deux temps :
+Le projet tient en deux boucles :
 
-1. Il orchestre d'abord **Claude Code**, comme le fait Orca.
-2. Il devient ensuite **lui-même le harness**, avec sa propre boucle d'agent : appels au modèle, outils, permissions, contexte.
+1. **La boucle extérieure** (MVP, [ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md)) : le pipeline, codé dans le cœur, qui fait d'abord travailler **Claude Code**.
+2. **La boucle intérieure** (ensuite) : le harness maison, avec sa propre boucle d'agent (modèle, outils, permissions, contexte). Il devient un deuxième backend et permet d'**imposer** les rôles.
 
 ## Pourquoi
 
-- **Envie de construire son propre outil.** Orca couvre déjà le besoin fonctionnel : rien de précis ne lui manque (Q-004). La motivation, c'est le plaisir de construire un outil qu'on maîtrise. Pour un projet solo mené sur le temps libre, c'est le premier facteur de réussite, il faut donc la préserver.
+- **Envie de construire son propre outil.** La motivation de départ est le plaisir de construire un outil qu'on maîtrise (Q-004). L'analyse d'usage révèle en plus de vrais manques chez Orca : notifications bruyantes, questions invisibles, méthode qui dépend de l'obéissance des agents. Pour un projet solo mené sur le temps libre, c'est le premier facteur de réussite, il faut donc la préserver.
 - **Comprendre les concepts** d'un harness d'agent de l'intérieur : la boucle, les outils, les permissions, le contexte, l'orchestration.
 
 ## Pour qui
@@ -40,13 +40,15 @@ Le projet se construit en deux temps :
 
 | Horizon | Critère vérifiable |
 |---|---|
-| 1 mois (fin d'E0) | Depuis l'outil, 3 agents Claude Code tournent en parallèle sur `house`, chacun dans son worktree, avec diff et merge. L'outil a servi à au moins 5 vraies tâches. |
+| 1 mois (fin d'E0) | Sur `house`, 3 issues réelles traversent le pipeline en parallèle jusqu'au merge. Le mainteneur n'intervient que sur la file « À toi ». L'outil a servi à au moins 5 vraies tâches. |
 | 3 mois | Le harness maison, en CLI, résout seul une vraie tâche et affiche son coût. |
 | 6 mois | Le harness maison est branché dans l'outil comme backend d'agent et comparé à Claude Code sur une même tâche. |
 
 ## Principes
 
-- **Un Orca nu, qui grandit à l'usage.** On part d'un squelette minimal du concept d'Orca : agents dans des worktrees, suivi, diff, merge. Une fonction ne s'ajoute que lorsque le besoin se fait sentir à l'usage. Il ne s'agit pas d'élaguer le code d'Orca ([ADR 0001](../decisions/0001-from-scratch.md)).
+- **Partir du minimum et grandir à l'usage.** Le squelette minimal, c'est le pipeline. Une fonction ne s'ajoute que lorsque le besoin se fait sentir à l'usage. On n'élague pas le code d'Orca ([ADR 0001](../decisions/0001-from-scratch.md)).
+- **Interrompre le moins possible.** Le mainteneur n'est sollicité que pour une décision. Son attention est la ressource rare, pas le nombre d'agents.
+- **Une méthode imposée plutôt qu'espérée.** Ce que le code peut garantir, comme l'ordre des étapes ou les feux verts, ne doit pas dépendre de l'obéissance d'un agent.
 - **E0 dure au plus un mois.** Ensuite on passe au harness ([ADR 0002](../decisions/0002-orchestrer-claude-code-avant-harness.md)). Orca reste l'outil de repli.
 - **Comprendre avant d'empiler.** Chaque brique livrée doit pouvoir s'expliquer en quelques lignes : quel concept elle met en œuvre, et pourquoi elle est conçue ainsi.
 

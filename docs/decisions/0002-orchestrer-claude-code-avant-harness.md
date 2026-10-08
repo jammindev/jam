@@ -1,6 +1,6 @@
 # ADR 0002 — Orchestrer Claude Code avant d'écrire le harness
 
-- **Statut** : acceptée. Mode d'intégration : [ADR 0004](0004-claude-code-headless-stream-json.md).
+- **Statut** : acceptée. Mode d'intégration : [ADR 0004](0004-claude-code-headless-stream-json.md). Contenu d'E0 précisé par l'[ADR 0008](0008-boucle-exterieure-pipeline.md) : la boucle extérieure plutôt qu'une interface liste + diff.
 - **Date** : 2026-10-08
 - **Remplace** : la section « ordre de construction » de l'[ADR 0001](0001-from-scratch.md)
 

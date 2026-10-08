@@ -1,33 +1,82 @@
 # 01 — Exigences
 
-> Statut : brouillon. Priorités MoSCoW : **M**ust, **S**hould, **C**ould, **W**on't (pour l'instant).
-> Étapes de roadmap (provisoire, voir 04-ROADMAP) : **E0** orchestration de Claude Code · **E1** harness maison · **E2** harness dans l'outil, en parallèle · **E3** confort.
+> Statut : thèmes 1, 2 (cas d'usage) et 6 couverts. Priorités MoSCoW : **M**ust, **S**hould, **C**ould, **W**on't (pour l'instant).
+> Étapes : **E0** boucle extérieure sur Claude Code (≤ 1 mois) · **E1** harness maison en CLI · **E2** harness branché dans l'outil · **E3** confort.
 
 ## Exigences fonctionnelles
 
+### Pipeline (boucle extérieure) — ADR 0008
+
 | ID | Exigence | Priorité | Étape | Source |
 |---|---|---|---|---|
-| FR-010 | L'outil lance des agents **Claude Code**, chacun dans son worktree, en parallèle. | M | E0 | ADR 0002 |
-| FR-012 | Claude Code est piloté en mode headless (`claude -p --output-format stream-json`, reprise par `--resume`). L'outil affiche ses événements structurés : messages, appels d'outils, coût. | M | E0 | ADR 0004 |
+| FR-020 | Une tâche démarre d'une **issue GitHub**, désignée par son numéro. L'outil crée un worktree et une branche dédiés. | M | E0 | ADR 0008 |
+| FR-021 | Le cœur déroule le pipeline codé en dur : plan → feu vert 1 → implémentation TDD → relecture → recette → feu vert 2 → PR + CI → feu vert 3 → merge → nettoyage. | M | E0 | ADR 0008 |
+| FR-022 | Chaque étape est exécutée par un **rôle** (profil : prompt, outils, permissions), instancié avec un contexte neuf. | M | E0 | ADR 0008 |
+| FR-023 | L'implémentation boucle jusqu'aux tests verts. La relecture peut renvoyer à l'implémentation. La CI boucle jusqu'au vert. | M | E0 | ADR 0008 |
+| FR-024 | Garde-fous : nombre maximal d'itérations et budget par étape. Un dépassement passe la tâche à l'état « bloqué » et l'ajoute à la file « À toi ». | M | E0 | ADR 0008 |
+| FR-025 | Trois **feux verts** humains : plan, recette, merge. Aucun push ni merge sans le feu vert correspondant. | M | E0 | ADR 0008, règle du mainteneur |
+| FR-026 | Le merge se fait sur GitHub (`gh pr merge`), une fois la CI verte et le feu vert 3 donné. Puis worktree, branche locale et branche distante sont supprimés. | M | E0 | ADR 0008 |
+| FR-027 | L'état de chaque tâche (étape, itérations, coût, questions) est persisté par le cœur et survit à un redémarrage. | M | E0 | ADR 0008 |
+| FR-028 | Configuration minimale par repo : commande de tests, et commande ou skill de recette. | M | E0 | Cohérence |
+| FR-029 | Plusieurs tâches avancent en parallèle (cible : 3 à 5, plafond configurable). | M | E0 | Usage |
+| FR-030 | Plusieurs repos sont gérés dans la même instance. | S | E0 | Lot 3 |
+
+### Interface
+
+| ID | Exigence | Priorité | Étape | Source |
+|---|---|---|---|---|
+| FR-031 | Tableau des tâches : issue, étape, état, coût, dernière activité. | M | E0 | ADR 0008 |
+| FR-032 | **File « À toi »** : feux verts attendus, questions des agents, tâches bloquées, recettes à faire. | M | E0 | Usage, ADR 0008 |
+| FR-033 | Fil d'activité **résumé** par tâche (événements significatifs, pas chaque battement). | M | E0 | Usage |
+| FR-034 | Discuter avec le lead d'un worktree (reprise de sa session). | S | E0 | Lot 3 bis |
+| FR-008 | Notification macOS seulement quand une décision attend le mainteneur ou qu'une tâche est bloquée. | M | E0 | Usage |
+| FR-013 | Notification push sur téléphone (ntfy ou Pushover). | C | E3 | Thème 6 |
+| FR-014 | Registre de commandes d'UI typées, partagé par la palette (Cmd+K) et l'agent. | M | E0 | ADR 0007 |
+| FR-015 | Actions d'UI accessibles à l'agent, dans l'ordre de l'ADR 0007. | S | E0.5 | ADR 0007, Q-009 |
+| FR-016 | Champ de conversation accessible partout par un raccourci global (compatible avec la dictée). | S | Avec le coordinateur | ADR 0007 |
+| FR-006 | Vue diff d'un worktree. | C | E3 | Usage : rarement consulté |
+| FR-007 | Éditeur intégré, arbre et recherche de fichiers. | C | E3 | Usage |
+| FR-009 | Navigateur intégré façon Design Mode. | C | E3 | Prompt initial |
+
+### Backends d'agent
+
+| ID | Exigence | Priorité | Étape | Source |
+|---|---|---|---|---|
+| FR-012 | Claude Code piloté en headless (`claude -p --output-format stream-json`, reprise par `--resume`). | M | E0 | ADR 0004 |
 | FR-011 | Claude Code et le harness maison passent par une même interface « backend d'agent ». | M | E0 | ADR 0002 |
 | FR-001 | Le harness exécute une boucle d'agent (modèle → outils → modèle) jusqu'à la fin de la tâche. | M | E1 | Prompt initial |
-| FR-002 | Outils minimaux : `read`, `write`, `shell`, `search`. | M | E1 | Prompt initial |
-| FR-003 | Chaque agent travaille dans son propre git worktree. | M | E0 | Prompt initial |
-| FR-004 | Plusieurs agents tournent en parallèle. | M | E0 | Prompt initial |
-| FR-005 | L'interface liste les agents et affiche le fil d'activité de chacun. | M | E0 | Prompt initial |
-| FR-006 | L'interface affiche le diff d'un agent et permet d'accepter ou de refuser. | M | E0 | Prompt initial |
-| FR-007 | Éditeur intégré. | _?_ | E3 | Prompt initial |
-| FR-008 | Notifications. | _?_ | E3 | Prompt initial |
-| FR-009 | Navigateur intégré façon Design Mode. | _?_ | E3 | Prompt initial |
+| FR-002 | Outils minimaux du harness : `read`, `write`, `shell`, `search` (puis `edit`). | M | E1 | Prompt initial |
+| FR-035 | Le harness impose le rôle dans une étape (par ex. un planificateur sans écriture). | S | E2 | ADR 0008 |
+
+### Coordinateur conversationnel (après E0)
+
+| ID | Exigence | Priorité | Étape | Source |
+|---|---|---|---|---|
+| FR-040 | Agent de cadrage : texte libre → specs → issues, arbitrages produit. | S | Après E0 | ADR 0008 |
+| FR-041 | Rôles interpellables par leur nom (« @archi ») : un profil avec sa mémoire, instancié à la demande. | C | Après E0 | Discussion sur l'équipe |
+
+### Hors périmètre
+
+| ID | Exigence | Priorité | Source |
+|---|---|---|---|
+| FR-090 | Même tâche confiée à plusieurs agents pour garder la meilleure solution (S2). | W | Usage : jamais observé |
+| FR-091 | Merge local comme mode d'acceptation. | W | Usage |
+| FR-092 | Agents permanents qui dialoguent entre eux. | W | ADR 0008 |
+| FR-093 | Espaces hors code (dossier persistant avec mémoire, session éphémère). | W au MVP | Usage. Le vocabulaire reste générique. |
 
 ## Exigences non fonctionnelles
 
 | ID | Exigence | Priorité | Étape | Source |
 |---|---|---|---|---|
-| NFR-001 | Le MVP est réalisable par une personne seule sur du temps libre. | M | — | Prompt initial |
-| NFR-002 | Repo public : aucun secret, aucune donnée perso ni chemin machine dans le code ou les docs. Licence explicite. | M | E0 | Thème 1 |
-| NFR-003 | Aucune mention d'auteur IA (trailer de commit, signature de PR, texte des docs). | M | — | Thème 1 |
-| NFR-004 | Chaque brique livrée est accompagnée d'une explication courte du concept qu'elle met en œuvre. | S | — | ADR 0003 |
-| NFR-005 | macOS est la seule plateforme ciblée au MVP. Windows est exclu. | M | E0 | Thème 1 (non-objectif c) |
-
-_À compléter au fil des lots._
+| NFR-001 | Le MVP est réalisable par une personne seule sur son temps libre. | M | — | Prompt initial |
+| NFR-002 | Repo public : aucun secret, aucune donnée personnelle ou de tiers, aucun chemin machine. Licence explicite. | M | E0 | Thème 1 |
+| NFR-003 | Aucune mention d'auteur IA (trailer de commit, signature de PR, docs). | M | — | Thème 1 |
+| NFR-004 | Chaque brique livrée est accompagnée d'une fiche concept. | S | — | ADR 0003 |
+| NFR-005 | macOS uniquement au MVP. Le cœur reste portable. | M | E0 | ADR 0005 |
+| NFR-006 | Le cœur tourne sans UI, dans un processus séparé, derrière un protocole typé. | M | E0 | ADR 0006 |
+| NFR-007 | Exécution locale uniquement au MVP. | M | E0 | Thème 6 |
+| NFR-008 | L'agent ne modifie l'UI que sur demande explicite. | M | E0 | ADR 0007 |
+| NFR-009 | Le mainteneur n'est interrompu que pour une décision : trois feux verts, questions, blocages. | M | E0 | Usage |
+| NFR-011 | Aucun agent en mode sans permission. Chaque rôle a son profil, et tout refus remonte dans la file « À toi ». | M | E0 | ADR 0009 |
+| NFR-012 | Aucun agent ne committe, ne pousse ni ne merge : c'est le cœur qui le fait, après un feu vert. | M | E0 | ADR 0009 |
+| NFR-010 | Aucune boucle automatique sans critère objectif (tests, CI). | M | E0 | ADR 0008 |

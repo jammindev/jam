@@ -1,6 +1,6 @@
 # 03 — Harness
 
-> Statut : vide. Rempli au thème 3.
+> Statut : permissions d'E0 posées (ADR 0009). Le reste sera traité au thème 3, avant E1.
 
 ## Boucle d'agent
 
@@ -21,7 +21,8 @@ _À compléter._
 
 ## Permissions et approbation
 
-_À compléter._
+- **E0 (Claude Code)** : un profil par rôle, refus automatique hors profil, aucun agent ne pousse ni ne merge ([ADR 0009](../decisions/0009-permissions-par-role.md)).
+- **Harness (E1–E2)** : _à compléter au thème 3_. Objectif : imposer les mêmes profils nativement.
 
 ## Gestion du contexte
 
