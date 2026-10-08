@@ -12,3 +12,4 @@
 | Run | _À définir_ | — |
 | Tour (turn) | Un aller-retour modèle → éventuels appels d'outils. | Provisoire |
 | Outil (tool) | Capacité exposée au modèle (read, write, shell, search…), décrite par un schéma. | Provisoire |
+| Backend d'agent | Ce qui exécute réellement un agent derrière l'interface commune : Claude Code (E0) ou le harness maison (E2). | Provisoire |

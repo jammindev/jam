@@ -1,6 +1,6 @@
 # ADR 0001 — Projet from scratch, Orca comme référence de lecture
 
-- **Statut** : acceptée
+- **Statut** : acceptée (la section sur l'ordre de construction est remplacée par l'ADR 0002)
 - **Date** : 2026-10-08
 
 ## Contexte
@@ -11,7 +11,7 @@ Le projet vise un éditeur centré sur des agents IA en parallèle (un worktree 
 
 - Partir d'un repo vide. Pas de fork d'Orca.
 - Orca sert de référence de lecture. On peut en reprendre des morceaux, à condition de conserver la mention de licence MIT (copyright et texte de licence) dans les fichiers concernés ou dans un `THIRD_PARTY_NOTICES`.
-- Construire dans cet ordre : E1 harness CLI → E2 worktrees et parallélisme → E3 interface → E4 confort.
+- ~~Construire dans cet ordre : E1 harness CLI → E2 worktrees et parallélisme → E3 interface → E4 confort.~~ Ordre remplacé par l'[ADR 0002](0002-orchestrer-claude-code-avant-harness.md).
 
 ## Conséquences
 

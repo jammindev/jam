@@ -5,3 +5,4 @@ Une ADR courte par décision structurante. Format : Contexte → Décision → C
 | # | Titre | Statut |
 |---|---|---|
 | [0001](0001-from-scratch.md) | Projet from scratch, Orca comme référence de lecture | Acceptée |
+| [0002](0002-orchestrer-claude-code-avant-harness.md) | Orchestrer Claude Code avant d'écrire le harness | Acceptée (mode d'intégration ouvert) |
