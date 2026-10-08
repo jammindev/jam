@@ -14,8 +14,8 @@ Une fiche courte par concept, écrite **au moment où la brique qui le met en œ
 
 | Concept | Brique | Fiche |
 |---|---|---|
-| Processus Electron (main, renderer, preload) et IPC | Squelette | — |
-| Cœur séparé et protocole typé | Squelette | — |
+| Processus Electron (main, renderer, preload) et IPC | Squelette | [processus-electron.md](processus-electron.md) |
+| Cœur séparé et protocole typé | Squelette | [coeur-separe-protocole.md](coeur-separe-protocole.md) |
 | Git worktree | Git | — |
 | Claude Code headless et `stream-json` | Agent | — |
 | Interface « backend d'agent » | Agent | — |

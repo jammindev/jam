@@ -30,7 +30,7 @@ flowchart LR
 | Renderer (React) | Tableau des tâches, file « À toi », fil résumé, palette Cmd+K | E0 |
 | Main (Electron) | Fenêtres, notifications natives, lancement du cœur | E0 |
 | **Pipeline** | Boucle extérieure : enchaîne les étapes et les rôles, boucles tests/relecture/CI, garde-fous, feux verts ([ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md)) | E0 |
-| État persistant | Tâches, étapes, itérations, coûts, questions, feux verts. Technologie à trancher (Q-011) | E0 |
+| État persistant | Tâches, étapes, itérations, coûts, questions, feux verts. SQLite ([ADR 0010](../decisions/0010-persistance-sqlite.md)) | E0 |
 | Registre de commandes | Actions d'UI typées, partagées par la palette et l'agent ([ADR 0007](../decisions/0007-commandes-ui-partagees-agent.md)) | E0 |
 | Intégration GitHub | Issues, création de PR, suivi de CI, merge et nettoyage via `gh` | E0 |
 | Backend Claude Code | Lance `claude -p --output-format stream-json` avec un profil de rôle dans un worktree et normalise les événements | E0 |
@@ -51,7 +51,7 @@ _À compléter au thème 4._
 | Cœur | Processus séparé, protocole typé, local uniquement au MVP | [0006](../decisions/0006-coeur-separe-ui.md) |
 | Langage du cœur | TypeScript strict + zod | [0006](../decisions/0006-coeur-separe-ui.md) |
 | Intégration de Claude Code | Headless `stream-json` | [0004](../decisions/0004-claude-code-headless-stream-json.md) |
-| Persistance | _Thème 8_ | — |
+| Persistance | SQLite via `node:sqlite`, migrations numérotées (`PRAGMA user_version`) | [0010](../decisions/0010-persistance-sqlite.md) |
 
 ## Exécution locale / distante
 
