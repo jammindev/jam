@@ -1,6 +1,6 @@
 # 00 — Vision
 
-> Statut : thème 1 clos le 2026-10-08.
+> Statut : thème 1 clos le 2026-10-08. Principe « petits lots, mesurés » ajouté le même jour (RET-002).
 
 ## Pitch
 
@@ -50,6 +50,7 @@ Le projet tient en deux boucles :
 - **Interrompre le moins possible.** Le mainteneur n'est sollicité que pour une décision. Son attention est la ressource rare, pas le nombre d'agents.
 - **Une méthode imposée plutôt qu'espérée.** Ce que le code peut garantir, comme l'ordre des étapes ou les feux verts, ne doit pas dépendre de l'obéissance d'un agent.
 - **E0 dure au plus un mois.** Ensuite on passe au harness ([ADR 0002](../decisions/0002-orchestrer-claude-code-avant-harness.md)). Orca reste l'outil de repli.
+- **Petits lots, mesurés** (pratiques DORA, [ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md)). Des tâches petites, mergées vite dans `main`, vérifiées par des tests et une CI automatiques. La livraison est mesurée pour ajuster la méthode, jamais pour fixer des objectifs. L'IA amplifie les forces comme les faiblesses d'une méthode : c'est la méthode qu'on soigne.
 - **Comprendre avant d'empiler.** Chaque brique livrée doit pouvoir s'expliquer en quelques lignes : quel concept elle met en œuvre, et pourquoi elle est conçue ainsi.
 
 ## Contraintes

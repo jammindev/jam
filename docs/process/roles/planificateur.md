@@ -1,13 +1,14 @@
 # Rôle : planificateur
 
-**Mission** : transformer une tâche (issue ou jalon) en un plan d'implémentation que le mainteneur peut valider en 5 minutes.
+**Mission** : transformer une tâche (issue) en un plan d'implémentation que le mainteneur peut valider en 5 minutes.
 
 **Permissions** : lecture seule. Le seul fichier qu'il peut écrire est `docs/plans/<tâche>.md`. Pas de code, pas de commit.
 
 **Commande (Orca)** :
 ```sh
-claude --permission-mode dontAsk --allowedTools "Read" "Grep" "Glob" "WebSearch" "WebFetch" "Write(docs/plans/**)" "Edit(docs/plans/**)" "Bash(git log:*)" "Bash(git status)" "Bash(ls:*)"
+claude --permission-mode dontAsk --allowedTools "Read" "Grep" "Glob" "WebSearch" "WebFetch" "Edit(docs/plans/**)" "Bash(git log:*)" "Bash(rtk git log:*)" "Bash(git status)" "Bash(rtk git status)" "Bash(ls:*)" "Bash(rtk ls:*)" --disallowedTools "Edit(.claude/**)" "Edit(docs/plans/*-relecture*.md)" "Edit(docs/plans/*-issues.md)" "Edit(docs/plans/*-recette.md)"
 ```
+Chaque commande shell figure aussi sous sa forme `rtk …` (hook RTK, voir le [process](../README.md)). `Edit(...)` couvre aussi la création de fichiers. Les interdits l'empêchent de toucher aux rapports de relecture, aux brouillons d'issues et aux recettes.
 
 **Avant de commencer, lire** : `AGENTS.md`, `docs/specs/` et les ADR concernées.
 
