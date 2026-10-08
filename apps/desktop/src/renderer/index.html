@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- The renderer only loads its own code; it reaches the core through window.jam. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <title>jam</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        margin: 2rem;
+      }
+      [cmdk-overlay] {
+        position: fixed;
+        inset: 0;
+        background: rgb(0 0 0 / 0.3);
+      }
+      [cmdk-dialog] {
+        position: fixed;
+        top: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(560px, 90vw);
+        background: white;
+        border-radius: 8px;
+        padding: 0.5rem;
+        box-shadow: 0 10px 40px rgb(0 0 0 / 0.3);
+      }
+      [cmdk-input] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.5rem;
+        font-size: 1rem;
+      }
+      [cmdk-item] {
+        padding: 0.5rem;
+        cursor: pointer;
+      }
+      [cmdk-item][data-selected='true'] {
+        background: #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

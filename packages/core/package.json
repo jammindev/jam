@@ -1,0 +1,19 @@
+{
+  "name": "@jam/core",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./cli": "./src/cli.ts",
+    "./commands": "./src/commands.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "ping": "echo '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"ping\"}' | node src/cli.ts serve --db :memory:"
+  },
+  "dependencies": {
+    "@jam/protocol": "workspace:*",
+    "zod": "4.6.5"
+  }
+}
