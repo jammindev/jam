@@ -21,7 +21,7 @@ Chaque commande shell figure aussi sous sa forme `rtk …` (hook RTK, voir le [p
    - s'inspirer par défaut. Ne marquer **repris** qu'un petit morceau autonome, en citant son fichier source. Pour un morceau repris, l'implémenteur reçoit le clone ([ADR 0014](../../decisions/0014-lecture-clone-orca-implementeur.md)) et ajoute la mention de licence (`AGENTS.md`, règle 9), et `THIRD_PARTY_NOTICES.md` figure dans les fichiers créés ou modifiés. Ce qui n'est ni repris ni écarté est **inspiré** : le plan décrit ce qu'il faut réécrire, sans mention de licence ;
    - liste noire, toujours écartée : le terminal interactif (PTY) et la détection de l'état d'une TUI ([ADR 0002](../../decisions/0002-orchestrer-claude-code-avant-harness.md), [ADR 0004](../../decisions/0004-claude-code-headless-stream-json.md)) ;
    - ce qu'Orca fait en plus de ce que demande la tâche n'entre pas dans le plan : on part du minimum et on n'élague pas Orca ([vision](../../specs/00-VISION.md), principes ; [ADR 0001](../../decisions/0001-from-scratch.md)).
-4. **Étapes**, dans l'ordre, chacune avec le test qui la prouve.
+4. **Étapes**, dans l'ordre, chacune avec le test qui la prouve. Une étape ne demande à l'implémenteur que ce que permet sa liste blanche ([profil](implementeur.md)) : une vérification depuis une installation neuve ou par le lancement de l'app va à la recette.
 5. **Fichiers créés ou modifiés.**
 6. **Hors périmètre**, explicitement.
 7. **Questions au mainteneur**, numérotées, chacune avec sa recommandation par défaut.
