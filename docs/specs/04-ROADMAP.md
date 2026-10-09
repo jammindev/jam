@@ -36,7 +36,7 @@ Briques, dans l'ordre :
 
 ## Jalons d'E0 (≈ 1 semaine chacun)
 
-Chaque jalon est un milestone GitHub, et chaque tâche une issue rattachée : [github.com/jammindev/jam/milestones](https://github.com/jammindev/jam/milestones). Un jalon est découpé en petites issues **au début du jalon**, par un cadrage (rédacteur, relecteur, feu vert cadrage). Seul le S1 fait exception : une seule issue, dont le plan était déjà validé.
+Chaque jalon est un milestone GitHub, et chaque tâche une issue rattachée : [github.com/jammindev/jam/milestones](https://github.com/jammindev/jam/milestones). Un jalon est découpé en petites issues **au début du jalon**, par un cadrage (rédacteur, relecteur, feu vert cadrage). Seul le S1 fait exception : une seule issue de départ, dont le plan était déjà validé, plus le correctif né de sa recette (RET-010).
 
 | # | Jalon | Critère de « fini » vérifiable |
 |---|---|---|
@@ -56,6 +56,6 @@ Chaque jalon est un milestone GitHub, et chaque tâche une issue rattachée : [g
 ## Risques principaux
 
 - **R-01** — Rester bloqué à E0 sans jamais écrire le harness. **Mitigation** : E0 limitée à 1 mois, avec une liste de coupes prête. Orca reste l'outil de repli. Le risque est réduit par l'ADR 0008 : E0 apporte désormais une valeur propre (pipeline imposé, file « À toi ») qu'Orca n'offre pas.
-- **R-02** — Les boucles automatiques consomment le quota de l'abonnement, dont les limites ont déjà été atteintes. **Mitigation** : plafond d'itérations, budget par étape et détection d'absence de progrès en relecture (FR-024), et coût affiché par tâche. La relecture jusqu'à satisfaction, à plusieurs relecteurs (RET-006, RET-007), rend le budget d'autant plus nécessaire.
-- **R-03** — Permissions des agents qui tournent sans surveillance. **Mitigation** : profils de permissions par rôle et mode sans permission interdit (ADR 0009), coordinateur traité comme un rôle avec sa garde (ADR 0012). Le sandbox système viendra plus tard.
+- **R-02** — Les boucles automatiques consomment le quota de l'abonnement, dont les limites ont déjà été atteintes. **Mitigation** : plafond d'itérations, budget par étape et détection d'absence de progrès en relecture (FR-024), et coût affiché par tâche. La relecture jusqu'à satisfaction, à plusieurs relecteurs (RET-006, RET-007), rend le budget d'autant plus nécessaire. Dans Orca, la limite a été atteinte avec 5 agents actifs : on vise environ 3 agents actifs à la fois (ADR 0013, Q-038).
+- **R-03** — Permissions des agents qui tournent sans surveillance. **Mitigation** : profils de permissions par rôle et mode sans permission interdit (ADR 0009), coordinateur traité comme un rôle avec sa garde (ADR 0012). L'orchestrateur de tâche n'a pas encore la sienne (ADR 0013, Q-036). Le sandbox système viendra plus tard.
 - **R-04** — Le format `stream-json` ou les options de la CLI Claude Code changent. **Mitigation** : figer la version testée, et ne lire ce format qu'en un seul endroit (le backend Claude Code).

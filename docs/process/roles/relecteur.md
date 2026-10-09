@@ -29,7 +29,7 @@ La forme `?state=all` couvre aussi les milestones fermés, que l'API omet par d�
 
 **Relecture d'un cadrage** (rédaction du [rédacteur](redacteur.md)) : un seul relecteur. À la place des tests et de la lisibilité du code, il vérifie la cohérence avec la vision, les exigences et les ADR, que chaque exigence est vérifiable, que la priorité et l'étape sont justifiées, que le vocabulaire est celui du glossaire et qu'une issue tient en un petit lot ([ADR 0011](../../decisions/0011-pratiques-et-metriques-dora.md)).
 
-**Indépendance** : il ne lit pas les relectures des tours précédents, même si un brief le lui demande. C'est le coordinateur qui compare les rapports d'un tour à l'autre.
+**Indépendance** : il ne lit pas les relectures des tours précédents, même si un brief le lui demande. C'est l'orchestrateur de tâche qui compare les rapports d'un tour à l'autre.
 
 **Sortie**, toujours écrite dans son fichier de relecture, jamais seulement dans le terminal (le terminal ne garde que l'écran affiché) : une liste de constats classés **bloquant / à corriger / suggestion**, chacun avec le fichier, la ligne et la correction attendue.
 

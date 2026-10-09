@@ -1,8 +1,8 @@
 # Retours du mainteneur
 
-> Journal des remarques et suggestions faites par le mainteneur pendant la construction. Chaque retour est une entrée de specs (RET-003). Le coordinateur reformule et analyse le retour ; le rédacteur l'inscrit ici et l'applique ; le relecteur relit. Les numéros ne sont jamais réutilisés.
+> Journal des remarques et suggestions faites par le mainteneur pendant la construction. Chaque retour est une entrée de specs (RET-003). Le coordinateur, ou l'orchestrateur de tâche qui l'a reçu, reformule et analyse le retour ; le rédacteur l'inscrit ici et l'applique ; le relecteur relit. Les numéros ne sont jamais réutilisés.
 >
-> Statuts : **consigné** → **en application** (un rôle rédige) → **appliqué** (relu, feu vert de cadrage donné). Le rédacteur passe un retour à « appliqué » juste après le feu vert, avant le commit du coordinateur.
+> Statuts : **consigné** → **en application** (un rôle rédige) → **appliqué** (relu, feu vert de cadrage donné). Le rédacteur passe un retour à « appliqué » juste après le feu vert, avant le commit de l'orchestrateur de tâche.
 
 ## RET-001 — Le coordinateur ne produit aucun livrable
 
@@ -14,7 +14,7 @@
   - FR-040 précisé ;
   - glossaire : « Coordinateur », « Rôle », « Rédacteur », « Feu vert » ;
   - rattrapage : les milestones et les issues #1 à #4 ont été relus. Les corrections sont dans `docs/plans/specs-retours-dora-issues.md` et seront publiées par le coordinateur après le feu vert.
-- **Statut** : en application.
+- **Statut** : appliqué.
 
 ## RET-002 — Appliquer la méthode DORA
 
@@ -26,7 +26,7 @@
   2. l'**écran des métriques est la première coupe** d'E0 : les horodatages restent enregistrés (FR-036), l'écran peut venir plus tard sans perte ;
   3. le critère du S4 demande l'écran **pour `house` et pour jam**, puisque jam se mesure lui-même.
 - **Impact** : [ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md) ; principe dans `00-VISION.md` ; FR-036 et FR-037 ; jalon S4 dans `04-ROADMAP.md` ; termes dans `GLOSSARY.md`.
-- **Statut** : en application.
+- **Statut** : appliqué.
 
 ## RET-003 — Les specs évoluent pendant la construction
 
@@ -34,7 +34,7 @@
 - **Remarque** : les specs évoluent pendant la construction. Chaque remarque ou suggestion du mainteneur est une entrée de specs : le coordinateur la consigne dans ce journal, l'analyse, puis la fait appliquer par un rôle.
 - **Analyse** : un retour oral se perd dans le contexte d'une session. Le consigner le rend traçable, et le faire appliquer par un rôle le soumet à la même relecture que le reste. Selon RET-001, le coordinateur ne produit aucun livrable : il consigne le retour **dans le brief** du rédacteur, et c'est le rédacteur qui l'inscrit dans ce journal.
 - **Impact** : ce journal ; process (circuit d'un retour) ; profil du rédacteur.
-- **Statut** : en application.
+- **Statut** : appliqué.
 
 ## RET-004 — Un agent doit savoir dans quel environnement il tourne
 
@@ -46,7 +46,7 @@
   - FR-038 : le cœur de jam injecte ce contexte à chaque rôle lancé ;
   - sur le poste du mainteneur, hors du repo : un hook de démarrage de session, installé, donne à chaque agent son contexte (worktree, branche, autres worktrees ; dans Orca, la carte du worktree avec son issue et sa PR, le rôle de la session ou « session libre », les autres agents actifs dans le même worktree, la CLI Orca et le chemin du process). C'est la préfiguration de FR-038 ;
   - profil du rédacteur : écriture permise dans `AGENTS.md` et `README.md`.
-- **Statut** : en application.
+- **Statut** : appliqué.
 
 ## RET-005 — Le coordinateur aussi a ses garde-fous en code
 
@@ -57,7 +57,7 @@
   - [ADR 0012](../decisions/0012-coordinateur-role-garde-fous-hook.md), qui complète l'ADR 0009 et y trace aussi les profils du rédacteur et de la variante du relecteur ;
   - profil [roles/coordinateur.md](../process/roles/coordinateur.md) ;
   - process et `AGENTS.md` : « aucun rôle du pipeline ni du cadrage ne committe » ; section « Ce qu'Orca ne permet pas » revue.
-- **Statut** : en application.
+- **Statut** : appliqué.
 
 ## RET-006 — Relire jusqu'à satisfaction
 
@@ -67,7 +67,7 @@
 
   Le critère de cette boucle est le verdict des relecteurs, pas un test ni une CI. Le mainteneur a tranché : la relecture boucle jusqu'au verdict OK. NFR-010 est réécrite en conséquence. La décision de l'ADR 0008 est conservée. L'ADR 0011 (§1) précise que sa règle des critères objectifs vaut pour les boucles de code, et que la boucle de relecture s'arrête sur le verdict des relecteurs. À l'acceptation de l'ADR 0011, le statut de l'ADR 0008 mentionnera cette précision.
 - **Impact** : process (relecture, garde-fous) ; FR-023, FR-024, NFR-010 ; profil du relecteur ; glossaire (« Garde-fou », « Tour de relecture ») ; ADR 0011 (critères des boucles, indicateur « tours de relecture »).
-- **Statut** : en application.
+- **Statut** : appliqué.
 
 ## RET-007 — Plusieurs relecteurs pour le code
 
@@ -79,4 +79,58 @@
 
   Chaque axe a son relecteur neuf et son fichier de relecture. Un gros diff justifie plus de relecteurs. La boucle de RET-006 tourne jusqu'à ce que tous les relecteurs disent OK. Seuil validé par le mainteneur : **tout code applicatif**. Les docs et les petites corrections hors code applicatif gardent un seul relecteur, dans la même boucle. Les relecteurs sont des instances Claude neuves ; la diversité de modèles est reportée à E2 (Q-034). Cette lecture de « deux agents différents » a été validée par le mainteneur (« ok pour tout », 2026-10-08).
 - **Impact** : profil du relecteur ; process ; FR-022, FR-023 ; glossaire (« Axe de relecture »). L'ADR 0008 n'est pas modifiée : plusieurs instances du rôle relecteur restent une étape « relecture » au contexte neuf.
-- **Statut** : en application.
+- **Statut** : appliqué.
+
+## RET-008 — Le coordinateur vit sur `main`, pas dans un worktree
+
+- **Date** : 2026-10-09
+- **Remarque** : « C'est vraiment utile que ta session orchestrateur soit dans un worktree séparé ? » Décision prise avec le mainteneur : non.
+- **Analyse** :
+  - le coordinateur n'écrit aucun fichier du repo (RET-001) : un worktree ne lui sert à rien ;
+  - constat : son ancien worktree était sur une vieille branche, 88 fichiers en retard sur `main`. Au démarrage, la session chargeait un `AGENTS.md` et un process périmés ;
+  - sur le worktree principal (`main`), avec un `git pull` après chaque merge, il lit toujours la référence.
+- **Impact** : lancement depuis le worktree principal, `JAM_ROLE=coordinateur claude` ; profil du coordinateur ; process ; `AGENTS.md` (section « Environnement ») ; [ADR 0013](../decisions/0013-orchestration-deux-niveaux.md).
+- **Statut** : appliqué.
+
+## RET-009 — Orchestration à deux niveaux
+
+- **Date** : 2026-10-09
+- **Remarque**, en substance :
+  - sur `main`, un orchestrateur général, lancé avec un rôle à chaque session. Il peut lancer des agents pour écrire, relire, etc. ;
+  - le même schéma un niveau en dessous : dans **chaque worktree**, un orchestrateur qui lance les agents de rédaction, de relecture, de test, etc. ;
+  - le mainteneur peut parler à l'orchestrateur d'un worktree pour savoir où en est sa tâche. Cet orchestrateur remonte l'information à l'orchestrateur principal ;
+  - but : un seul interlocuteur s'il le souhaite (l'orchestrateur sur `main`), et la possibilité de discuter en détail d'une feature en allant dans son worktree.
+- **Analyse** :
+  - cohérent avec la vision. Un seul interlocuteur préfigure le cockpit. Une orchestration par worktree préfigure le pipeline par issue ([ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md)) et le lead, la session principale d'un worktree à qui le mainteneur parle. Différence : dans jam, l'orchestration d'une tâche est tenue par le cœur, en code ; dans Orca, c'est un agent ;
+  - bénéfices : le contexte du coordinateur reste léger (il a saturé dans la nuit du 8 au 9 octobre), plusieurs tâches avancent en parallèle, et le mainteneur entre dans le détail d'une tâche sans encombrer le coordinateur.
+- **Propositions du coordinateur**, **validées par le mainteneur** le 2026-10-09 (« ça me semble OK »). L'[ADR 0013](../decisions/0013-orchestration-deux-niveaux.md) a été acceptée au feu vert de cadrage formel du même jour, après la relecture :
+  1. **Nommage** : « coordinateur » au niveau de `main`, « orchestrateur de tâche » au niveau d'un worktree ;
+  2. **Remontée d'information** : l'orchestrateur de tâche tient l'état de sa tâche dans la carte Orca (statut et commentaire). C'est ce que lit le coordinateur. Pour un événement qui attend le mainteneur (feu vert, blocage), il prévient aussi le coordinateur par un message court qui renvoie à un fichier ;
+  3. **Feux verts** : le mainteneur les donne à l'un ou l'autre niveau. Un feu vert donné dans un worktree est remonté au coordinateur ;
+  4. **Commit, push, PR, merge** : l'orchestrateur de tâche committe, pousse sa branche et ouvre la PR, chacun après son feu vert. Le merge reste au coordinateur, après le feu vert merge : un seul acteur merge, les merges sont donc sérialisés et `main` est mis à jour au même endroit. Les autres rôles ne committent toujours pas ;
+  5. **Lancement des rôles** : l'orchestrateur de tâche lance les rôles dans son worktree comme le coordinateur le faisait, avec les mêmes profils. Le coordinateur crée le worktree et lance l'orchestrateur de tâche avec son brief ;
+  6. **Garde** : l'orchestrateur de tâche est un rôle, avec sa valeur de `JAM_ROLE` et les mêmes interdits d'écriture que le coordinateur. L'extension de la garde du poste est un travail hors repo (Q-036) ;
+  7. **Quota** : la limite d'usage a été atteinte dans la nuit du 8 au 9 octobre avec 5 agents actifs. Le coordinateur décide combien d'orchestrateurs de tâche tournent en même temps, pour environ 3 agents actifs au total ;
+  8. **Cadrages** : un cadrage suit le même schéma, avec un orchestrateur de tâche dans `cadrage-<slug>`. Le cadrage `cadrage-orchestration` est conduit directement par le coordinateur, puisque le modèle n'est pas encore adopté. Précisé à l'arbitrage qui a suivi le tour 1 de relecture : c'est une exception unique, conduite par le coordinateur jusqu'au merge, et décrite dans l'ADR 0013 seulement.
+- **Compléments du mainteneur** (2026-10-09) :
+  - **mise en place** : le modèle s'applique dès maintenant dans Orca, et il devient le cœur de jam ;
+  - **dans jam, c'est le code qui orchestre** : l'ADR 0008 tient, le pipeline d'une tâche est codé dans le cœur, qui enchaîne les étapes et tient l'état. Les deux niveaux existent dans jam comme deux niveaux d'interlocuteurs : au niveau projet, le cockpit et la session conversationnelle de `main` (le coordinateur) ; au niveau tâche, le lead du worktree (FR-034). La remontée d'information devient structurelle : les deux niveaux lisent le même état du cœur. Dans Orca, faute de cœur, l'orchestrateur de tâche est un agent qui tient ce rôle à la main ;
+  - **feu vert relayé** (constat du tour 1 de relecture, option retenue par le mainteneur) : tout feu vert relayé d'un niveau à l'autre (cadrage, plan, recette, merge) cite les mots exacts du mainteneur, l'heure et la session où il l'a donné. Il vaut alors feu vert, et accord explicite au sens de la règle 6 d'`AGENTS.md` pour l'action que ce feu vert ouvre, et elle seule (commit, push et PR après le feu vert recette ou de cadrage ; merge après le feu vert merge ; publication après le feu vert de cadrage ; aucune après le feu vert plan). Sans ces trois éléments, il ne vaut qu'information (format étendu à tout feu vert au tour 2 de relecture, portée de l'accord précisée au tour 3). Limite : l'expéditeur d'un message relayé n'est pas authentifié ; dans jam, le feu vert sera une action du cockpit, enregistrée par le cœur ;
+  - **question ouverte, non tranchée** : avancer le coordinateur conversationnel dans E0, pour que le niveau projet existe dans jam dès E0 (Q-039).
+- **Feu vert merge d'un cadrage**, proposé par le rédacteur et **décidé par le mainteneur** le 2026-10-09 : la PR d'un cadrage passe, comme toute PR, par un **feu vert merge** avant que le coordinateur la merge. Jusqu'ici, un cadrage n'avait que le feu vert de cadrage. Les issues et les milestones du cadrage sont publiés une fois sa PR mergée, pour que leurs liens vers les docs fonctionnent sur `main`.
+- **Impact** : [ADR 0013](../decisions/0013-orchestration-deux-niveaux.md), qui précise l'ADR 0012 et complète l'ADR 0009 ; profil [roles/orchestrateur-tache.md](../process/roles/orchestrateur-tache.md) ; profils du coordinateur, du rédacteur, du relecteur et de l'implémenteur ; process (acteurs, lancement, correspondance, signalement, relecture, garde-fous) ; `AGENTS.md` (section « Environnement », règle 6) ; glossaire (« Orchestrateur de tâche », « Coordinateur », « Rôle », « Lead », « Agent actif », « Cadrage », « Feu vert ») ; Q-036 à Q-039, Q-028 et Q-033 (porteur) ; risques R-02 et R-03 de la roadmap. Les exigences ne changent pas : FR-021, FR-027 et FR-034 décrivent déjà le pipeline codé, l'état partagé et le lead.
+- **Statut** : appliqué.
+
+## RET-010 — La recette de l'agent part du même état que celle du mainteneur
+
+- **Date** : 2026-10-09
+- **Remarque**, en substance : la recette est une étape obligatoire ; celle de l'agent doit attraper ce que le mainteneur trouvera.
+- **Constat** : à la recette manuelle du S1, sur le worktree principal, `pnpm install` puis `pnpm dev` échoue aussitôt (`Error: Electron uninstall`). La recette de l'agent ([`E0-S1-squelette-recette.md`](../plans/E0-S1-squelette-recette.md)) avait pourtant tout passé.
+- **Analyse** (du coordinateur, vérifiée) :
+  - Electron 44 ne télécharge plus son binaire à l'installation, mais au premier `require('electron')`. Après un `pnpm install` neuf, le binaire est absent ;
+  - electron-vite 5 lit le chemin du binaire lui-même et échoue s'il manque, sans déclencher le téléchargement : `pnpm dev` ne marche donc jamais sur une installation neuve ;
+  - la recette de l'agent a d'abord lancé l'app par Playwright, qui passe par `require('electron')` et a téléchargé le binaire. Elle n'a vérifié `pnpm dev` qu'en dernier (contrôle « 3 bis »), quand le binaire était déjà là : un contrôle a préparé le terrain du suivant ;
+  - la CI ne lance jamais `pnpm dev`.
+- **Règle** : la recette de l'agent part d'une **installation neuve** (dépendances réinstallées depuis zéro, sans binaire préparé par un autre contrôle), et déroule **d'abord la check-list du mainteneur**, avec ses commandes et dans son ordre. Les contrôles outillés (Playwright, etc.) viennent ensuite. Aucun mécanisme nouveau. La réinstallation est une étape de la recette : elle relève de la « commande de recette » et du « réseau selon la recette » que l'[ADR 0009](../decisions/0009-permissions-par-role.md) donne au recetteur. Elle ne touche aucun fichier suivi par git : le recetteur reste en lecture seule sur le repo.
+- **Impact** : profil [roles/recetteur.md](../process/roles/recetteur.md) ; process (section « Recette ») ; Q-033 (la commande du recetteur doit permettre la réinstallation) ; brouillon d'issue du bug dans [`cadrage-orchestration-issues.md`](../plans/cadrage-orchestration-issues.md). Les exigences ne changent pas.
+- **Statut** : appliqué.

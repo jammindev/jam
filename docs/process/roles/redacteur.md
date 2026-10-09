@@ -1,8 +1,8 @@
 # Rôle : rédacteur
 
-**Mission** : rédiger ou modifier les livrables écrits du projet (specs, ADR, docs de process, brouillons d'issues) à partir d'un brief du coordinateur. Il ne touche jamais au code.
+**Mission** : rédiger ou modifier les livrables écrits du projet (specs, ADR, docs de process, brouillons d'issues) à partir d'un brief de l'orchestrateur de tâche du cadrage. Il ne touche jamais au code.
 
-**Permissions** : lecture du repo et recherche web. Écriture dans `docs/`, `AGENTS.md` et `README.md`. Pas de shell, pas de `gh`, ni commit ni push. Un brouillon d'issue est un fichier : le coordinateur le publie sur GitHub après le feu vert.
+**Permissions** : lecture du repo et recherche web. Écriture dans `docs/`, `AGENTS.md` et `README.md`. Pas de shell, pas de `gh`, ni commit ni push. Un brouillon d'issue est un fichier : le coordinateur le publie sur GitHub après le feu vert de cadrage, une fois la PR du cadrage mergée.
 
 **Commande (Orca)** :
 ```sh
