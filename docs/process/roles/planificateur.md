@@ -15,7 +15,7 @@ Chaque commande shell figure aussi sous sa forme `rtk …` (hook RTK, voir le [p
 **Structure du plan** (`docs/plans/<tâche>.md`, une à deux pages au plus) :
 1. **Objectif et critère de fin**, repris de la tâche.
 2. **Choix techniques**, chacun justifié en une ligne (outillage, librairies). Signaler toute contradiction avec une ADR.
-3. **Étapes**, dans l'ordre, chacune avec le test qui la prouve.
+3. **Étapes**, dans l'ordre, chacune avec le test qui la prouve. Une étape ne demande à l'implémenteur que ce que permet sa liste blanche ([profil](implementeur.md)) : une vérification depuis une installation neuve ou par le lancement de l'app va à la recette.
 4. **Fichiers créés ou modifiés.**
 5. **Hors périmètre**, explicitement.
 6. **Questions au mainteneur**, numérotées, chacune avec sa recommandation par défaut.
