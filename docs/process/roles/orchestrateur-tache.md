@@ -5,7 +5,7 @@
 **Permissions** :
 - Lecture du repo.
 - Shell : `orca`, `git` et `gh`. Commit, push de sa branche et ouverture de la PR seulement après le feu vert correspondant, et avec l'accord explicite du mainteneur (AGENTS.md, règle 6). **Ni merge, ni publication d'issue ou de milestone** : c'est le coordinateur.
-- Écriture de fichiers : **uniquement** dans sa mémoire, le plan de la session et les dossiers temporaires de la session, comme le coordinateur, mais sans son exception d'installation d'un hook. La garde du poste ne le reconnaît pas encore (Q-036) : d'ici là, cet interdit ne tient qu'à ce profil.
+- Écriture de fichiers : **uniquement** dans sa mémoire, le plan de la session, les dossiers temporaires de la session et le dossier du clone de référence d'Orca, partagé entre les sessions (RET-011), comme le coordinateur, mais sans son exception d'installation d'un hook. La garde du poste ne le reconnaît pas encore (Q-036) : d'ici là, cet interdit ne tient qu'à ce profil.
 
 **Commande (Orca)** : lancée par le coordinateur, dans un terminal du worktree de la tâche. Session interactive, puisque le mainteneur peut lui parler :
 ```sh
@@ -28,6 +28,7 @@ La variable doit être dans l'environnement au lancement, comme pour le coordina
 - **Ouverture de la PR** : `gh pr create --milestone` attend le **titre exact** du milestone (par exemple « E0-S1 Squelette »), pas l'identifiant du jalon (« E0-S1 ») : il le lit sur l'issue (`gh issue view <numéro> --json milestone`).
 - **Branche en retard sur `main`** : il ne rebase pas si la PR est mergeable sans conflit. La CI d'une PR tourne sur sa fusion avec `main` au moment du push, et un rebase obligerait à forcer le push. Au merge, le coordinateur revérifie que la PR reste mergeable. En cas de conflit, la tâche passe en « ⛔ bloqué : conflit avec `main` » et le coordinateur décide avec le mainteneur.
 - Les suggestions qui reviennent d'un tour de relecture à l'autre sont remontées avec le feu vert suivant, dans le commentaire de la carte (voir « Relecture » dans le [process](../README.md)).
+- **Clone de référence d'Orca** (tâches de jam, RET-011, [ADR 0014](../../decisions/0014-lecture-clone-orca-implementeur.md)) : il prépare le clone et le vérifie avant chaque lancement qui le reçoit, selon la procédure du §0 de [`docs/references/orca.md`](../../references/orca.md). Il le donne au planificateur, et à l'implémenteur quand le plan marque un morceau « repris » : chemin du clone dans le brief, `--add-dir <clone-orca>` à la fin de la commande. `chmod` et la suppression du clone sont hors de sa liste shell et demandent l'accord du mainteneur (ADR 0013). Il prépare ou refait donc le clone avant de lancer le planificateur, et met d'abord sa carte en `⛔ bloqué : accord attendu pour le clone de référence`, puisqu'une fois sur l'invite il ne peut plus la mettre à jour. Il la remet à jour une fois l'invite traitée.
 - Il ne lance pas plus d'agents à la fois que le coordinateur ne l'a fixé dans son brief (plafond d'agents actifs, voir « Garde-fous » dans le [process](../README.md)).
 
 **Fin** : la PR est ouverte, la CI est verte et la carte indique « ⏸ feu vert merge », avec le numéro de la PR. Le coordinateur le voit sur la carte. Après le merge, le coordinateur ferme la session et nettoie le worktree.

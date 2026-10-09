@@ -21,5 +21,6 @@ claude --permission-mode dontAsk --allowedTools "Read" "Grep" "Glob" "WebSearch"
 - Pas de sur-ingénierie : ce qui vient « pour plus tard » va dans `OPEN-QUESTIONS.md`, sauf consigne contraire du brief.
 - Un retour du mainteneur transmis dans le brief est inscrit dans `docs/specs/RETOURS.md` (RET-NNN), et son statut est tenu à jour.
 - Brouillons d'issues : `docs/plans/<tâche>-issues.md`, où `<tâche>` vaut `cadrage-<slug>` pour un cadrage. Une section par issue : titre, milestone, labels, corps avec critère de fin. Une issue = un petit lot ([ADR 0011](../../decisions/0011-pratiques-et-metriques-dora.md)).
+- Cadrage d'un jalon de jam : compléter la carte du §0 de `docs/references/orca.md` pour les briques du jalon qu'Orca possède, ou dire en une ligne qu'aucune ne manque (RET-011). Chaque fichier ajouté est relevé sur GitHub au tag de la version de référence (`github.com/stablyai/orca/tree/<tag>/…`), jamais d'après les §1 à §9 de la note, qui décrivent une autre version.
 
 **Fin** : terminer par la ligne `RÉDACTION PRÊTE`, suivie de la liste des fichiers touchés et des points où il a fallu trancher, puis s'arrêter.

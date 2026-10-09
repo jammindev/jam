@@ -34,6 +34,7 @@
 | Tour (turn) | Un aller-retour modèle → éventuels appels d'outils. | Provisoire |
 | Outil (tool) | Capacité exposée au modèle, décrite par un schéma. | Provisoire |
 | Commande d'UI | Action nommée et typée de l'interface, partagée par la palette et l'agent (ADR 0007). | Validé |
+| Clone de référence | Clone d'Orca à la version de référence fixée dans `docs/references/orca.md`, en lecture seule, hors du repo. L'orchestrateur de tâche le donne au planificateur des tâches de jam, et à l'implémenteur quand le plan prévoit une reprise (RET-011, ADR 0014) : chemin dans le brief et `--add-dir`. | Provisoire |
 | Mainteneur | Ben. Il décide, donne les feux verts, recette. Il n'écrit pas le code. | Validé |
 | Terminal flottant | Terminal du workspace flottant d'Orca, joignable depuis tous les worktrees, sans worktree propre : il s'ouvre dans le dossier personnel. Le coordinateur y tourne, lancé depuis le worktree principal (RET-012, ADR 0015). Propre à Orca. | Provisoire (RET-012) |
 
