@@ -15,9 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     # A test stuck on a child process must not hold the runner for the default 6 hours.
     timeout-minutes: 10
-    env:
-      # The Electron binary is only needed to run the app, not to typecheck, test or build it.
-      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@v5
       # Installs the pnpm version pinned in package.json (packageManager).
@@ -27,4 +24,16 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Electron no longer downloads its binary at install time, and electron-vite
+      # reads path.txt directly: run the same step as `pnpm dev`, then check the
+      # files the way electron-vite reads them (never through require('electron'),
+      # which would download the binary itself and hide a missing step).
+      - name: Electron binary is ready for pnpm dev
+        run: |
+          pnpm --filter @jam/desktop electron:install
+          electron_dir=apps/desktop/node_modules/electron
+          test -s "$electron_dir/path.txt"
+          electron_exe="$electron_dir/dist/$(cat "$electron_dir/path.txt")"
+          test -f "$electron_exe"
+          test -x "$electron_exe"
       - run: pnpm check
