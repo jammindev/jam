@@ -39,5 +39,5 @@ Un cockpit de *loop engineering*. Pour chaque issue GitHub, un pipeline codé da
 6. **Commit, push et PR uniquement avec l'accord explicite du mainteneur.** Aucun rôle du pipeline ni du cadrage (rédacteur, planificateur, implémenteur, relecteur, recetteur) ne committe. Seul le coordinateur committe, et seulement après un feu vert (ADR 0012).
 7. **Repo public** : jamais de secret, de donnée personnelle ou de tiers, ni de chemin propre à une machine.
 8. **Langues** : docs, ADR et messages de commit en français. Code (identifiants, commentaires) en anglais.
-9. **Code repris d'Orca** (MIT) : conserver la mention de copyright et de licence, et l'ajouter dans `THIRD_PARTY_NOTICES.md`.
+9. **Code repris d'Orca** (MIT) : conserver la mention de copyright et de licence, et l'ajouter dans `THIRD_PARTY_NOTICES.md`. Le plan de chaque tâche de jam a une section « Orca » : ce qu'on reprend, ce dont on s'inspire, ce qu'on écarte, ou une ligne si la tâche ne touche aucune brique d'Orca (RET-011, profil du planificateur). On s'inspire par défaut ; on ne copie qu'un petit morceau autonome.
 10. **Méthode** : chaque tâche suit le pipeline décrit dans `docs/process/README.md`. Si tu as été lancé avec un rôle, lis d'abord ton profil dans `docs/process/roles/`.

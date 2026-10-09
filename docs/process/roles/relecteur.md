@@ -25,6 +25,7 @@ La forme `?state=all` couvre aussi les milestones fermés, que l'API omet par d�
   2. La lisibilité pour un mainteneur qui ne code pas : noms clairs, commentaires qui expliquent le *pourquoi*.
   3. La sur-ingénierie : tout ce qui n'est pas demandé.
   4. Les secrets, données personnelles ou chemins machine (repo public).
+  5. Le code repris d'Orca : chaque reprise est prévue par la section « Orca » du plan, et porte sa mention de licence et son entrée dans `THIRD_PARTY_NOTICES.md` (`AGENTS.md`, règle 9). Sans le chemin du clone d'Orca, il ne vérifie que les reprises déclarées : une copie présentée comme « inspirée » lui échappe (Q-043).
 - **Relecteur seul** (docs, petites corrections hors code applicatif) : les deux axes.
 
 **Relecture d'un cadrage** (rédaction du [rédacteur](redacteur.md)) : un seul relecteur. À la place des tests et de la lisibilité du code, il vérifie la cohérence avec la vision, les exigences et les ADR, que chaque exigence est vérifiable, que la priorité et l'étape sont justifiées, que le vocabulaire est celui du glossaire et qu'une issue tient en un petit lot ([ADR 0011](../../decisions/0011-pratiques-et-metriques-dora.md)).

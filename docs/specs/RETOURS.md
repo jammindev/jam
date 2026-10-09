@@ -80,3 +80,30 @@
   Chaque axe a son relecteur neuf et son fichier de relecture. Un gros diff justifie plus de relecteurs. La boucle de RET-006 tourne jusqu'à ce que tous les relecteurs disent OK. Seuil validé par le mainteneur : **tout code applicatif**. Les docs et les petites corrections hors code applicatif gardent un seul relecteur, dans la même boucle. Les relecteurs sont des instances Claude neuves ; la diversité de modèles est reportée à E2 (Q-034). Cette lecture de « deux agents différents » a été validée par le mainteneur (« ok pour tout », 2026-10-08).
 - **Impact** : profil du relecteur ; process ; FR-022, FR-023 ; glossaire (« Axe de relecture »). L'ADR 0008 n'est pas modifiée : plusieurs instances du rôle relecteur restent une étape « relecture » au contexte neuf.
 - **Statut** : en application.
+
+## RET-011 — Consulter Orca avant de concevoir une brique qu'il possède
+
+- **Date** : 2026-10-09
+- **Remarque** : « Dans le plan général de la construction de l'appli, il est précisé de bien s'inspirer du code de Orca pour construire l'app ? »
+- **Analyse** : les specs le permettent sans le demander. L'ADR 0001 fait d'Orca une référence de lecture, l'ADR 0005 compte la reprise de ses briques parmi les raisons de choisir Electron, et la règle 9 d'`AGENTS.md` encadre la licence. Mais aucun profil ne demande de regarder Orca, aucun clone n'est fourni, et rien n'a été repris jusqu'ici.
+
+  Orca a déjà résolu en conditions réelles une bonne part de ce que jam construit : worktrees, git, processus Electron, SQLite, diff, notifications. Sans consigne, un agent réinvente et retombe dans des pièges déjà corrigés. À l'inverse, trois risques : grossir jam (on part du minimum et on n'élague pas Orca, ADR 0001), reprendre ses parties fragiles (ADR 0002 et 0004), et dépenser du quota dans une exploration sans but. D'où la règle, validée par le mainteneur (« ok go ») :
+  1. **regard ciblé, pas systématique** : le planificateur consulte Orca seulement quand la tâche touche une brique qu'Orca possède. Il part de `docs/references/orca.md` comme carte et lit quelques fichiers, pas tout le code ;
+  2. **une section « Orca » dans le plan**, de quelques lignes : repris, inspiré, écarté, et pourquoi. Le mainteneur la voit au feu vert plan. Si la tâche ne touche aucune brique d'Orca, une ligne le dit ;
+  3. **s'inspirer par défaut, copier par exception** : seulement un petit morceau autonome, avec la mention de licence (règle 9). Sinon, on réécrit à la taille de jam ;
+  4. **liste noire** : terminal interactif (PTY) et détection de l'état d'une TUI (ADR 0002, 0004) ;
+  5. **un clone d'Orca en lecture seule, à une version fixée**, fourni au planificateur par l'orchestrateur de tâche dans un dossier temporaire, hors du repo. La commande du planificateur l'ouvre en lecture (`--add-dir`).
+
+  La règle précise la façon d'appliquer l'ADR 0001 sans rien en changer. Pour le planificateur, l'ADR 0009 n'est pas touchée non plus : il reste en lecture seule.
+- **Compléments validés par le mainteneur** (« ok pour tout », 2026-10-09), proposés par le rédacteur et le relecteur :
+  1. **l'implémenteur lit aussi le clone, quand le plan prévoit une reprise**, sans rien écrire hors du worktree. Sans cela, il ne pourrait copier ni le morceau repris ni le texte de la licence, et le point 3 n'aurait pas de voie d'application. C'est au-delà de la lettre de l'ADR 0009 (« lecture et écriture dans le worktree ») : la précision est tracée dans l'[ADR 0014](../decisions/0014-lecture-clone-orca-implementeur.md) ;
+  2. **la carte couvre les briques relevées**, pas tout E0 : le cadrage de chaque jalon la complète pour les siennes avant sa première tâche.
+- **Portée** : les tâches du repo jam seulement. Orca n'est une référence que pour ce repo : le même rôle planificateur, lancé sur une autre cible comme `house`, n'a ni section « Orca » ni clone. Ne s'applique pas à l'issue #7, dont le plan est déjà validé. S'applique dès la tâche suivante.
+- **Impact** :
+  - [ADR 0014](../decisions/0014-lecture-clone-orca-implementeur.md), qui précise l'ADR 0009 ;
+  - profil du [planificateur](../process/roles/planificateur.md) : lecture du clone, section « Orca » du plan ;
+  - profils de l'[implémenteur](../process/roles/implementeur.md) (reprise, licence, accès au clone) et du [relecteur](../process/roles/relecteur.md) (axe conformité) ;
+  - profil du [rédacteur](../process/roles/redacteur.md) : compléter la carte au cadrage d'un jalon (complément 2) ;
+  - [`docs/references/orca.md`](../references/orca.md) : rôle de carte, version de référence, procédure du clone, liste noire ;
+  - `AGENTS.md`, règle 9 ; glossaire (« Clone de référence ») ; Q-040, Q-042, Q-043.
+- **Statut** : appliqué (feu vert de cadrage du 2026-10-09).

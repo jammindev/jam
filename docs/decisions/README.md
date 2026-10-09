@@ -16,3 +16,4 @@ Une ADR courte par décision structurante. Format : Contexte → Décision → C
 | [0010](0010-persistance-sqlite.md) | État du pipeline en SQLite | Acceptée |
 | [0011](0011-pratiques-et-metriques-dora.md) | Pratiques et métriques DORA | Proposée |
 | [0012](0012-coordinateur-role-garde-fous-hook.md) | Le coordinateur est un rôle, ses garde-fous sont tenus par un hook | Proposée |
+| [0014](0014-lecture-clone-orca-implementeur.md) | L'implémenteur lit le clone de référence d'Orca pour une reprise | Acceptée |

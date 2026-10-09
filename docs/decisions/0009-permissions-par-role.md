@@ -1,6 +1,6 @@
 # ADR 0009 : permissions par rôle, jamais de mode sans permission
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Précisée par l'[ADR 0014](0014-lecture-clone-orca-implementeur.md) : l'implémenteur lit aussi le clone de référence d'Orca quand le plan prévoit une reprise, sans écriture hors du worktree.
 - **Date** : 2026-10-08
 - **Tranche** : Q-010
 
