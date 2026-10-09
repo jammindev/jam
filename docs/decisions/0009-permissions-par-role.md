@@ -1,6 +1,6 @@
 # ADR 0009 : permissions par rôle, jamais de mode sans permission
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Complétée par l'[ADR 0012](0012-coordinateur-role-garde-fous-hook.md) (profils du coordinateur, du rédacteur et d'une variante du relecteur ; exceptions du coordinateur) et par l'[ADR 0013](0013-orchestration-deux-niveaux.md) (profil et exceptions de l'orchestrateur de tâche).
 - **Date** : 2026-10-08
 - **Tranche** : Q-010
 

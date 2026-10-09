@@ -8,7 +8,7 @@
 ```sh
 claude --permission-mode dontAsk --allowedTools "Read" "Grep" "Glob" "Edit(./**)" "Bash(pnpm *)" "Bash(rtk pnpm *)" "Bash(npx *)" "Bash(rtk npx *)" "Bash(node *)" "Bash(rtk node *)" "Bash(git status)" "Bash(rtk git status)" "Bash(git diff:*)" "Bash(rtk git diff:*)" --disallowedTools "Edit(.claude/**)" "Edit(AGENTS.md)" "Edit(docs/process/**)" "Edit(docs/plans/**)" "Bash(git commit:*)" "Bash(rtk git commit:*)" "Bash(git push:*)" "Bash(rtk git push:*)" "Bash(git -C:*)" "Bash(rtk git -C:*)" "Bash(gh *)" "Bash(rtk gh *)"
 ```
-`Edit(./**)` couvre la modification et la création de fichiers dans le worktree, sauf `.claude/`, `AGENTS.md`, `docs/process/` et `docs/plans/` : les rôles lancés après lui liraient ces réglages, consignes et profils, et le coordinateur juge la boucle de relecture sur le plan et les rapports. La liste réduit le risque sans le supprimer : `node`, `npx` et `pnpm` permettent d'exécuter n'importe quoi (voir « Ce qu'Orca ne permet pas » dans le [process](../README.md)).
+`Edit(./**)` couvre la modification et la création de fichiers dans le worktree, sauf `.claude/`, `AGENTS.md`, `docs/process/` et `docs/plans/` : les rôles lancés après lui liraient ces réglages, consignes et profils, et l'orchestrateur de tâche juge la boucle de relecture sur le plan et les rapports. La liste réduit le risque sans le supprimer : `node`, `npx` et `pnpm` permettent d'exécuter n'importe quoi (voir « Ce qu'Orca ne permet pas » dans le [process](../README.md)).
 
 **Règles** :
 - Suivre `docs/plans/<tâche>.md`. Tout écart est signalé et justifié.

@@ -1,6 +1,6 @@
 # ADR 0011 : pratiques et métriques DORA
 
-- **Statut** : proposée
+- **Statut** : acceptée
 - **Date** : 2026-10-08
 - **Tranche** : RET-002, RET-006
 

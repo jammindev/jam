@@ -1,0 +1,34 @@
+# Relecture — cadrage `cadrage-orchestration`, tour 7
+
+Relecteur seul, relecture d'un cadrage. Périmètre : toutes les modifications non commitées du worktree (`AGENTS.md`, `docs/decisions/README.md`, `docs/process/README.md`, profils `coordinateur`, `implementeur`, `recetteur`, `redacteur`, `relecteur`, `docs/specs/04-ROADMAP.md`, `GLOSSARY.md`, `OPEN-QUESTIONS.md`, `RETOURS.md`) et les fichiers nouveaux `docs/decisions/0013-orchestration-deux-niveaux.md`, `docs/process/roles/orchestrateur-tache.md`, `docs/plans/cadrage-orchestration-issues.md`.
+
+Références lues : les trois briefs (brief, compléments 1 et 2) et les décisions ajoutées depuis, citées dans le brief de ce tour ; `00-VISION.md` ; `01-REQUIREMENTS.md` (FR-021, FR-024, FR-027, FR-029, FR-034, FR-038, FR-040, NFR-010) ; ADR 0008, 0009, 0011, 0012 ; glossaire ; `package.json` (scripts `dev`, `check`, `core:ping`) ; `apps/desktop/package.json` (Electron 44.7.0, electron-vite 5.0.0) ; `docs/plans/E0-S1-squelette-recette.md` (contrôle « 3 bis », pilotage `_electron.launch`).
+
+Hors constat, comme demandé : les statuts « proposée » des ADR 0011, 0012, 0013 et « en application » des RET, qui ne changent qu'au feu vert de cadrage.
+
+## Ce qui tient
+
+- **Fidélité aux retours** : les huit propositions de RET-009 sont toutes reprises et notées validées. Les compléments sont là : modèle appliqué dès maintenant, « dans jam, c'est le code qui orchestre », niveaux d'interlocuteurs, Q-039 laissée ouverte. On retrouve aussi le format du feu vert relayé étendu à tout feu vert, la portée limitée à l'action ouverte, le feu vert merge d'un cadrage, la publication des issues après le merge, et l'exception unique de ce cadrage, décrite dans l'ADR 0013 seulement. RET-008 et RET-010 sont fidèles à leurs briefs.
+- **ADR acceptées** : l'ADR 0009 est complétée par une nouvelle ADR (exceptions tracées, profil hors table), sans être contournée. L'ADR 0008 tient : l'ADR 0013 explique pourquoi l'orchestrateur de tâche ne rouvre pas le refus d'une « équipe » d'agents permanents, et la correspondance avec jam garde le pipeline dans le cœur. FR-034 (lead) et FR-027 (état persisté) sont cités sans être modifiés. FR-029 et le plafond d'environ 3 agents se heurtent, et Q-038 le dit.
+- **Cohérence interne** : le format du feu vert relayé et sa portée se lisent de la même façon dans `AGENTS.md` (règle 6), le process (« Remontée vers le coordinateur »), l'ADR 0013, et les profils du coordinateur et de l'orchestrateur de tâche. Les deux profils listent le même contenu de brief que le process. Le circuit d'un cadrage (process, étapes 4 et 5), le glossaire (« Cadrage », « Feu vert ») et l'ADR 0013 (§ Cadrages) décrivent les mêmes étapes, dans le même ordre.
+- **Glossaire** : « Orchestrateur de tâche », « Agent actif », « Lead », « Coordinateur », « Rôle », « Cadrage » et « Feu vert » sont définis et utilisés tels quels dans les autres docs.
+- **Brouillon d'issue** : c'est un petit lot (un bug, une cause identifiée, sans choix de solution). Son critère de fin se vérifie : `pnpm dev` ouvre la fenêtre depuis `node_modules` supprimé puis `pnpm install`, `pnpm check` et `pnpm core:ping` passent toujours (ces scripts existent dans `package.json`), et la recette suit RET-010. Le milestone `E0-S1 Squelette` est justifié : il est encore ouvert, le critère du S1 « L'app se lance » est en cause, et la roadmap a été mise à jour en conséquence. Les versions citées (Electron 44, electron-vite 5) et le déroulé de la recette du S1 correspondent au repo.
+
+## Constats
+
+### Bloquant
+
+Aucun.
+
+### À corriger
+
+1. **`docs/specs/RETOURS.md`, ligne 120 (RET-009, « Feu vert merge d'un cadrage »)** : l'origine attribuée est inexacte. Le texte dit « proposé par le rédacteur ». D'après le complément 1 du brief (« Arbitrages… sur les constats du tour 1 », « Suggestion 4 (feu vert merge d'un cadrage) : présente-la comme proposition »), l'idée vient d'une suggestion du relecteur au tour 1. Le rédacteur n'a fait que la présenter comme proposition. Ce journal sert justement à tracer l'origine de chaque règle : ailleurs, les docs distinguent avec soin ce qui vient du mainteneur, d'une friction ou de la relecture (process, « Ce qu'Orca ne permet pas », dernier point du durcissement ; RET-009, « constat du tour 1 de relecture » pour le feu vert relayé). **Correction attendue** : « suggéré à la relecture (tour 1), puis **décidé par le mainteneur** le 2026-10-09 ». Si le coordinateur sait que la proposition venait d'abord du rédacteur, il le confirme, et le constat tombe.
+
+### Suggestions
+
+1. **`docs/specs/GLOSSARY.md`, ligne 15 (« Brouillon d'issue »), et `docs/process/roles/redacteur.md`, ligne 5** : « publiée sur GitHub par le coordinateur après le feu vert ». Un cadrage compte maintenant deux feux verts, et la publication suit le merge de la PR. La phrase reste vraie, mais elle peut faire croire que la publication suit directement le feu vert de cadrage. Proposition : « après le feu vert de cadrage, une fois la PR du cadrage mergée », comme dans `coordinateur.md` (ligne 28) et dans l'en-tête du brouillon d'issues.
+2. **`docs/plans/cadrage-orchestration-issues.md`, ligne 9 (labels)** : le bug touche une livraison déjà faite (PR #5 mergée dans `main`, donc livrée au sens de l'ADR 0011, puisque pour jam livrer = merger). Selon le glossaire (« Incident ») et l'ADR 0011 §2, un défaut constaté après une livraison et qui exige une correction immédiate se signale par une issue étiquetée `incident` qui désigne la PR fautive. Sinon, le taux d'échec et le taux de reprise de jam, qui « se mesure lui-même » (§5), ne verront pas ce cas. L'ADR 0011 n'est que « proposée », et « correction immédiate » demande un jugement : à faire trancher par le mainteneur. Selon sa réponse, soit ajouter `incident` avec « PR fautive : #5 », soit écrire dans le brouillon pourquoi ce n'est pas un incident.
+3. **`docs/decisions/0013-orchestration-deux-niveaux.md`, ligne 21, et `docs/process/README.md`, ligne 28 (étape 1 du cadrage)** : l'ADR limite les échanges, hors brief de lancement, à des messages d'une ligne. Le process fait passer un retour par le brief de l'orchestrateur de tâche du cadrage. Aucun des deux ne dit comment transmettre un retour ou un arbitrage qui arrive pendant un cadrage déjà lancé, comme les deux compléments de ce cadrage. Proposition : une phrase dans le process. Le complément est écrit dans un fichier, et le coordinateur l'annonce par un message d'une ligne qui donne son chemin.
+4. **`docs/process/roles/recetteur.md`, ligne 9, et `docs/process/README.md`, ligne 139** : « installation neuve » ne dit pas comment réinstaller sans modifier de fichier suivi. RET-010 affirme que la réinstallation « ne touche aucun fichier suivi par git », mais un `pnpm install` peut réécrire `pnpm-lock.yaml`. Proposition : préciser `pnpm install --frozen-lockfile`, ou laisser ce point à la commande du recetteur, déjà suivie dans Q-033.
+
+RELECTURE : CORRECTIONS (1)

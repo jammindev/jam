@@ -14,5 +14,6 @@ Une ADR courte par décision structurante. Format : Contexte → Décision → C
 | [0008](0008-boucle-exterieure-pipeline.md) | Le MVP est la boucle extérieure : le pipeline du mainteneur, codé dans le cœur | Acceptée |
 | [0009](0009-permissions-par-role.md) | Permissions par rôle, jamais de mode sans permission | Acceptée |
 | [0010](0010-persistance-sqlite.md) | État du pipeline en SQLite | Acceptée |
-| [0011](0011-pratiques-et-metriques-dora.md) | Pratiques et métriques DORA | Proposée |
-| [0012](0012-coordinateur-role-garde-fous-hook.md) | Le coordinateur est un rôle, ses garde-fous sont tenus par un hook | Proposée |
+| [0011](0011-pratiques-et-metriques-dora.md) | Pratiques et métriques DORA | Acceptée |
+| [0012](0012-coordinateur-role-garde-fous-hook.md) | Le coordinateur est un rôle, ses garde-fous sont tenus par un hook | Acceptée |
+| [0013](0013-orchestration-deux-niveaux.md) | Orchestration à deux niveaux : coordinateur sur `main`, orchestrateur de tâche par worktree | Acceptée |
