@@ -33,6 +33,8 @@ flowchart LR
 - **`utilityProcess`** (l'API Electron pour lancer un processus Node) ne permet pas de brancher stdin, et son canal `MessagePort` n'existerait pas en CLI. D'où `child_process.spawn`.
 - **Dossier de données** : `app.getPath('userData')` dépend du nom de l'app. `productName: "jam"` dans `apps/desktop/package.json` le fixe à `~/Library/Application Support/jam`, le même dossier que le CLI.
 - En dev, `ELECTRON_RENDERER_URL` pointe vers le serveur Vite ; en build, la page est chargée depuis `out/renderer`.
+- **Le binaire Electron est téléchargé à la demande.** Le paquet `electron` ne contient pas l'app Electron (environ 100 Mo), seulement de quoi la télécharger. Electron 44 n'a pas de script `postinstall` : `pnpm install` ne télécharge rien, et le binaire arrive au premier `require('electron')`. Or electron-vite ne fait pas ce `require` : il lit directement `node_modules/electron/path.txt`, que seul le téléchargement crée. Sur une installation neuve, `pnpm dev` échouait donc avec `Error: Electron uninstall`. D'où le script `electron:install` (`apps/desktop/package.json`), que `dev` appelle avant electron-vite. Il lance `install-electron`, la commande de téléchargement fournie par Electron, qui ne fait rien si le binaire est déjà là. La CI lance la même étape, puis vérifie `path.txt` comme le lit electron-vite.
+- **Recette d'une installation neuve : `pnpm dev` en premier.** Un test qui charge Electron (Playwright, ou tout `require('electron')`) télécharge le binaire en passant. S'il tourne avant `pnpm dev`, il masque le défaut.
 
 ## Pour aller plus loin
 

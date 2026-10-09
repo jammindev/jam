@@ -18,6 +18,7 @@ Prérequis : macOS, Node 24.21 (voir `.node-version`) et pnpm.
 ```sh
 pnpm install      # dépendances
 pnpm dev          # lance l'app ; Cmd+K ouvre la palette de commandes
+                  # au premier lancement, télécharge le binaire Electron (réseau requis)
 pnpm core:ping    # interroge le cœur seul, sans l'app
 pnpm check        # typecheck, tests et build, comme la CI
 ```
