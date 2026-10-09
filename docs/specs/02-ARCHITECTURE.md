@@ -35,7 +35,7 @@ flowchart LR
 | Intégration GitHub | Issues, création de PR, suivi de CI, merge et nettoyage via `gh`. Lecture des labels `incident` et des exécutions de workflow pour les métriques ([ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md)) | E0 |
 | Backend Claude Code | Lance `claude -p --output-format stream-json` avec un profil de rôle et son contexte d'environnement (FR-038) dans un worktree, et normalise les événements | E0 |
 | Mesure | Calcule par repo les métriques DORA et les indicateurs agents, à partir de l'état horodaté (FR-036) et de GitHub ([ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md)) | E0 (S4) |
-| Coordinateur | Agent conversationnel : orchestre le cadrage (rédacteur → relecteur → feu vert), arbitre, pilote l'UI. Ne produit aucun livrable (FR-040, RET-001) | E0.5 |
+| Coordinateur | Agent conversationnel : orchestre le cadrage (rédacteur → relecteur → feu vert), arbitre, pilote l'UI. Ne produit aucun livrable (FR-040, RET-001). Joignable de partout (FR-016), sa session tourne dans le worktree principal du repo (RET-008, RET-012) | E0.5 |
 | Backend harness maison | Boucle intérieure propre, rôles imposés | E1–E2 |
 
 ## Flux principaux

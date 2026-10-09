@@ -17,3 +17,4 @@ Une ADR courte par décision structurante. Format : Contexte → Décision → C
 | [0011](0011-pratiques-et-metriques-dora.md) | Pratiques et métriques DORA | Acceptée |
 | [0012](0012-coordinateur-role-garde-fous-hook.md) | Le coordinateur est un rôle, ses garde-fous sont tenus par un hook | Acceptée |
 | [0013](0013-orchestration-deux-niveaux.md) | Orchestration à deux niveaux : coordinateur sur `main`, orchestrateur de tâche par worktree | Acceptée |
+| [0015](0015-remontee-carte-seule-coordinateur-flottant.md) | Remontée par la carte seule, coordinateur dans le terminal flottant d'Orca | Acceptée |

@@ -10,6 +10,8 @@ claude --permission-mode dontAsk --allowedTools "Read" "Grep" "Glob" "Edit(./**)
 ```
 `Edit(./**)` couvre la modification et la création de fichiers dans le worktree, sauf `.claude/`, `AGENTS.md`, `docs/process/` et `docs/plans/` : les rôles lancés après lui liraient ces réglages, consignes et profils, et l'orchestrateur de tâche juge la boucle de relecture sur le plan et les rapports. La liste réduit le risque sans le supprimer : `node`, `npx` et `pnpm` permettent d'exécuter n'importe quoi (voir « Ce qu'Orca ne permet pas » dans le [process](../README.md)).
 
+La liste ne contient ni `rm` ni arrêt de processus, et l'implémenteur ne les obtient pas par détour (`node -e`). Une vérification depuis une installation neuve, ou qui lance puis arrête l'app, relève de la recette (RET-010), et une étape de CI se vérifie sur la PR. Origine : au premier essai (#7), le plan demandait à l'implémenteur de supprimer les `node_modules` et de lancer `pnpm dev`, ce que sa liste ne permet pas.
+
 **Règles** :
 - Suivre `docs/plans/<tâche>.md`. Tout écart est signalé et justifié.
 - Écrire d'abord le test qui échoue, puis le code.

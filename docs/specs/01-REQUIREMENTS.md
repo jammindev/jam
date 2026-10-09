@@ -34,7 +34,7 @@
 | FR-013 | Notification push sur téléphone (ntfy ou Pushover). | C | E3 | Thème 6 |
 | FR-014 | Registre de commandes d'UI typées, partagé par la palette (Cmd+K) et l'agent. | M | E0 | ADR 0007 |
 | FR-015 | Actions d'UI accessibles à l'agent, dans l'ordre de l'ADR 0007. | S | E0.5 | ADR 0007, Q-009 |
-| FR-016 | Champ de conversation accessible partout par un raccourci global (compatible avec la dictée). | S | Avec le coordinateur | ADR 0007 |
+| FR-016 | Champ de conversation accessible partout par un raccourci global (compatible avec la dictée). La conversation est celle du coordinateur, dont la session tourne dans le worktree principal du repo, quel que soit l'écran d'où le mainteneur lui parle. Avec plusieurs repos : voir Q-051. | S | Avec le coordinateur | ADR 0007, RET-008, RET-012 |
 | FR-006 | Vue diff d'un worktree. | C | E3 | Usage : rarement consulté |
 | FR-007 | Éditeur intégré, arbre et recherche de fichiers. | C | E3 | Usage |
 | FR-009 | Navigateur intégré façon Design Mode. | C | E3 | Prompt initial |

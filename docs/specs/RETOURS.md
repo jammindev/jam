@@ -134,3 +134,23 @@
 - **Règle** : la recette de l'agent part d'une **installation neuve** (dépendances réinstallées depuis zéro, sans binaire préparé par un autre contrôle), et déroule **d'abord la check-list du mainteneur**, avec ses commandes et dans son ordre. Les contrôles outillés (Playwright, etc.) viennent ensuite. Aucun mécanisme nouveau. La réinstallation est une étape de la recette : elle relève de la « commande de recette » et du « réseau selon la recette » que l'[ADR 0009](../decisions/0009-permissions-par-role.md) donne au recetteur. Elle ne touche aucun fichier suivi par git : le recetteur reste en lecture seule sur le repo.
 - **Impact** : profil [roles/recetteur.md](../process/roles/recetteur.md) ; process (section « Recette ») ; Q-033 (la commande du recetteur doit permettre la réinstallation) ; brouillon d'issue du bug dans [`cadrage-orchestration-issues.md`](../plans/cadrage-orchestration-issues.md). Les exigences ne changent pas.
 - **Statut** : appliqué.
+
+## RET-012 — Le coordinateur vit dans le terminal flottant d'Orca, lancé depuis le worktree principal
+
+- **Date** : 2026-10-09
+- **Remarque** : « ça serait pas mieux d'ouvrir les "agents" comme toi au top niveau dans Orca dans le floating workspace ? » Proposition validée, testée et appliquée le jour même. Complément du mainteneur, pour jam : « si on fait le même système sur jam, il faut atterrir dans le dossier principal (peut-être un réglage) ».
+- **Analyse** (du coordinateur) :
+  - le terminal flottant est accessible depuis tous les worktrees : le mainteneur parle au coordinateur de partout, pendant une recette par exemple. C'est l'interlocuteur unique de RET-009 dans l'interface ;
+  - RET-008 tient : la session est lancée depuis le worktree principal. La CLI `orca` voit le terminal flottant (`worktreeId` vaut `global-floating-terminal`, sans chemin de worktree), mais il s'ouvre dans le dossier personnel. Il faut donc se placer dans le worktree principal avant `JAM_ROLE=coordinateur claude` (avec `--continue` pour reprendre une session) ;
+  - pour jam, le complément se traduit par une précision de FR-016 : le champ de conversation accessible partout ouvre une session qui tourne dans le worktree principal du repo. L'étape du coordinateur conversationnel ne change pas (Q-039).
+- **Impact** : [ADR 0015](../decisions/0015-remontee-carte-seule-coordinateur-flottant.md), qui précise l'ADR 0013 ; profil du coordinateur ; process (acteurs, correspondance, lancement du coordinateur) ; FR-016 et Q-051 (cas de plusieurs repos) ; `02-ARCHITECTURE.md` (composant « Coordinateur ») ; glossaire (« Terminal flottant », « Coordinateur »).
+- **Statut** : appliqué.
+
+## RET-013 — Plus de message de l'orchestrateur de tâche dans le terminal du coordinateur
+
+- **Date** : 2026-10-09
+- **Remarque** : « je vois des trucs apparaître automatiquement dans le prompt ».
+- **Constat** : les messages courts de l'orchestrateur de tâche (`orca terminal send`) s'insèrent dans la saisie du terminal du coordinateur, où le mainteneur écrit aussi. Le risque noté dans l'ADR 0013 (Q-037) s'est produit pendant le premier essai du modèle à deux niveaux (issue #7).
+- **Analyse** (du coordinateur) : la carte Orca suffit comme canal montant. Règle appliquée dans Orca dès le 2026-10-09, sur consigne du coordinateur : l'orchestrateur de tâche tient **seulement sa carte** (statut et commentaire, avec le chemin du fichier à lire, désigné dans son worktree) ; le coordinateur surveille les cartes en arrière-plan. Le coordinateur peut toujours écrire dans le terminal d'un orchestrateur de tâche, qui est un agent. Un feu vert donné dans le worktree remonte par le commentaire de la carte, au format de tout feu vert relayé (mots exacts, heure, session) ; un feu vert donné au coordinateur arrive à l'orchestrateur de tâche par son terminal.
+- **Impact** : [ADR 0015](../decisions/0015-remontee-carte-seule-coordinateur-flottant.md) ; profils de l'orchestrateur de tâche et du coordinateur ; process (acteurs, cadrage, correspondance, lancement, « Remontée vers le coordinateur », « Signalement d'attente », « Ce qu'Orca ne permet pas ») ; glossaire (« Orchestrateur de tâche ») ; Q-037 tranchée.
+- **Statut** : appliqué.
