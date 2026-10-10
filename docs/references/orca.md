@@ -35,7 +35,7 @@ chmod -R a-w <clone-orca>
 
 Chaque fichier du tableau est un **point d'entrée** : le planificateur commence par lui, ne suit ses imports que si la tâche l'exige, et s'arrête à quelques fichiers.
 
-La carte ne couvre que les briques relevées ci-dessous, pas tout E0. Le cadrage de chaque jalon la complète pour ses briques avant sa première tâche : par exemple la fin de vie du worktree au S4, ou le diff en E3.
+La carte ne couvre que les briques relevées ci-dessous, pas tout E0. Le cadrage de chaque jalon la complète pour ses briques avant sa première tâche : par exemple la fin de vie du worktree au S4, ou le diff en E3. Les quatre dernières lignes viennent du cadrage du S2 (`cadrage-s2`), relevées au même tag le 2026-10-09. Le profil de permissions d'un rôle n'a pas d'entrée : Orca lance ses agents sans permission par défaut (§9), ce que jam écarte (ADR 0009).
 
 | Brique de jam | Point d'entrée dans Orca | Section |
 |---|---|---|
@@ -47,6 +47,10 @@ La carte ne couvre que les briques relevées ci-dessous, pas tout E0. Le cadrage
 | Statut par worktree | `src/shared/agent-status-types.ts` (modèle à 4 états seulement) | §4 |
 | File « À toi », notifications | `src/main/ipc/notifications.ts` (envoi d'une notification système ; le choix des événements qui notifient n'y est pas, et c'est la part propre à jam), `src/main/dock/unread-badge.ts` (badge du Dock) | §4 |
 | Orchestration durable (run, task, mailbox) | `src/main/runtime/orchestration/db.ts`, `src/main/runtime/orchestration/db/contract-constants.ts`, `src/main/runtime/orchestration/preamble.ts` | §6 |
+| Liste des issues d'un repo | `src/main/github/issues.ts` (`listIssues` : les PR, que l'API REST renvoie avec les issues, sont filtrées ; une erreur n'est pas confondue avec une liste vide), `src/main/github/gh-error-classification.ts` (`classifyListIssuesError`), `src/main/github/auth-diagnose.ts` (`gh` absent ou non authentifié) | §5 |
+| Nom d'un worktree et de sa branche depuis une issue | `src/shared/workspace-name.ts` (`slugifyForWorkspaceName`, `getLinkedWorkItemWorkspaceName` ; une lettre accentuée y devient un tiret), `src/main/ipc/worktree-logic.ts` (`sanitizeWorktreeName`, qui garde au contraire les lettres Unicode et refuse un nom vide, `.` ou `..`) | §3 |
+| Ligne de commande d'une CLI d'agent headless, vie de son processus | `src/shared/commit-message-agent-specs-primary.ts` (arguments de `claude -p` construits depuis une spec, prompt passé sur l'entrée standard ; Orca y demande `--permission-mode plan` et une sortie texte, jam garde `stream-json` et le profil du rôle), `src/main/text-generation/source-control-local-process.ts` (délai maximal, arrêt du processus enfant) | §5 |
+| Fin d'une exécution headless : résultat `stream-json` | `src/main/claude/claude-result-outcome.ts` (c'est `is_error` qui dit l'échec, pas le sous-type ; format seulement, le fichier sert aux sessions de l'Agent SDK, écarté par l'ADR 0004) | §5, §9 |
 
 **Liste noire**, toujours écartée : le terminal interactif (PTY : `src/main/daemon/`) et la détection de l'état d'une TUI (`src/main/runtime/tui-idle-evidence.ts` ; les règles d'écran par agent du §4, `src/main/runtime/agent-state-rules/`, n'existent que sur `main` en 1.4.214, pas au tag), voir [ADR 0002](../decisions/0002-orchestrer-claude-code-avant-harness.md) et [ADR 0004](../decisions/0004-claude-code-headless-stream-json.md). Les « limites d'Orca qu'un harness intégré dépasse » (§9) indiquent aussi ce qu'il ne faut pas imiter.
 
