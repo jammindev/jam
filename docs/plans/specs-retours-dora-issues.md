@@ -1,5 +1,7 @@
 # Brouillons d'issues — cadrage `specs-retours-dora`
 
+> **Remplacé** pour les §1 à §3 par [`cadrage-s2-issues.md`](cadrage-s2-issues.md) (cadrage `cadrage-s2`). Ce fichier reste la trace de son cadrage.
+
 > Rédigés par le rédacteur. Le coordinateur les publie sur `jammindev/jam` après le feu vert de cadrage (RET-001).
 > Ce cadrage est antérieur à la règle de nommage `cadrage-<slug>` et aux fichiers de relecture numérotés par tour : son worktree et ses fichiers gardent leur nom.
 > Une issue = un petit lot ([ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md)). Seul le **S2** est découpé ici : le S3 et le S4 le seront au début de leur jalon, par un cadrage `cadrage-s3`, puis `cadrage-s4`.
