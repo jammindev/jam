@@ -1,61 +1,40 @@
 # 04 — Roadmap
 
-> Statut : périmètre du MVP fixé par l'[ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md). Jalons d'E0 posés, un milestone GitHub chacun.
+> Statut : réécrite le 2026-10-11 pour le kit ([ADR 0016](../decisions/0016-kit-de-methode.md), RET-016). L'ancien découpage de l'app (E0 à E3) est abandonné et résumé en fin de page.
 
-## Étapes
+## Jalon en cours : K1 — Kit de la méthode
 
-| Étape | Contenu | Statut |
+Milestone GitHub `K1 Kit de la méthode`. Trois issues, deux à trois jours de travail, découpées par le cadrage `cadrage-kit` ([brouillons](../plans/cadrage-kit-issues.md)).
+
+| Issue | Contenu | Dépend de |
 |---|---|---|
-| **E0 — MVP** (≤ 1 mois) | **Boucle extérieure** sur Claude Code headless. Une issue traverse le pipeline dans son worktree jusqu'au merge, avec la file « À toi », les notifications filtrées, le registre de commandes d'UI et la mesure de la livraison (métriques DORA). | À faire |
-| E0.5 | Coordinateur conversationnel (cadrage → issues), agent qui pilote l'UI, champ global compatible avec la dictée | À faire |
-| E1 | Harness maison minimal en CLI : boucle intérieure avec `read`, `write`, `shell`, `search`, puis `edit` | À faire |
-| E2 | Harness branché comme deuxième backend d'agent, rôles imposés, comparaison avec Claude Code | À faire |
-| E3 | Confort : diff, éditeur et recherche de fichiers, push mobile, navigateur façon Design Mode | À faire |
+| K1-1 | Le repo devient le kit : retrait du code Electron, hooks rapatriés (garde de sortie unique), scripts de veille et de lancement, fiche concept | — |
+| K1-2 | Process élagué : process et profils génériques sous plafond de taille, niveaux, fiche projet (gabarit et fiche de jam), relais allégé, recette d'interface, mesure | K1-1 |
+| K1-3 | Page publique : le `README.md` de jam | K1-2 |
 
-## Périmètre du MVP (E0)
+**Critère de fin du jalon** : le repo ne contient plus le code de l'app ; le plugin s'installe sur le poste depuis le repo, et ses hooks et scripts passent leurs tests en CI ; le process et les profils sont génériques et tiennent sous leur plafond de taille (NFR-015) ; jam a sa fiche ; le `README.md` est la page publique, avec le temps du mainteneur mesuré sur K1-1 et K1-2 ; la fiche concept du jalon (plugin Claude Code et hooks comme garde-fous, `AGENTS.md` règle 3) est écrite.
 
-Briques, dans l'ordre :
+## Ensuite
 
-1. **Squelette** : app Electron et cœur séparé, registre de commandes et palette (Cmd+K), liste de repos.
-2. **Issue → worktree** : lecture des issues via `gh`, création du worktree et de sa branche.
-3. **Rôle exécuté** : lancement de Claude Code headless avec un profil de rôle et son contexte d'environnement (FR-038) dans un worktree, lecture du `stream-json`, persistance horodatée de l'état (FR-036).
-4. **Pipeline** : enchaînement des étapes, boucles tests et relecture, garde-fous, trois feux verts.
-5. **File « À toi » et notifications filtrées.**
-6. **PR, CI et merge** via `gh`, puis nettoyage.
-7. **Mesure** : écran minimal des métriques DORA et des indicateurs agents (FR-037, ADR 0011).
-
-**Critère de fin d'E0** : sur `house`, trois issues réelles traversent le pipeline en parallèle jusqu'au merge. Le mainteneur n'intervient que sur la file « À toi ».
-
-### Coupes possibles si le mois ne suffit pas (dans cet ordre)
-
-1. L'écran des métriques (FR-037) : les horodatages restent enregistrés (FR-036), l'écran peut donc venir plus tard sans perte.
-2. La recette automatique par agent : le feu vert 2 couvre seulement la recette manuelle.
-3. Le multi-repo : un seul repo configuré.
-4. L'étape 6 automatisée : le cœur exécute les commandes `gh` (push, PR, merge) sous feu vert, sans suivi intégré de la CI (aucun rôle ne pousse, NFR-012).
-5. La reprise de conversation avec un lead.
-
-## Jalons d'E0 (≈ 1 semaine chacun)
-
-Chaque jalon est un milestone GitHub, et chaque tâche une issue rattachée : [github.com/jammindev/jam/milestones](https://github.com/jammindev/jam/milestones). Un jalon est découpé en petites issues **au début du jalon**, par un cadrage (rédacteur, relecteur, feu vert cadrage). Seul le S1 fait exception : une seule issue de départ, dont le plan était déjà validé, plus le correctif né de sa recette (RET-010).
-
-| # | Jalon | Critère de « fini » vérifiable |
-|---|---|---|
-| S1 | **Squelette** : app Electron, cœur séparé et protocole typé, registre de commandes et palette Cmd+K, liste des repos, configuration par repo (commande de tests et commande de recette) | L'app se lance. Cmd+K liste les commandes et les exécute. Le cœur tourne seul en CLI et répond à une requête. Les tests passent en CI. Fiches concept : processus Electron, cœur séparé. |
-| S2 | **Issue → worktree → un rôle** : lecture des issues via `gh`, création du worktree, exécution du rôle planificateur en headless avec son profil (ADR 0009), état SQLite avec horodatage des étapes (FR-036), injection du contexte d'environnement au rôle (FR-038), fil résumé | Le mainteneur choisit l'issue n de `house`, le worktree est créé et le plan s'affiche. Le planificateur est lancé avec son profil de permissions (ADR 0009). Le brief qu'il reçoit contient le worktree, l'issue, l'étape et le process. L'état enregistre l'heure de début et de fin de l'étape. Le fil résumé montre les événements significatifs de l'étape. Après redémarrage de l'app, l'état est conservé. Fiches : worktree, stream-json. |
-| S3 | **Pipeline jusqu'à la PR** : enchaînement des rôles, boucles tests et relecture (pour le code, au moins deux relecteurs neufs, un par axe, jusqu'à ce que tous disent OK), garde-fous, trois feux verts, file « À toi », notifications filtrées | Une vraie issue de `house` arrive jusqu'à une PR avec la CI verte, et le mainteneur n'intervient que via la file. Seuls les passages dans la file « À toi » déclenchent une notification. Fiche : boucle extérieure. |
-| S4 | **Merge, nettoyage, parallélisme, métriques** : feu vert 3 → `gh pr merge`, suppression du worktree et des branches, 3 tâches en parallèle, écran minimal des métriques DORA et désignation du workflow de déploiement par repo (FR-037, ADR 0011) | Trois issues de `house` traversent le pipeline en parallèle jusqu'au merge (critère d'E0). L'écran « Métriques » affiche, pour `house`, les cinq métriques DORA et les indicateurs agents, et pour jam, les cinq métriques ; les indicateurs agents de jam peuvent rester vides tant que ses tâches passent par Orca (ADR 0011 §5). Cette seconde phrase, comme la fiche « métriques DORA », tombe si la coupe 1 s'applique, et se limite à `house` si la coupe 3 s'applique. Fiche : métriques DORA. |
-
-## Explicitement repoussé
-
-- Diff, éditeur, arbre et recherche de fichiers : E3. Ce sont des fonctions rarement utilisées par le mainteneur.
-- Même tâche confiée à plusieurs agents (S2) : Won't.
-- Équipe d'agents permanents qui dialoguent entre eux : Won't (ADR 0008).
-- Espaces hors code : après le MVP.
-- Exécution distante sur le VPS, client mobile : après le MVP.
+Le kit est gelé (NFR-016). Il ne change que sur une friction vécue dans un projet. Chaque autre projet du mainteneur adopte sa fiche quand il en a besoin, sans tâche dédiée dans jam. Ce qui a été retiré du jalon est dans [`OPEN-QUESTIONS.md`](OPEN-QUESTIONS.md) (Q-062, Q-063).
 
 ## Risques principaux
 
-- **R-01** — Rester bloqué à E0 sans jamais écrire le harness. **Mitigation** : E0 limitée à 1 mois, avec une liste de coupes prête. Orca reste l'outil de repli. Le risque est réduit par l'ADR 0008 : E0 apporte désormais une valeur propre (pipeline imposé, file « À toi ») qu'Orca n'offre pas.
-- **R-02** — Les boucles automatiques consomment le quota de l'abonnement, dont les limites ont déjà été atteintes. **Mitigation** : plafond d'itérations, budget par étape et détection d'absence de progrès en relecture (FR-024), et coût affiché par tâche. La relecture jusqu'à satisfaction, à plusieurs relecteurs (RET-006, RET-007), rend le budget d'autant plus nécessaire. Dans Orca, la limite a été atteinte avec 5 agents actifs : on vise environ 3 agents actifs à la fois (ADR 0013, Q-038).
-- **R-03** — Permissions des agents qui tournent sans surveillance. **Mitigation** : profils de permissions par rôle et mode sans permission interdit (ADR 0009), coordinateur traité comme un rôle avec sa garde (ADR 0012). L'orchestrateur de tâche n'a pas encore la sienne (ADR 0013, Q-036). Le sandbox système viendra plus tard.
-- **R-04** — Le format `stream-json` ou les options de la CLI Claude Code changent. **Mitigation** : figer la version testée, et ne lire ce format qu'en un seul endroit (le backend Claude Code).
+- **R-01** — Rester bloqué à E0 sans jamais écrire le harness. _Sans objet (ADR 0016)._
+- **R-02** — Les agents consomment le quota de l'abonnement, dont les limites ont déjà été atteintes. **Mitigation** : plafond d'agents global au poste (FR-051) ; seuil « assez bon » (FR-050) ; niveau *léger* par défaut, sans orchestrateur de tâche (FR-049, FR-052).
+- **R-03** — Permissions des agents qui tournent sans surveillance. **Mitigation** : profils par rôle, mode sans permission interdit (ADR 0009), gardes en hooks versionnés (ADR 0012, FR-044). L'orchestrateur de tâche n'a pas encore de garde propre (Q-056). Le sandbox système viendra plus tard.
+- **R-04** — Le format `stream-json` change. _Sans objet (ADR 0016)._
+- **R-05** — Le format des plugins et des hooks de Claude Code, ou la sortie JSON de la CLI Orca, change. **Mitigation** : tests des hooks et des scripts en CI, avec des sorties d'Orca simulées ; une seule lecture de chaque format, dans le plugin.
+- **R-06** — Le poste de travail redémarre ou bloque un agent sur une fenêtre du système. **Mitigation** : rien d'indispensable en dossier temporaire (NFR-013) ; lancement par Orca ; vérification des cartes figées (ADR 0017).
+- **R-07** — Le kit devient un chantier sans fin, au détriment des livraisons des projets. C'est le premier risque du jalon. **Mitigation** : trois issues au plus, puis gel (NFR-016) ; toute nouvelle règle dit laquelle elle remplace ou retire ; plafond de taille du process (NFR-015).
+
+## Historique : l'app (abandonnée)
+
+De sa création au 2026-10-11, jam visait une app Electron en quatre étapes : **E0** boucle extérieure sur Claude Code headless (≤ 1 mois), **E0.5** coordinateur conversationnel, **E1** harness maison en CLI, **E2** harness branché dans l'app, **E3** confort. Abandonnée par l'ADR 0016 ; dernier état au tag `app-electron`.
+
+| Jalon d'E0 | Milestone | Sort |
+|---|---|---|
+| S1 Squelette | #1 | Livré (app Electron, cœur séparé, palette) ; fermé |
+| S2 Issue → worktree → un rôle | #2 | Découpé en huit issues (#13 à #20), fermées « not planned » ; milestone fermé |
+| S3 Pipeline jusqu'à la PR | #3 | Jamais commencé ; fermeture proposée ([brouillons](../plans/cadrage-kit-issues.md)) |
+| S4 Merge, nettoyage, parallélisme, métriques | #4 | Jamais commencé ; fermeture proposée ([brouillons](../plans/cadrage-kit-issues.md)) |

@@ -1,6 +1,8 @@
 # 03 — Harness
 
-> Statut : permissions d'E0 posées (ADR 0009). Le reste sera traité au thème 3, avant E1.
+> Statut : **historique** depuis le 2026-10-11 ([ADR 0016](../decisions/0016-kit-de-methode.md)). Le harness maison n'est plus prévu : ce document reste comme trace et ne sera pas complété. Les permissions des rôles sont tenues par l'[ADR 0009](../decisions/0009-permissions-par-role.md) et par les profils de rôle.
+>
+> Statut antérieur : permissions d'E0 posées (ADR 0009). Le reste sera traité au thème 3, avant E1.
 
 ## Boucle d'agent
 

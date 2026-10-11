@@ -1,6 +1,6 @@
 # ADR 0007 — Des commandes d'interface partagées entre l'humain et l'agent
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Caduque depuis l'[ADR 0016](0016-kit-de-methode.md).
 - **Date** : 2026-10-08
 
 ## Contexte

@@ -1,6 +1,6 @@
 # ADR 0013 : orchestration à deux niveaux, coordinateur sur `main` et orchestrateur de tâche par worktree
 
-- **Statut** : acceptée. Précisée par l'[ADR 0015](0015-remontee-carte-seule-coordinateur-flottant.md) : l'orchestrateur de tâche ne remonte plus que par sa carte Orca, sans message court au coordinateur, et le coordinateur tourne dans le terminal flottant d'Orca, lancé depuis le worktree principal.
+- **Statut** : acceptée. Précisée par l'[ADR 0015](0015-remontee-carte-seule-coordinateur-flottant.md) : l'orchestrateur de tâche ne remonte plus que par sa carte Orca, sans message court au coordinateur ; le coordinateur tourne dans un terminal Orca du worktree principal ([ADR 0017](0017-coordinateur-main-poste-de-travail.md)). Précisée par l'[ADR 0016](0016-kit-de-methode.md) : plafond d'agents global, compté en agents en cours ; au niveau *léger*, pas d'orchestrateur de tâche ; relais allégé pour le plan et la recette. Caducs : « Correspondance avec jam » et l'exception unique de `cadrage-orchestration`.
 - **Date** : 2026-10-09
 - **Tranche** : RET-008, RET-009. Précise l'[ADR 0012](0012-coordinateur-role-garde-fous-hook.md), complète l'[ADR 0009](0009-permissions-par-role.md)
 

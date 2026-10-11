@@ -1,60 +1,57 @@
 # 00 — Vision
 
-> Statut : thème 1 clos le 2026-10-08. Principe « petits lots, mesurés » ajouté le même jour (RET-002).
+> Statut : réécrite le 2026-10-11 pour le kit (RET-014, RET-016, [ADR 0016](../decisions/0016-kit-de-methode.md)). De sa création au 2026-10-11, jam visait une app Electron, un cockpit qui déroule le pipeline en code ; la vision de l'app se lit au tag `app-electron`.
 
 ## Pitch
 
-Un **cockpit de loop engineering**. L'outil déroule la méthode de travail du mainteneur sur chaque issue, dans son propre worktree. Pour cela, il fait travailler des rôles d'agents (plan, TDD, relecture, recette) jusqu'au merge, et n'interrompt le mainteneur que pour trois feux verts.
+jam est le **kit d'une méthode de *loop engineering***. Pour chaque issue, des rôles d'agents travaillent dans un worktree dédié (plan, TDD, relecture, recette) jusqu'au merge ; le mainteneur n'intervient que pour les feux verts. Le régime dépend du risque du projet : léger par défaut, complet pour un projet en production qui touche à l'argent ou à des données de personnes. La méthode tourne dans Orca, avec Claude Code.
 
-Le projet tient en deux boucles :
-
-1. **La boucle extérieure** (MVP, [ADR 0008](../decisions/0008-boucle-exterieure-pipeline.md)) : le pipeline, codé dans le cœur, qui fait d'abord travailler **Claude Code**.
-2. **La boucle intérieure** (ensuite) : le harness maison, avec sa propre boucle d'agent (modèle, outils, permissions, contexte). Il devient un deuxième backend et permet d'**imposer** les rôles.
+Le kit est un **plugin Claude Code**, minimal, installé une fois sur le poste de travail : le process, les profils de rôle, les hooks qui tiennent les garde-fous et deux scripts. Chaque projet n'a qu'une fiche, `docs/methode.md`. Le `README.md` de jam est la page publique de la méthode.
 
 ## Pourquoi
 
-- **Envie de construire son propre outil.** La motivation de départ est le plaisir de construire un outil qu'on maîtrise (Q-004). L'analyse d'usage révèle en plus de vrais manques chez Orca : notifications bruyantes, questions invisibles, méthode qui dépend de l'obéissance des agents. Pour un projet solo mené sur le temps libre, c'est le premier facteur de réussite, il faut donc la préserver.
-- **Comprendre les concepts** d'un harness d'agent de l'intérieur : la boucle, les outils, les permissions, le contexte, l'orchestration.
+- **La méthode marche déjà.** Elle tourne sur trois projets du mainteneur, dans Orca, sans app. Construire un outil dédié prendrait un temps qu'il n'a pas.
+- **Elle vit mal.** Chaque projet la recopie et la transpose, ses garde-fous en code vivent hors de tout dépôt et ont divergé d'un poste à l'autre, et le process s'est alourdi. Un kit versionné et élagué règle cela.
 
 ## Pour qui
 
-- **Ben, d'abord.** C'est son outil de travail quotidien.
-- **Un projet public** sur GitHub, sans promesse de support. Le repo sert aussi de vitrine et d'exemple d'apprentissage. Le choix de licence est traité au thème 11.
+- **Le mainteneur, d'abord**, pour ses projets, sur son poste de travail.
+- **Un projet public** sur GitHub, sans promesse de support. Sa page publique montre, chiffres mesurés à l'appui, comment le mainteneur travaille avec des agents.
 
 ## Objectifs
 
-1. **Apprendre les concepts**, pas écrire du code. Le code est écrit à 100 % par des agents ([ADR 0003](../decisions/0003-code-ecrit-par-agents.md)). Ben pilote, relit, décide et comprend.
-2. **Obtenir un outil utilisé au quotidien**, dès E0.
-3. **Pour le code d'abord.** À terme, l'outil doit pouvoir servir à d'autres tâches (documents, recherche, ops…). On garde donc un vocabulaire générique (« espace de travail », « agent ») quand ça ne coûte rien. Mais aucune fonction propre au non-code n'entre dans le MVP.
+1. **Une seule référence de la méthode**, versionnée, courte, installée une fois.
+2. **Des garde-fous en code**, versionnés et testés : ce qu'un hook peut garantir ne dépend pas de l'obéissance d'un agent.
+3. **Des projets légers** : une fiche, et rien d'autre.
+4. **La méthode sert les livraisons**, pas l'inverse : une fois livré, le kit est gelé.
 
 ## Non-objectifs
 
-- (a) Multi-utilisateur, collaboration en temps réel.
-- (b) Remplacer VS Code : pas d'extensions, LSP minimal ou absent.
-- (c) Windows.
-- (d) Modèles locaux, mode hors ligne. _À revoir au thème 3._
-- (e) SaaS ou hébergement pour des tiers.
-- (f) Marketplace de plugins.
+- (a) Une app, un cockpit, un harness d'agent maison.
+- (b) Remplacer Orca ou Claude Code : le kit s'appuie sur eux.
+- (c) Multi-utilisateur, support de tiers, marketplace publique de plugins.
+- (d) Un autre système que macOS : le poste de travail en est un.
+- (e) Pendant le jalon K1 : étendre le kit aux autres projets du mainteneur, skills, modèles, indicateurs calculés.
 
 ## Critères de succès
 
 | Horizon | Critère vérifiable |
 |---|---|
-| 1 mois (fin d'E0) | Sur `house`, 3 issues réelles traversent le pipeline en parallèle jusqu'au merge. Le mainteneur n'intervient que sur la file « À toi ». L'outil a servi à au moins 5 vraies tâches. |
-| 3 mois | Le harness maison, en CLI, résout seul une vraie tâche et affiche son coût. |
-| 6 mois | Le harness maison est branché dans l'outil comme backend d'agent et comparé à Claude Code sur une même tâche. |
+| Fin du jalon K1 (deux à trois jours de travail) | Le repo ne contient plus le code de l'app. Le plugin s'installe sur le poste depuis le repo ; ses hooks et scripts passent leurs tests en CI. Le process et les profils sont génériques et tiennent sous leur plafond de taille. jam a sa fiche. Le `README.md` est la page publique, avec le temps du mainteneur mesuré sur les deux premières issues du jalon. Le kit est alors gelé. |
 
 ## Principes
 
-- **Partir du minimum et grandir à l'usage.** Le squelette minimal, c'est le pipeline. Une fonction ne s'ajoute que lorsque le besoin se fait sentir à l'usage. On n'élague pas le code d'Orca ([ADR 0001](../decisions/0001-from-scratch.md)).
-- **Interrompre le moins possible.** Le mainteneur n'est sollicité que pour une décision. Son attention est la ressource rare, pas le nombre d'agents.
-- **Une méthode imposée plutôt qu'espérée.** Ce que le code peut garantir, comme l'ordre des étapes ou les feux verts, ne doit pas dépendre de l'obéissance d'un agent.
-- **E0 dure au plus un mois.** Ensuite on passe au harness ([ADR 0002](../decisions/0002-orchestrer-claude-code-avant-harness.md)). Orca reste l'outil de repli.
-- **Petits lots, mesurés** (pratiques DORA, [ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md)). Des tâches petites, mergées vite dans `main`, vérifiées par des tests et une CI automatiques. La livraison est mesurée pour ajuster la méthode, jamais pour fixer des objectifs. L'IA amplifie les forces comme les faiblesses d'une méthode : c'est la méthode qu'on soigne.
-- **Comprendre avant d'empiler.** Chaque brique livrée doit pouvoir s'expliquer en quelques lignes : quel concept elle met en œuvre, et pourquoi elle est conçue ainsi.
+- **Kit gelé.** Une fois livré, le kit ne change que sur une friction vécue dans un projet. Toute nouvelle règle dit laquelle elle remplace ou retire.
+- **Le régime suit le risque.** Un projet passe en léger, sauf s'il est en production et touche à l'argent ou à des données de personnes ; une tâche peut monter d'un niveau, en le motivant.
+- **Interrompre le moins possible.** Le mainteneur n'est sollicité que pour une décision. Son attention est la ressource rare.
+- **Imposer ce qui peut l'être.** Ce qu'un hook peut garantir (aucune écriture du coordinateur, aucune sortie sans accord) ne repose pas sur un agent.
+- **Assez bon.** Une relecture qui ne trouve plus que du cosmétique s'arrête. La justesse prime sur l'exhaustivité.
+- **Petits lots** (pratiques DORA, [ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md) §1). Des tâches petites, mergées vite dans `main`, vérifiées par des tests et une CI.
+- **Rien d'inventé.** La page publique ne cite que ce qui a été mesuré.
 
 ## Contraintes
 
-- Une seule personne, sur son temps libre.
-- From scratch ([ADR 0001](../decisions/0001-from-scratch.md)).
-- Aucune mention d'auteur IA dans le repo, les commits ou les PR (règle du mainteneur).
+- Le temps du mainteneur est la contrainte principale.
+- Le mainteneur ne code pas ([ADR 0003](../decisions/0003-code-ecrit-par-agents.md)).
+- Aucune mention d'auteur IA dans le repo, les commits ou les PR.
+- Repo public : rien de propre à un autre projet, à des tiers ni au poste.

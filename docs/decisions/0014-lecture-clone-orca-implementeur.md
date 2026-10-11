@@ -1,6 +1,6 @@
 # ADR 0014 : l'implémenteur lit le clone de référence d'Orca pour une reprise
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Historique depuis l'[ADR 0016](0016-kit-de-methode.md) : le kit ne reprend pas de code d'Orca.
 - **Date** : 2026-10-09
 - **Tranche** : RET-011, précise l'[ADR 0009](0009-permissions-par-role.md)
 

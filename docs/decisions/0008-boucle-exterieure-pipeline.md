@@ -1,6 +1,6 @@
 # ADR 0008 — Le MVP est la boucle extérieure : le pipeline du mainteneur, codé dans le cœur
 
-- **Statut** : acceptée. Précisée par l'[ADR 0011](0011-pratiques-et-metriques-dora.md) : la règle des critères objectifs vaut pour les boucles de code ; la boucle de relecture a pour critère le verdict des relecteurs.
+- **Statut** : acceptée. Précisée par l'[ADR 0011](0011-pratiques-et-metriques-dora.md) : la règle des critères objectifs vaut pour les boucles de code ; la boucle de relecture a pour critère le verdict des relecteurs. Valable en partie depuis l'[ADR 0016](0016-kit-de-methode.md) : le pipeline reste la méthode du niveau *standard* ; caducs : le pipeline codé dans un cœur, l'état persisté par lui, le coordinateur conversationnel « après E0 ».
 - **Date** : 2026-10-08
 - **Tranche** : lot 3 bis (questions 1 à 6 et 8)
 

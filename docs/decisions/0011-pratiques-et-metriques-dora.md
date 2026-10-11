@@ -1,6 +1,6 @@
 # ADR 0011 : pratiques et métriques DORA
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Valable en partie depuis l'[ADR 0016](0016-kit-de-methode.md) : le §1 et les définitions restent ; caducs, le calcul et l'écran par jam (§2 à §5), remplacés par une seule mesure, le temps du mainteneur par issue.
 - **Date** : 2026-10-08
 - **Tranche** : RET-002, RET-006
 

@@ -1,0 +1,47 @@
+# Relecture du cadrage `cadrage-kit` — tour 4
+
+Relecteur seul, sans lecture des tours précédents. Objet : la rédaction non commitée du worktree (`git diff`, ADR 0016 et 0017, `docs/plans/cadrage-kit-issues.md`), comparée à RET-014, RET-015 et RET-016, aux ADR, au process et aux profils. Seuil « assez bon » : « à corriger » ne contient que des erreurs, des contradictions ou des règles trompeuses.
+
+## Vérifié sans constat
+
+- **Livrables du brief** : ADR 0016 et 0017 « proposée », indexées ; sort de chaque ADR 0001 à 0015 donné, et cohérent avec `AGENTS.md` (0002, 0004 à 0007, 0010 caduques) ; specs 00 à 04 réécrites, courtes ; exigences de l'app gardées avec leur état, numéros nouveaux libres (FR-042 à FR-056, NFR-013 à NFR-016, Q-054 à Q-063) ; `03-HARNESS.md` historique ; `docs/references/orca.md` dit en une ligne que K1 n'ajoute aucune brique (règle du rédacteur).
+- **RET-016** : trois issues ; garde de sortie unique et garde du coordinateur distincte ; niveaux selon le risque, léger sans orchestrateur de tâche ni planificateur ; relais allégé ; captures de recette ; mesure unique notée à la main ; aucun autre projet. Skills, modèles et indicateurs retirés (FR-047, FR-048 en W, Q-062).
+- **ADR 0017** : process (acteurs, correspondance, lancement du coordinateur) et profil du coordinateur alignés ; plus de `cd` ni de `global-floating-terminal`. Le glossaire, l'ADR 0016 (ligne 0015) et RET-015 concordent.
+- **Issues** : critère de fin vérifiable et recette sans app pour chacune ; milestone K1 à créer, E0-S3 et E0-S4 fermés sans renommage ; ordre strict et dépendances ; section « Orca » d'une ligne.
+- **Commandes des profils** : les formes `python3 -m unittest`, `git rm -r -q …` et `git mv …` sont exactes, sans joker, doublées en `rtk`. La liste du `git rm` correspond aux fichiers présents à la racine. `Edit(./**)` couvre `.claude-plugin/`, `hooks/`, `.github/workflows/ci.yml` et `.gitignore` ; `Edit(.claude/**)` ne vise pas `.claude-plugin/`.
+- **Inventaire des hooks** (dossier des hooks du poste de travail, lecture seule) : les quatre hooks du tableau de K1-1 existent, aux événements indiqués (garde de sortie et garde du coordinateur en `PreToolUse`, récapitulatif en `SessionStart`, état git en `UserPromptSubmit`). Deux ont des tests, deux n'en ont pas : « Les hooks sans tests en reçoivent d'abord » est fondé. Ils contiennent bien le nom du mainteneur, des chemins du poste et le nom d'un autre projet. Voir S-1 pour le décompte des gardes de sortie.
+- **Repo public** : aucune ligne ajoutée ne contient de chemin du poste, de nom d'hôte ou de machine, de nom de personne autre que le mainteneur, ni de nom d'un autre projet. Les mentions trouvées sont antérieures au cadrage (Q-035, Q-052, RET-002, RET-011). Le nom de la machine est remplacé dans RET-014.
+
+## Bloquant
+
+Aucun.
+
+## À corriger
+
+### C-1 — Entrée en vigueur des règles de l'ADR 0016 non datée : deux règles opposées sur `main`
+
+- **Fichiers** : `docs/decisions/0016-kit-de-methode.md:68` ; en face, `docs/process/README.md:134` (format complet de tout feu vert relayé, plan et recette compris), `docs/process/README.md:192` (environ 3 agents *actifs*) et `AGENTS.md:37` (règle 6, format complet).
+- **Constat** : après le merge du cadrage, l'ADR 0016 sera acceptée et dira « pour le feu vert plan et le feu vert recette, un « ok » transmis suffit » et « le plafond porte sur les agents en cours », tandis que le process et la règle 6 d'`AGENTS.md`, inchangés jusqu'à K1-2, diront le contraire. La ligne 68 dit seulement où le détail sera écrit, pas quand ces règles s'appliquent. Le brouillon d'issues (l. 30) ne date que les niveaux (« n'existent qu'une fois K1-2 mergée »). Un coordinateur ou un orchestrateur de tâche de K1-1 ne sait pas laquelle suivre, alors qu'`AGENTS.md` dit qu'« une décision actée ne se contourne pas ».
+- **Correction attendue** : une phrase dans l'ADR 0016, à la ligne 68, qui fixe l'entrée en vigueur de chaque allègement (niveaux, léger sans orchestrateur, relais allégé, plafond global, seuil « assez bon », mesure) : par exemple « Ces règles s'appliquent au merge de K1-2, qui les écrit dans `process/` ; jusque-là, `docs/process/README.md` et la règle 6 d'`AGENTS.md` s'appliquent tels quels ». Si certaines doivent s'appliquer dès l'acceptation (le seuil « assez bon », que ce cadrage applique déjà ; la mesure, que K1-1 note dans sa PR), les nommer.
+
+### C-2 — NFR-009 et NFR-012 « valables » sans l'exception du niveau léger
+
+- **Fichiers** : `docs/specs/01-REQUIREMENTS.md:121` (NFR-009) et `:123` (NFR-012).
+- **Constat** : l'état de NFR-012 énumère les exceptions (« l'orchestrateur de tâche committe, pousse et ouvre la PR, le coordinateur merge ») sans celle de l'ADR 0016 et de FR-052 : en *léger*, le coordinateur committe, pousse et ouvre la PR. NFR-009 garde « trois feux verts par tâche », alors qu'il n'y en a que deux en *léger* (FR-052, glossaire « Feu vert »). FR-022 et FR-025 ont, eux, reçu la nuance du niveau *léger* : ces deux lignes contredisent FR-052.
+- **Correction attendue** : NFR-012, ajouter « et, au niveau *léger*, le coordinateur committe, pousse et ouvre la PR (ADR 0016, FR-052) » ; NFR-009, « Valable ; deux feux verts au niveau *léger* (FR-052) ».
+
+## Suggestions
+
+- **S-1 — Décompte des gardes de sortie** (`docs/plans/cadrage-kit-issues.md:48`, `docs/decisions/0016-kit-de-methode.md:15` et `:36`, FR-044, glossaire « Garde de sortie »). Le dossier des hooks du poste de travail ne contient qu'**une** garde de sortie, qui ne couvre que `git commit` et `git push` (ni merge ni `gh`) et n'a pas de tests ; la garde du coordinateur, elle, laisse explicitement passer `git`, `gh` et `orca`. Les « trois gardes qui se recouvrent sur le poste » ne s'y trouvent donc pas (peut-être sur un autre poste, ou dans les réglages d'un projet). Le plan les inventorie, donc rien n'est faussé ; mieux vaut toutefois écrire « des gardes qui se recouvrent » sans chiffre, ou dire que le décompte revient au plan. Ce que K1-1 ajoute surtout, c'est la couverture du merge et des écritures `gh`.
+- **S-2 — Critère de K1-1, quatrième hook** (`docs/plans/cadrage-kit-issues.md:79`). Le critère annonce « câble les quatre hooks », mais ne vérifie que le récapitulatif, la garde du coordinateur et la garde de sortie. Ajouter : « la ligne d'état git, marquée du plugin, s'affiche à chaque message ».
+- **S-3 — Tests réellement lancés en CI** (`docs/plans/cadrage-kit-issues.md:77-78`). `python3 -m unittest` ne descend pas dans un dossier qui n'est pas un paquet. Pour éviter une CI verte qui ne lance rien, faire porter au critère de fin le nombre de tests de `hooks/` et de `scripts/` relevé dans le journal de la CI.
+- **S-4 — Repo public, au-delà des dossiers du plugin** (`docs/plans/cadrage-kit-issues.md:80`). Le plan de K1-1 inventorie les hooks du poste, qui contiennent le nom du mainteneur, des chemins du poste et le nom d'un autre projet ; la fiche concept les décrit. Le critère ne vérifie que `hooks/`, `scripts/` et le manifeste. Il pourrait couvrir tous les fichiers de la PR (`docs/plans/`, `docs/concepts/`).
+- **S-5 — Rédacteur dans une tâche** (`docs/plans/cadrage-kit-issues.md:57`, `:106`). K1-1 et K1-2 font intervenir le rédacteur dans une tâche, alors que son profil dit qu'il travaille « à partir d'un brief de l'orchestrateur de tâche du cadrage ». Ajouter une ligne dans la section 2 : l'orchestrateur de tâche le lance aussi dans ces deux tâches, avec son profil inchangé.
+- **S-6 — Q-027 sans suite dans K1-2** (`docs/plans/cadrage-kit-issues.md:95`, `docs/specs/OPEN-QUESTIONS.md:33`). Q-027 est citée dans les exigences de K1-2, mais ni l'« À faire » ni le critère n'en parlent (outils réseau du planificateur). Ajouter un point, ou la retirer des exigences.
+- **S-7 — Règles propres à jam** (`docs/plans/cadrage-kit-issues.md:110`). « Les règles propres au développement de jam (clone de référence d'Orca) sortent du générique » : préciser où elles vont (fiche de jam, ou supprimées puisque l'ADR 0014 est historique).
+- **S-8 — Taille de K1-1.** C'est le plus gros lot du jalon : retrait de l'app, quatre hooks dont une garde étendue, deux scripts, manifeste, CI, fiche concept, installation. Le découpage est imposé par RET-016 ; le plan pourrait au moins séparer en deux PR le retrait de l'app et le plugin, si l'ADR 0011 le permet sans quatrième issue.
+- **S-9 — Mentions de l'app restées dans le process** (`docs/process/README.md:3`, `:19`, `:109`, `:196`, `:205`) : « En attendant que jam sache dérouler son pipeline », jalons « S1, S2… », « préfiguration de FR-038 », « et que jam fera », « Dans jam, c'est le cœur ». Le brief limitait le process à l'ADR 0017 et K1-2 les retire. Une ligne en tête du process, qui renvoie à l'ADR 0016, éviterait de les lire comme un projet en cours ; elle pourrait aussi porter la correction C-1.
+- **S-10 — Glossaire.** « Session libre » (ADR 0017, process, profil du coordinateur) n'y figure pas. « Garde-fou » (`GLOSSARY.md:44`) ne désigne que les plafonds et l'absence de progrès, alors que la vision et l'ADR 0016 appellent aussi « garde-fous » les hooks. « Pipeline » est « tenu par l'orchestrateur de tâche », sans le cas *léger* (le coordinateur).
+- **S-11 — Statuts à l'acceptation** (`docs/decisions/0016-kit-de-methode.md:101`). Préciser que la colonne « Statut » de l'index `docs/decisions/README.md` reporte elle aussi le sort de chaque ADR.
+
+RELECTURE : CORRECTIONS (2)

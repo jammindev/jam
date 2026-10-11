@@ -1,6 +1,6 @@
 # ADR 0004 — Intégrer Claude Code en mode headless `stream-json`
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Caduque depuis l'[ADR 0016](0016-kit-de-methode.md) : aucun cœur ne lance Claude Code.
 - **Date** : 2026-10-08
 - **Tranche** : Q-003
 

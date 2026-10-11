@@ -1,19 +1,16 @@
 # jam
 
-> Nom provisoire.
+Le kit d'une méthode de *loop engineering*. Pour chaque issue GitHub, des rôles d'agents travaillent dans un worktree dédié : plan, TDD, relecture, recette. Ils vont jusqu'au merge, et l'humain n'intervient que pour les feux verts. La méthode tourne dans [Orca](https://github.com/stablyai/orca), avec Claude Code.
 
-Un cockpit de *loop engineering*. Pour chaque issue GitHub, l'outil ouvre un worktree et y fait travailler des rôles d'agents : plan, TDD, relecture, recette. Il les accompagne jusqu'au merge et n'interrompt l'humain que pour trois feux verts.
+jam est un **plugin Claude Code** minimal : le process, les profils de rôle, les hooks qui tiennent les garde-fous et deux scripts. Chaque projet qui suit la méthode n'a qu'une fiche, `docs/methode.md`.
 
-Le projet avance en deux boucles :
+Statut : jalon K1, kit en construction, gelé une fois livré ; cette page deviendra la page publique de la méthode. jam visait d'abord une app Electron, abandonnée le 2026-10-11 ([ADR 0016](docs/decisions/0016-kit-de-methode.md)) ; son dernier état est au tag `app-electron`, et son code est en cours de retrait. Voir [`docs/specs/`](docs/specs/) et [`docs/decisions/`](docs/decisions/).
 
-- **la boucle extérieure** (le pipeline) d'abord, qui fait travailler Claude Code ;
-- **la boucle intérieure** ensuite : un harness d'agent maison.
+Licence : [MIT](LICENSE).
 
-Statut : E0, jalon S1 (squelette). Voir [`docs/specs/`](docs/specs/) et [`docs/decisions/`](docs/decisions/).
+## L'app (en cours de retrait)
 
-## Démarrer
-
-Prérequis : macOS, Node 24.21 (voir `.node-version`) et pnpm.
+Tant que son code est dans le repo, l'app se lance ainsi. Prérequis : macOS, Node 24.21 (voir `.node-version`) et pnpm.
 
 ```sh
 pnpm install      # dépendances
@@ -22,5 +19,3 @@ pnpm dev          # lance l'app ; Cmd+K ouvre la palette de commandes
 pnpm core:ping    # interroge le cœur seul, sans l'app
 pnpm check        # typecheck, tests et build, comme la CI
 ```
-
-Licence : [MIT](LICENSE).

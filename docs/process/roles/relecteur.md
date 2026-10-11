@@ -10,6 +10,8 @@ claude --permission-mode dontAsk --allowedTools "Read" "Grep" "Glob" "Edit(docs/
 ```
 Il ne peut écrire que des fichiers de relecture : ni le plan ni le brouillon d'issues qu'il relit.
 
+**Kit** ([ADR 0016](../../decisions/0016-kit-de-methode.md)) : les commandes de test ci-dessus sont celles de l'app, que l'ADR 0016 abandonne. Pour une tâche du kit, dont les hooks et scripts se testent en Python, ajouter à `--allowedTools` : `"Bash(python3 -m unittest)" "Bash(python3 -m unittest *)" "Bash(rtk python3 -m unittest)" "Bash(rtk python3 -m unittest *)"`. Le profil générique du plugin remplacera cette commande (issue K1-2 du [jalon K1](../../plans/cadrage-kit-issues.md)).
+
 **Variante, relecture d'issues ou de milestones déjà publiés** (tracée dans l'[ADR 0012](../../decisions/0012-coordinateur-role-garde-fous-hook.md)) : ajouter `gh` en lecture, avec des formes exactes. Pas de joker sur `gh api`, pour ne pas ouvrir `gh api -X POST` :
 ```sh
 "Bash(gh issue view:*)" "Bash(rtk gh issue view:*)" "Bash(gh issue list:*)" "Bash(rtk gh issue list:*)" "Bash(gh api repos/jammindev/jam/milestones)" "Bash(rtk gh api repos/jammindev/jam/milestones)" "Bash(gh api 'repos/jammindev/jam/milestones?state=all')" "Bash(rtk gh api 'repos/jammindev/jam/milestones?state=all')"

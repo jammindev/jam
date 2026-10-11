@@ -5,13 +5,13 @@
 ## Acteurs
 
 - **Mainteneur** : donne les feux verts et fait la recette.
-- **Coordinateur** : une session d'agent conversationnelle sur le worktree principal (`main`), dans laquelle le mainteneur parle (RET-008). Elle tourne dans le terminal flottant d'Orca, joignable depuis tous les worktrees (RET-012). Il crée les worktrees, lance un orchestrateur de tâche par tâche, suit les cartes Orca, tient le mainteneur informé, merge et publie **après** les feux verts. C'est l'interlocuteur unique du mainteneur s'il le souhaite. **Il orchestre et ne produit aucun livrable** (RET-001) : ni code, ni spec, ni ADR, ni issue, ni doc. C'est un rôle lui aussi, protégé par une garde quand il est lancé avec `JAM_ROLE=coordinateur` ([profil](roles/coordinateur.md), [ADR 0012](../decisions/0012-coordinateur-role-garde-fous-hook.md)).
+- **Coordinateur** : une session d'agent conversationnelle sur le worktree principal (`main`), dans laquelle le mainteneur parle (RET-008). Elle tourne dans un terminal Orca du worktree principal, sur le poste de travail : un coordinateur par projet (RET-015, [ADR 0017](../decisions/0017-coordinateur-main-poste-de-travail.md)). Il crée les worktrees, lance un orchestrateur de tâche par tâche, suit les cartes Orca, tient le mainteneur informé, merge et publie **après** les feux verts. C'est l'interlocuteur unique du mainteneur s'il le souhaite. **Il orchestre et ne produit aucun livrable** (RET-001) : ni code, ni spec, ni ADR, ni issue, ni doc. C'est un rôle lui aussi, protégé par une garde quand il est lancé avec `JAM_ROLE=coordinateur` ([profil](roles/coordinateur.md), [ADR 0012](../decisions/0012-coordinateur-role-garde-fous-hook.md)).
 - **Orchestrateur de tâche** : une session d'agent conversationnelle dans le worktree d'une tâche, lancée par le coordinateur (RET-009). Il lance les rôles de sa tâche, tient ses boucles et ses garde-fous, committe, pousse et ouvre la PR **après** les feux verts, et tient sa carte Orca, que suit le coordinateur. Le mainteneur peut lui parler pour discuter de la tâche en détail. Il ne produit aucun livrable non plus ([profil](roles/orchestrateur-tache.md), [ADR 0013](../decisions/0013-orchestration-deux-niveaux.md)).
 - **Rôles du pipeline et du cadrage** : rédacteur, planificateur, implémenteur, relecteur, recetteur. Chacun est une session d'agent **neuve**, lancée dans le worktree avec son profil ([`roles/`](roles/)) et ses permissions ([ADR 0009](../decisions/0009-permissions-par-role.md), [ADR 0012](../decisions/0012-coordinateur-role-garde-fous-hook.md) pour le rédacteur).
 
 Tout livrable, code ou non, suit le même chemin : **production par un rôle → relecture indépendante → feu vert**.
 
-L'orchestration à deux niveaux est décrite par l'[ADR 0013](../decisions/0013-orchestration-deux-niveaux.md) (RET-008, RET-009), précisée par l'[ADR 0015](../decisions/0015-remontee-carte-seule-coordinateur-flottant.md) (RET-012, RET-013).
+L'orchestration à deux niveaux est décrite par l'[ADR 0013](../decisions/0013-orchestration-deux-niveaux.md) (RET-008, RET-009), précisée par l'[ADR 0015](../decisions/0015-remontee-carte-seule-coordinateur-flottant.md) (RET-012, RET-013), dont l'[ADR 0017](../decisions/0017-coordinateur-main-poste-de-travail.md) remplace la partie sur le terminal flottant (RET-015).
 
 ## Tâches, issues et milestones
 
@@ -35,7 +35,7 @@ Un cadrage a son worktree `cadrage-<slug>` et son orchestrateur de tâche, comme
 
 | Étape | Cible (jam E0) | Aujourd'hui, dans Orca |
 |---|---|---|
-| Interlocuteur, niveau projet | Le cockpit (tableau des tâches, file « À toi ») et la session conversationnelle de `main`, le coordinateur (FR-040, après E0 selon l'ADR 0008, Q-039) | Le coordinateur, sur `main`, dans le terminal flottant |
+| Interlocuteur, niveau projet | Le cockpit (tableau des tâches, file « À toi ») et la session conversationnelle de `main`, le coordinateur (FR-040, après E0 selon l'ADR 0008, Q-039) | Le coordinateur, dans un terminal Orca du worktree principal (`main`) |
 | Interlocuteur, niveau tâche | Le lead du worktree (FR-034) | L'orchestrateur de tâche |
 | Tâche | Issue GitHub | Issue GitHub, rattachée au milestone de son jalon |
 | Worktree | Créé par le cœur | Le coordinateur : `orca worktree create --name <numéro>-<slug> --no-parent` |
@@ -55,12 +55,13 @@ Un cadrage a son worktree `cadrage-<slug>` et son orchestrateur de tâche, comme
 
 ## Lancement du coordinateur
 
-Dans le **terminal flottant** d'Orca, que le mainteneur ouvre depuis n'importe quel worktree : il parle au coordinateur de partout, pendant une recette par exemple (RET-012). La session est lancée depuis le worktree principal, sur `main` (RET-008). Or le terminal flottant s'ouvre dans le dossier personnel : on se place d'abord dans le worktree principal.
+Dans **un terminal Orca du worktree principal** du projet, sur `main` (RET-008, RET-015, [ADR 0017](../decisions/0017-coordinateur-main-poste-de-travail.md)). Le terminal s'ouvre dans le worktree : pas de `cd` à faire.
 ```sh
-cd <chemin du worktree principal>
 JAM_ROLE=coordinateur claude              # ajouter --continue pour reprendre la session précédente
 ```
-Sans le `cd`, la session ne lit ni `AGENTS.md` ni ce process : le hook de démarrage, qui affiche le worktree de la session, permet de le voir. La CLI `orca` voit ce terminal (`worktreeId` vaut `global-floating-terminal`, sans chemin de worktree). Les orchestrateurs de tâche n'ont pas besoin de le joindre : ils ne lui écrivent pas (voir « Remontée vers le coordinateur »).
+- **Un coordinateur par projet**, chacun dans le worktree principal de son projet. Une session du terminal flottant d'Orca n'a pas de rôle : c'est une session libre.
+- **Par Orca, sur le poste de travail**, jamais par une session SSH : une session lancée par SSH n'a pas les identifiants (Claude Code, `gh`). Il en va de même pour tous les agents.
+- Le hook de démarrage affiche le worktree et le rôle de la session : on y vérifie qu'on est bien sur le worktree principal. Les orchestrateurs de tâche n'ont pas besoin de joindre ce terminal : ils ne lui écrivent pas (voir « Remontée vers le coordinateur »).
 
 Après chaque merge, le coordinateur fait `git pull` : il lit toujours la référence, `AGENTS.md` et ce process compris.
 

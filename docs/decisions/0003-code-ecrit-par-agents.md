@@ -1,6 +1,6 @@
 # ADR 0003 — Le code est écrit par des agents, le mainteneur apprend les concepts
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Valable pour le kit ([ADR 0016](0016-kit-de-methode.md)).
 - **Date** : 2026-10-08
 
 ## Contexte

@@ -35,7 +35,7 @@ chmod -R a-w <clone-orca>
 
 Chaque fichier du tableau est un **point d'entrée** : le planificateur commence par lui, ne suit ses imports que si la tâche l'exige, et s'arrête à quelques fichiers.
 
-La carte ne couvre que les briques relevées ci-dessous, pas tout E0. Le cadrage de chaque jalon la complète pour ses briques avant sa première tâche : par exemple la fin de vie du worktree au S4, ou le diff en E3. Les quatre dernières lignes viennent du cadrage du S2 (`cadrage-s2`), relevées au même tag le 2026-10-09. Le profil de permissions d'un rôle n'a pas d'entrée : Orca lance ses agents sans permission par défaut (§9), ce que jam écarte (ADR 0009).
+La carte ne couvre que les briques relevées ci-dessous, pas tout E0. Le cadrage de chaque jalon la complète pour ses briques avant sa première tâche : par exemple la fin de vie du worktree au S4, ou le diff en E3. Les quatre dernières lignes viennent du cadrage du S2 (`cadrage-s2`), relevées au même tag le 2026-10-09. Le profil de permissions d'un rôle n'a pas d'entrée : Orca lance ses agents sans permission par défaut (§9), ce que jam écarte (ADR 0009). Le cadrage du jalon K1 (`cadrage-kit`) n'y ajoute aucune ligne : le kit pilote Orca par sa CLI et ne reprend pas son code ([ADR 0016](../decisions/0016-kit-de-methode.md)).
 
 | Brique de jam | Point d'entrée dans Orca | Section |
 |---|---|---|
