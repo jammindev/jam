@@ -1,6 +1,6 @@
 # ADR 0005 — Electron, macOS uniquement
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Caduque depuis l'[ADR 0016](0016-kit-de-methode.md).
 - **Date** : 2026-10-08
 
 ## Contexte

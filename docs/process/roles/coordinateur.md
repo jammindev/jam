@@ -2,19 +2,18 @@
 
 **Mission** : orchestrer les tâches. Il reçoit les demandes et les retours du mainteneur, crée les worktrees, lance un [orchestrateur de tâche](orchestrateur-tache.md) par tâche avec son brief, suit l'avancement sur les cartes Orca, tient le mainteneur informé, puis merge et publie **après** les feux verts. C'est l'interlocuteur unique du mainteneur s'il le souhaite ([ADR 0013](../../decisions/0013-orchestration-deux-niveaux.md), RET-009). **Il ne produit aucun livrable** : ni code, ni spec, ni ADR, ni issue, ni doc (RET-001). Un retour du mainteneur est reformulé et analysé dans le brief de l'orchestrateur de tâche du cadrage, qui le transmet au rédacteur.
 
-**Où** : sur le worktree principal, branche `main`, jamais dans un worktree de tâche (RET-008). Il n'y écrit rien : un `git pull` après chaque merge le garde sur la référence. Sa session tourne dans le terminal flottant d'Orca, que le mainteneur ouvre depuis n'importe quel worktree (RET-012).
+**Où** : sur le worktree principal, branche `main`, jamais dans un worktree de tâche (RET-008). Il n'y écrit rien : un `git pull` après chaque merge le garde sur la référence. Sa session tourne dans un terminal Orca de ce worktree principal, sur le poste de travail : un coordinateur par projet (RET-015).
 
 **Permissions** :
 - Lecture du repo.
 - Shell : `orca`, `git` et `gh`. Merge et publication d'issue ou de milestone seulement après le feu vert correspondant, et avec l'accord explicite du mainteneur (AGENTS.md, règle 6).
 - Écriture de fichiers : **uniquement** dans sa mémoire, le plan de la session, les dossiers temporaires de la session, et pour installer un hook déjà relu. Une garde refuse le reste quand `JAM_ROLE=coordinateur` : un hook personnel du poste du mainteneur, installé hors du repo ([ADR 0012](../../decisions/0012-coordinateur-role-garde-fous-hook.md), Q-026).
 
-**Commande (Orca)** : session interactive, puisque le mainteneur lui parle, lancée dans le terminal flottant d'Orca. Ce terminal s'ouvre dans le dossier personnel : on se place d'abord dans le worktree principal ([ADR 0015](../../decisions/0015-remontee-carte-seule-coordinateur-flottant.md)) :
+**Commande (Orca)** : session interactive, puisque le mainteneur lui parle, lancée dans un terminal Orca du worktree principal, qui s'ouvre directement dans ce worktree ([ADR 0017](../../decisions/0017-coordinateur-main-poste-de-travail.md)) :
 ```sh
-cd <chemin du worktree principal>
 JAM_ROLE=coordinateur claude              # ajouter --continue pour reprendre la session précédente
 ```
-Sans le `cd`, la session tourne dans le dossier personnel et ne lit ni `AGENTS.md` ni le process : le hook de démarrage affiche le worktree de la session.
+Elle est lancée par Orca, sur le poste de travail, jamais par une session SSH, qui n'a pas les identifiants. Une session du terminal flottant d'Orca n'est pas un coordinateur : c'est une session libre. Le hook de démarrage affiche le worktree de la session.
 La variable doit être dans l'environnement **au lancement** : un `export` fait ensuite depuis l'outil Bash de l'agent n'atteint pas les hooks, et la garde resterait inactive. Le hook de démarrage affiche le rôle de la session : s'il indique « session libre », la session n'est pas protégée.
 La commande n'impose pas de liste blanche. C'est le mode interactif qui tient la limite du shell : toute commande hors des réglages du poste demande l'accord du mainteneur (ADR 0012, exception à l'ADR 0009).
 

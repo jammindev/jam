@@ -4,7 +4,7 @@ Instructions pour tout agent de code qui travaille sur ce repo.
 
 ## Le projet
 
-Un cockpit de *loop engineering*. Pour chaque issue GitHub, un pipeline codé dans le cœur fait travailler des rôles d'agents dans un worktree dédié (plan, TDD, relecture, recette) jusqu'au merge. Le mainteneur n'intervient que pour trois feux verts.
+Le kit d'une méthode de *loop engineering*. Pour chaque issue GitHub, des rôles d'agents travaillent dans un worktree dédié (plan, TDD, relecture, recette) jusqu'au merge ; le mainteneur n'intervient que pour les feux verts. Depuis le 2026-10-11, jam n'est plus une app : c'est un plugin Claude Code minimal qui porte la méthode, gelé une fois livré ([ADR 0016](docs/decisions/0016-kit-de-methode.md)).
 
 **À lire avant toute tâche** :
 - `docs/specs/00-VISION.md` : pourquoi, principes, non-objectifs ;
@@ -17,18 +17,15 @@ Un cockpit de *loop engineering*. Pour chaque issue GitHub, un pipeline codé da
 
 ## Environnement
 
-- En attendant que jam déroule son pipeline, le développement se fait dans **Orca** : une tâche = une issue GitHub = un worktree (un cadrage : un worktree `cadrage-<slug>`, sans issue), que tu occupes peut-être en ce moment.
+- Le développement se fait dans **Orca** : une tâche = une issue GitHub = un worktree (un cadrage : un worktree `cadrage-<slug>`, sans issue), que tu occupes peut-être en ce moment.
 - Orchestration à deux niveaux (ADR 0013) : le **coordinateur** vit sur le worktree principal (`main`) et suit toutes les tâches ; dans chaque worktree, un **orchestrateur de tâche** lance les rôles de sa tâche.
 - L'état des tâches et les passations passent par la CLI `orca` (statut et commentaire du worktree), tenue par l'orchestrateur de tâche et lue par le coordinateur.
 - Le déroulé complet (rôles, feux verts, garde-fous) est dans `docs/process/README.md` : lis-le avant d'agir.
 
 ## Stack
 
-- Electron (macOS uniquement), UI en React + TypeScript.
-- Le cœur tourne dans un **processus séparé**, exposé par un protocole typé (ADR 0006).
-- TypeScript `strict` partout. Données externes validées avec zod.
-- Claude Code piloté en headless `stream-json` (ADR 0004). Persistance SQLite (ADR 0010).
-- Chaque action d'UI passe par le **registre de commandes** (ADR 0007).
+- Un plugin Claude Code : docs de méthode en Markdown, hooks et scripts en Python 3 (bibliothèque standard) ou en shell, avec leurs tests ([02-ARCHITECTURE](docs/specs/02-ARCHITECTURE.md)).
+- Le code de l'app Electron (`apps/`, `packages/`, outillage pnpm et Vitest) est en cours de retrait, par l'issue « Le repo devient le kit » du jalon K1 ([brouillon](docs/plans/cadrage-kit-issues.md)) ; son dernier état est au tag `app-electron`. Les ADR de l'app (0002, 0004 à 0007, 0010) deviennent caduques (ADR 0016).
 
 ## Règles de travail
 

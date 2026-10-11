@@ -1,6 +1,6 @@
 # ADR 0006 — Cœur séparé de l'UI, version minimale
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Caduque depuis l'[ADR 0016](0016-kit-de-methode.md).
 - **Date** : 2026-10-08
 
 ## Contexte

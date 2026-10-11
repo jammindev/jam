@@ -1,6 +1,6 @@
 # ADR 0010 : état du pipeline en SQLite
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Caduque depuis l'[ADR 0016](0016-kit-de-methode.md) : l'état d'une tâche vit dans sa carte Orca et dans `docs/plans/`.
 - **Date** : 2026-10-08
 - **Tranche** : Q-011
 

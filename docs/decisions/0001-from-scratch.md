@@ -1,6 +1,6 @@
 # ADR 0001 — Projet from scratch, Orca comme référence de lecture
 
-- **Statut** : acceptée (la section sur l'ordre de construction est remplacée par l'ADR 0002)
+- **Statut** : acceptée (la section sur l'ordre de construction est remplacée par l'ADR 0002). Historique depuis l'[ADR 0016](0016-kit-de-methode.md) : le choix « from scratch » portait sur l'app ; la règle de licence d'un code repris reste dans `AGENTS.md`.
 - **Date** : 2026-10-08
 
 ## Contexte

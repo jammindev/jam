@@ -1,6 +1,6 @@
 # ADR 0012 : le coordinateur est un rôle, ses garde-fous sont tenus par un hook
 
-- **Statut** : acceptée. Précisée par l'[ADR 0013](0013-orchestration-deux-niveaux.md) : le coordinateur garde le merge et la publication sur GitHub ; le commit, le push et l'ouverture de la PR d'une tâche passent à son orchestrateur de tâche.
+- **Statut** : acceptée. Précisée par l'[ADR 0013](0013-orchestration-deux-niveaux.md) : le coordinateur garde le merge et la publication sur GitHub ; le commit, le push et l'ouverture de la PR d'une tâche passent à son orchestrateur de tâche. Précisée par l'[ADR 0016](0016-kit-de-methode.md) : la garde devient un hook du plugin, versionné et testé, à côté d'une garde de sortie unique ; caduc, « dans jam, c'est le cœur qui jouera ce rôle ».
 - **Date** : 2026-10-08
 - **Tranche** : RET-005, complète l'[ADR 0009](0009-permissions-par-role.md)
 

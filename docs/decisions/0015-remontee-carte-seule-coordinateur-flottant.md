@@ -1,6 +1,6 @@
 # ADR 0015 : remontée par la carte seule, coordinateur dans le terminal flottant d'Orca
 
-- **Statut** : acceptée
+- **Statut** : acceptée. Partie « Coordinateur dans le terminal flottant » remplacée par l'[ADR 0017](0017-coordinateur-main-poste-de-travail.md). Valable en partie depuis l'[ADR 0016](0016-kit-de-methode.md) : la remontée par la carte seule tient ; le format d'un feu vert relayé suit l'allègement de l'ADR 0016 ; caduc, « Correspondance avec jam ».
 - **Date** : 2026-10-09
 - **Tranche** : RET-012, RET-013, Q-037. Précise l'[ADR 0013](0013-orchestration-deux-niveaux.md)
 
