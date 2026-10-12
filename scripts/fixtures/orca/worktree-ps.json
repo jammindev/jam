@@ -1,0 +1,52 @@
+{
+  "id": "req-ps",
+  "ok": true,
+  "result": {
+    "worktrees": [
+      {
+        "worktreeId": "repo-jam::/work/jam",
+        "repoId": "repo-jam",
+        "repo": "jam",
+        "path": "/work/jam",
+        "branch": "main",
+        "isMainWorktree": true,
+        "displayName": "jam",
+        "workspaceStatus": "in-progress",
+        "comment": "",
+        "linkedIssue": null,
+        "linkedPR": null,
+        "unread": false
+      },
+      {
+        "worktreeId": "repo-jam::/work/jam-worktrees/22-tache",
+        "repoId": "repo-jam",
+        "repo": "jam",
+        "path": "/work/jam-worktrees/22-tache",
+        "branch": "team/22-tache",
+        "isMainWorktree": false,
+        "displayName": "22-tache",
+        "workspaceStatus": "in-progress",
+        "comment": "▶ implémenteur en cours",
+        "linkedIssue": 22,
+        "linkedPR": null,
+        "unread": false
+      },
+      {
+        "worktreeId": "repo-autre::/work/autre-worktrees/autre-tache",
+        "repoId": "repo-autre",
+        "repo": "autre",
+        "path": "/work/autre-worktrees/autre-tache",
+        "branch": "team/autre-tache",
+        "isMainWorktree": false,
+        "displayName": "autre-tache",
+        "workspaceStatus": "in-progress",
+        "comment": "▶ relecture en cours",
+        "linkedIssue": null,
+        "linkedPR": null,
+        "unread": false
+      }
+    ],
+    "totalCount": 3,
+    "truncated": false
+  }
+}

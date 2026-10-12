@@ -1,0 +1,13 @@
+{
+  "name": "jam",
+  "owner": {
+    "name": "jammindev"
+  },
+  "description": "Marketplace locale du kit jam, ajoutée depuis le clone du poste de travail.",
+  "plugins": [
+    {
+      "name": "jam",
+      "source": "."
+    }
+  ]
+}

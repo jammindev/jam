@@ -48,10 +48,10 @@ flowchart LR
 
 | Couche | Choix |
 |---|---|
-| Distribution | Plugin Claude Code ; mode d'installation ouvert ([Q-055](OPEN-QUESTIONS.md)) |
+| Distribution | Plugin Claude Code, servi par une marketplace locale sur le clone de jam (`.claude-plugin/`), installé pour tout le poste et mis à jour par le `git pull` de `main` ([Q-055](OPEN-QUESTIONS.md)) |
 | Docs de la méthode | Markdown |
 | Hooks et scripts | Python 3 (bibliothèque standard) ou shell, sans dépendance à installer ; tests `unittest`, lancés en CI |
 | Pilotage | CLI `orca` (sortie JSON), `git`, `gh` |
 | Agents | Claude Code, en sessions Orca ; rôles en terminaux ou en sous-agents : ouvert ([Q-054](OPEN-QUESTIONS.md)) |
 
-Le code Electron (`apps/`, `packages/`) et son outillage (pnpm, Vitest) sont en cours de retrait, par la première issue du jalon K1.
+Le code Electron (`apps/`, `packages/`) et son outillage (pnpm, Vitest) ont été retirés par la première issue du jalon K1 (#22).

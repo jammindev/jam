@@ -1,5 +1,7 @@
 # Processus Electron : main, preload, renderer
 
+> **Historique** ([ADR 0016](../decisions/0016-kit-de-methode.md)) : l'app Electron est abandonnée et son code retiré du repo. Cette fiche décrit son dernier état, lisible au tag `app-electron` ; les fichiers qu'elle cite n'existent plus sur `main`.
+
 ## En une phrase
 
 Une app Electron est faite de plusieurs processus : le **main** (Node, accès au système), un **renderer** par fenêtre (une page web, sans accès au système) et un **preload** qui choisit ce que la page a le droit d'appeler.

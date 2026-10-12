@@ -25,7 +25,7 @@ Le kit d'une méthode de *loop engineering*. Pour chaque issue GitHub, des rôle
 ## Stack
 
 - Un plugin Claude Code : docs de méthode en Markdown, hooks et scripts en Python 3 (bibliothèque standard) ou en shell, avec leurs tests ([02-ARCHITECTURE](docs/specs/02-ARCHITECTURE.md)).
-- Le code de l'app Electron (`apps/`, `packages/`, outillage pnpm et Vitest) est en cours de retrait, par l'issue « Le repo devient le kit » du jalon K1 ([brouillon](docs/plans/cadrage-kit-issues.md)) ; son dernier état est au tag `app-electron`. Les ADR de l'app (0002, 0004 à 0007, 0010) deviennent caduques (ADR 0016).
+- Le code de l'app Electron (`apps/`, `packages/`, outillage pnpm et Vitest) a été retiré par l'issue #22 du jalon K1 ; son dernier état est au tag `app-electron`. Les ADR de l'app (0002, 0004 à 0007, 0010) sont caduques (ADR 0016).
 
 ## Règles de travail
 
