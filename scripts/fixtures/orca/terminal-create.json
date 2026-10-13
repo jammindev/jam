@@ -1,0 +1,9 @@
+{
+  "id": "req-terminal-create",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_5f1a0d4c-6b7e-4a99-9e95-5d7c6b8a9f0e"
+    }
+  }
+}

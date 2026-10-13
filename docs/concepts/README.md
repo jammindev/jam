@@ -10,15 +10,18 @@ Une fiche courte par concept, écrite **au moment où la brique qui le met en œ
 4. **Les pièges** rencontrés ou connus.
 5. **Pour aller plus loin** : liens.
 
-## Fiches prévues
+## Fiches
+
+Les fiches de l'app Electron sont **historiques** ([ADR 0016](../decisions/0016-kit-de-methode.md)) : elles décrivent du code retiré, lisible au tag `app-electron`. Les fiches qu'elle prévoyait sans les avoir écrites sont sans objet.
 
 | Concept | Brique | Fiche |
 |---|---|---|
-| Processus Electron (main, renderer, preload) et IPC | Squelette | [processus-electron.md](processus-electron.md) |
-| Cœur séparé et protocole typé | Squelette | [coeur-separe-protocole.md](coeur-separe-protocole.md) |
-| Git worktree | Git | — |
-| Claude Code headless et `stream-json` | Agent | — |
-| Interface « backend d'agent » | Agent | — |
-| Boucle d'agent (tool use) | Harness | — |
-| Permissions et approbation | Harness | — |
-| Contexte, cache et compaction | Harness | — |
+| Plugin Claude Code et hooks | Kit (K1, #22) | [plugin-et-hooks.md](plugin-et-hooks.md) |
+| Processus Electron (main, renderer, preload) et IPC | App : squelette | [processus-electron.md](processus-electron.md), historique |
+| Cœur séparé et protocole typé | App : squelette | [coeur-separe-protocole.md](coeur-separe-protocole.md), historique |
+| Git worktree | App : Git | Sans objet |
+| Claude Code headless et `stream-json` | App : Agent | Sans objet |
+| Interface « backend d'agent » | App : Agent | Sans objet |
+| Boucle d'agent (tool use) | App : Harness | Sans objet |
+| Permissions et approbation | App : Harness | Sans objet |
+| Contexte, cache et compaction | App : Harness | Sans objet |

@@ -1,0 +1,53 @@
+{
+  "id": "req-terminal-list",
+  "ok": true,
+  "result": {
+    "terminals": [
+      {
+        "handle": "term_0b7c6f0e-1d2a-4c55-9a51-1f3e2d4c5b6a",
+        "worktreeId": "repo-jam::/work/jam",
+        "worktreePath": "/work/jam",
+        "branch": "main",
+        "title": "coordinateur",
+        "connected": true,
+        "writable": true,
+        "agentIdentity": "claude",
+        "preview": ""
+      },
+      {
+        "handle": "term_2c8d7a1f-3e4b-4d66-8b62-2a4f3e5d6c7b",
+        "worktreeId": "repo-jam::/work/jam-worktrees/22-tache",
+        "worktreePath": "/work/jam-worktrees/22-tache",
+        "branch": "team/22-tache",
+        "title": "zsh",
+        "connected": true,
+        "writable": true,
+        "preview": ""
+      },
+      {
+        "handle": "term_3d9e8b2a-4f5c-4e77-9c73-3b5a4f6e7d8c",
+        "worktreeId": "repo-jam::/work/jam-worktrees/22-tache",
+        "worktreePath": "/work/jam-worktrees/22-tache",
+        "branch": "team/22-tache",
+        "title": "implementeur",
+        "connected": false,
+        "writable": false,
+        "agentIdentity": "claude",
+        "preview": ""
+      },
+      {
+        "handle": "term_4e0f9c3b-5a6d-4f88-8d84-4c6b5a7f8e9d",
+        "worktreeId": "repo-autre::/work/autre-worktrees/autre-tache",
+        "worktreePath": "/work/autre-worktrees/autre-tache",
+        "branch": "team/autre-tache",
+        "title": "relecteur",
+        "connected": true,
+        "writable": true,
+        "agentIdentity": "claude",
+        "preview": ""
+      }
+    ],
+    "totalCount": 4,
+    "truncated": false
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "jam",
+  "description": "Kit d'une méthode de loop engineering : des rôles d'agents mènent chaque issue jusqu'au merge, des hooks tiennent les garde-fous (accord avant commit, push et écritures gh ; coordinateur qui ne produit pas de livrable).",
+  "license": "MIT",
+  "repository": "https://github.com/jammindev/jam"
+}

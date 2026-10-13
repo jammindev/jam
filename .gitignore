@@ -2,9 +2,5 @@
 CLAUDE.md
 .claude/settings.local.json
 
-# Dépendances et sorties de build
-node_modules
-out
-
-# Bases SQLite locales
-*.db
+# Cache Python des tests
+__pycache__/
