@@ -15,7 +15,26 @@
         "comment": "",
         "linkedIssue": null,
         "linkedPR": null,
-        "unread": false
+        "unread": false,
+        "status": "active",
+        "agents": [
+          {
+            "agentType": "claude",
+            "displayName": "coordinateur",
+            "interrupted": false,
+            "lastAssistantMessage": "…",
+            "mainAgent": {"state": "done", "stateStartedAt": 1700000000000},
+            "paneKey": "pane-main",
+            "parentPaneKey": null,
+            "prompt": "brief",
+            "state": "done",
+            "stateStartedAt": 1700000000000,
+            "taskTitle": "tâche",
+            "toolInput": {},
+            "toolName": "Bash",
+            "updatedAt": 1700000000000
+          }
+        ]
       },
       {
         "worktreeId": "repo-jam::/work/jam-worktrees/22-tache",
@@ -29,7 +48,26 @@
         "comment": "▶ implémenteur en cours",
         "linkedIssue": 22,
         "linkedPR": null,
-        "unread": false
+        "unread": false,
+        "status": "active",
+        "agents": [
+          {
+            "agentType": "claude",
+            "displayName": "orchestrateur",
+            "interrupted": false,
+            "lastAssistantMessage": "…",
+            "mainAgent": {"state": "working", "stateStartedAt": 1700000000000},
+            "paneKey": "pane-1",
+            "parentPaneKey": null,
+            "prompt": "brief",
+            "state": "working",
+            "stateStartedAt": 1700000000000,
+            "taskTitle": "tâche",
+            "toolInput": {},
+            "toolName": "Bash",
+            "updatedAt": 1700000000000
+          }
+        ]
       },
       {
         "worktreeId": "repo-autre::/work/autre-worktrees/autre-tache",
@@ -43,7 +81,26 @@
         "comment": "▶ relecture en cours",
         "linkedIssue": null,
         "linkedPR": null,
-        "unread": false
+        "unread": false,
+        "status": "active",
+        "agents": [
+          {
+            "agentType": "claude",
+            "displayName": "orchestrateur",
+            "interrupted": false,
+            "lastAssistantMessage": "…",
+            "mainAgent": {"state": "working", "stateStartedAt": 1700000000000},
+            "paneKey": "pane-9",
+            "parentPaneKey": null,
+            "prompt": "brief",
+            "state": "working",
+            "stateStartedAt": 1700000000000,
+            "taskTitle": "tâche",
+            "toolInput": {},
+            "toolName": "Bash",
+            "updatedAt": 1700000000000
+          }
+        ]
       }
     ],
     "totalCount": 3,

@@ -17,6 +17,7 @@ Les fiches de l'app Electron sont **historiques** ([ADR 0016](../decisions/0016-
 | Concept | Brique | Fiche |
 |---|---|---|
 | Plugin Claude Code et hooks | Kit (K1, #22) | [plugin-et-hooks.md](plugin-et-hooks.md) |
+| Veille sur transitions et mesure du temps du mainteneur | Kit (K1, #23) | [veille-et-mesure.md](veille-et-mesure.md) |
 | Processus Electron (main, renderer, preload) et IPC | App : squelette | [processus-electron.md](processus-electron.md), historique |
 | Cœur séparé et protocole typé | App : squelette | [coeur-separe-protocole.md](coeur-separe-protocole.md), historique |
 | Git worktree | App : Git | Sans objet |

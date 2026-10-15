@@ -23,7 +23,10 @@ REPO = HOME + "/code/repo"
 MEMORY = HOME + "/.claude/projects/-Users-testhome-code-repo/memory"
 SCRATCH = "/private/tmp/claude-501/session/scratchpad"
 STAGING = SCRATCH + "/hooks-staging"
-REFUSAL = "Le coordinateur ne produit pas de livrable : délègue à un rôle (docs/process/README.md)."
+# The refusal points at the process of the plugin running the guard, found from
+# the hook's own file: the session's repo may hold no process, or a stale copy.
+PLUGIN_PROCESS = os.path.join(os.path.dirname(HERE), "process", "README.md")
+REFUSAL = f"Le coordinateur ne produit pas de livrable : délègue à un rôle ({PLUGIN_PROCESS})."
 
 
 class GuardCoordinatorTest(unittest.TestCase):

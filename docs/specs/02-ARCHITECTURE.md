@@ -30,10 +30,10 @@ flowchart LR
 
 | Composant | Rôle |
 |---|---|
-| `process/` | Référence de la méthode, élaguée : étapes, niveaux de tâche, feux verts et leur relais, carte Orca, garde-fous, plafond d'agents global ; gabarit de la fiche projet |
+| `process/` | Référence de la méthode, élaguée ([ADR 0018](../decisions/0018-process-elague.md)) : étapes, niveaux de tâche, feux verts et leur relais, carte Orca et veille, garde-fous, plafond d'agents global, mesure ; gabarit de la fiche projet (`fiche-projet.md`) |
 | `roles/` | Les sept profils : mission, permissions (options de la CLI, [ADR 0009](../decisions/0009-permissions-par-role.md)), règles. Génériques : ce qui dépend du projet vient de sa fiche |
-| `hooks/` | Garde du coordinateur ([ADR 0012](../decisions/0012-coordinateur-role-garde-fous-hook.md)), garde de sortie unique (commit, push, merge, écritures `gh`), reprise de contexte au démarrage, contrôle d'état git à chaque message. Avec leurs tests, lancés en CI |
-| `scripts/` | Veille des cartes d'un projet, lancement d'une tâche. Ils pilotent Orca par sa CLI |
+| `hooks/` | Garde du coordinateur ([ADR 0012](../decisions/0012-coordinateur-role-garde-fous-hook.md)), garde de sortie unique (commit, push, merge, écritures `gh`), reprise de contexte au démarrage (avec, quand le repo a une fiche, la fiche, le process et les profils du plugin), contrôle d'état git à chaque message. Avec leurs tests, lancés en CI |
+| `scripts/` | `watch_cards.py`, veille des cartes d'un projet, réveillée sur une transition (carte `⏸` ou `⛔`, segment `✓` ou `💬`, agent bloqué ou carte inactive) ; `launch_task.py`, lancement d'une tâche ou d'un rôle sous les plafonds ; `orca_cli.py`, accès commun à la CLI Orca ; `maintainer_time.py`, estimation du temps du mainteneur d'après les transcripts des sessions du coordinateur (FR-055). Avec leurs tests, lancés en CI |
 | Fiche projet | `docs/methode.md` dans chaque projet : niveau par défaut, commande de test, grille de relecture, recette, sens d'un merge, plafond d'agents du projet |
 
 `docs/` reste la documentation de jam lui-même. jam suit sa propre méthode : il a sa fiche, au niveau *léger*. Son `README.md` est la page publique de la méthode.

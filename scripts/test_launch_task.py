@@ -26,7 +26,7 @@ NEW_ID = "repo-jam::/work/jam-worktrees/23-nouvelle"
 EXISTING_ID = "repo-jam::/work/jam-worktrees/22-tache"
 HANDLE = fixture("terminal-create")["result"]["terminal"]["handle"]
 BRIEF = ("Tu es l'implémenteur de l'issue #23.\n"
-         "Lis « docs/process/roles/implementeur.md »,  puis le plan.\n"
+         "Lis « /plugin/roles/implementeur.md »,  puis le plan.\n"
          "Critère de fin : $(tests) au vert ; \"IMPLÉMENTATION PRÊTE\".")
 COMMAND = "claude --permission-mode dontAsk"
 

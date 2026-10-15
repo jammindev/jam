@@ -9,10 +9,10 @@ Milestone GitHub `K1 Kit de la méthode`. Trois issues, deux à trois jours de t
 | Issue | Contenu | Dépend de |
 |---|---|---|
 | K1-1 | Le repo devient le kit : retrait du code Electron, hooks rapatriés (garde de sortie unique), scripts de veille et de lancement, fiche concept | — |
-| K1-2 | Process élagué : process et profils génériques sous plafond de taille, niveaux, fiche projet (gabarit et fiche de jam), relais allégé, recette d'interface, mesure | K1-1 |
+| K1-2 | Process élagué : process et profils génériques sous plafond de taille, niveaux, fiche projet (gabarit et fiche de jam), relais allégé, recette d'interface, mesure du temps du mainteneur estimée par script (RET-018), veille des cartes non tenues (RET-017) | K1-1 |
 | K1-3 | Page publique : le `README.md` de jam | K1-2 |
 
-**Critère de fin du jalon** : le repo ne contient plus le code de l'app ; le plugin s'installe sur le poste depuis le repo, et ses hooks et scripts passent leurs tests en CI ; le process et les profils sont génériques et tiennent sous leur plafond de taille (NFR-015) ; jam a sa fiche ; le `README.md` est la page publique, avec le temps du mainteneur mesuré sur K1-1 et K1-2 ; la fiche concept du jalon (plugin Claude Code et hooks comme garde-fous, `AGENTS.md` règle 3) est écrite.
+**Critère de fin du jalon** : le repo ne contient plus le code de l'app ; le plugin s'installe sur le poste depuis le repo, et ses hooks et scripts passent leurs tests en CI ; le process et les profils sont génériques et tiennent sous leur plafond de taille (NFR-015) ; jam a sa fiche ; le `README.md` est la page publique, avec le temps du mainteneur sur K1-1 et K1-2, estimé par le script de FR-055 ; la fiche concept du jalon (plugin Claude Code et hooks comme garde-fous, `AGENTS.md` règle 3) est écrite.
 
 ## Ensuite
 

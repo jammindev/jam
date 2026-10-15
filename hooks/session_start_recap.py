@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""SessionStart hook: print a compact recap so a new session starts with the
-git state already in context.
+"""SessionStart hook: print a compact recap so a new, cleared or resumed
+(--continue) session starts with the git state already in context.
 
 Inside Orca (ORCA_WORKTREE_ID set), an extra block tells the agent which
 worktree, card and terminal it runs in, read from the Orca CLI through the
@@ -12,13 +12,16 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-# scripts/ is found from this file, not from the cwd: Claude Code runs the hook
-# from the session's folder, anywhere on the machine.
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                "scripts"))
+# The plugin's root is found from this file, not from the cwd: Claude Code runs
+# the hook from the session's folder, anywhere on the machine.
+PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(PLUGIN_ROOT, "scripts"))
 import orca_cli  # noqa: E402
 
-REPO_PROCESS = "docs/process/README.md"
+# A repo follows the method when it has its fiche. The process and profiles
+# named next to it are those of the plugin running this hook: copies inside a
+# worktree (jam holds one, being the plugin's own repo) stay inert.
+PROJECT_FICHE = "docs/methode.md"
 # Seconds per Orca call: the recap must never hold the session start hostage
 # to a hung or absent Orca app. A module constant so the tests can raise it.
 ORCA_TIMEOUT = 1
@@ -166,8 +169,11 @@ def main():
         dirty = len([x for x in status.splitlines() if x.strip()])
         lines.append(f"**Worktree** `{os.path.basename(toplevel)}` · "
                      f"**branche** `{branch}` · {dirty} fichier(s) non commité(s)")
-        if os.path.isfile(os.path.join(toplevel, REPO_PROCESS)):
-            lines.append(f"Process du repo : `{REPO_PROCESS}`")
+        if os.path.isfile(os.path.join(toplevel, PROJECT_FICHE)):
+            process = os.path.join(PLUGIN_ROOT, "process", "README.md")
+            roles = os.path.join(PLUGIN_ROOT, "roles")
+            lines.append(f"Méthode : fiche `{PROJECT_FICHE}` · process `{process}` "
+                         f"· profils `{roles}/`")
 
         log = git(cwd, "log", "--oneline", "-5", "--no-decorate")
         if log:

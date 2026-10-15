@@ -2,7 +2,7 @@
 
 Le kit d'une méthode de *loop engineering*. Pour chaque issue GitHub, des rôles d'agents travaillent dans un worktree dédié : plan, TDD, relecture, recette. Ils vont jusqu'au merge, et l'humain n'intervient que pour les feux verts. La méthode tourne dans [Orca](https://github.com/stablyai/orca), avec Claude Code.
 
-jam est un **plugin Claude Code** minimal : le process, les profils de rôle, les hooks qui tiennent les garde-fous et deux scripts. Chaque projet qui suit la méthode n'a qu'une fiche, `docs/methode.md`.
+jam est un **plugin Claude Code** minimal : le process, les profils de rôle, les hooks qui tiennent les garde-fous et trois scripts (lancement d'une tâche, veille des cartes, estimation du temps du mainteneur). Chaque projet qui suit la méthode n'a qu'une fiche, `docs/methode.md`.
 
 Statut : jalon K1, kit en construction, gelé une fois livré ; cette page deviendra la page publique de la méthode. jam visait d'abord une app Electron, abandonnée le 2026-10-11 ([ADR 0016](docs/decisions/0016-kit-de-methode.md)) ; son code a été retiré du repo, et son dernier état est au tag `app-electron`. Voir [`docs/specs/`](docs/specs/) et [`docs/decisions/`](docs/decisions/).
 

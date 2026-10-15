@@ -68,6 +68,10 @@ ROLE = "coordinateur"
 FILE_TOOLS = {"Edit": "file_path", "Write": "file_path", "NotebookEdit": "notebook_path"}
 
 HOME = os.path.normpath(os.path.expanduser("~"))
+# The process of the plugin running this guard, found from this file: the
+# session's repo may hold no process at all, or an outdated copy.
+PLUGIN_PROCESS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                              "process", "README.md")
 HOOKS_DIR = os.path.join(HOME, ".claude", "hooks")
 
 ALLOWED = [
@@ -102,7 +106,7 @@ def fail(what):
     print(
         f"[jam] BLOQUÉ : {what}.\n"
         "Le coordinateur ne produit pas de livrable : délègue à un rôle "
-        "(docs/process/README.md).\n"
+        f"({PLUGIN_PROCESS}).\n"
         "Écritures permises : la mémoire (~/.claude/projects/*/memory/), "
         "le plan (~/.claude/plans/*.md), /tmp/claude-*/ et /private/tmp/claude-*/, "
         "et l'installation d'un hook relu (cp depuis .../hooks-staging/ vers "

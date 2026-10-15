@@ -6,7 +6,7 @@
 
 jam est le **kit d'une méthode de *loop engineering***. Pour chaque issue, des rôles d'agents travaillent dans un worktree dédié (plan, TDD, relecture, recette) jusqu'au merge ; le mainteneur n'intervient que pour les feux verts. Le régime dépend du risque du projet : léger par défaut, complet pour un projet en production qui touche à l'argent ou à des données de personnes. La méthode tourne dans Orca, avec Claude Code.
 
-Le kit est un **plugin Claude Code**, minimal, installé une fois sur le poste de travail : le process, les profils de rôle, les hooks qui tiennent les garde-fous et deux scripts. Chaque projet n'a qu'une fiche, `docs/methode.md`. Le `README.md` de jam est la page publique de la méthode.
+Le kit est un **plugin Claude Code**, minimal, installé une fois sur le poste de travail : le process, les profils de rôle, les hooks qui tiennent les garde-fous et trois scripts (lancement d'une tâche, veille des cartes, estimation du temps du mainteneur). Chaque projet n'a qu'une fiche, `docs/methode.md`. Le `README.md` de jam est la page publique de la méthode.
 
 ## Pourquoi
 
@@ -16,7 +16,7 @@ Le kit est un **plugin Claude Code**, minimal, installé une fois sur le poste d
 ## Pour qui
 
 - **Le mainteneur, d'abord**, pour ses projets, sur son poste de travail.
-- **Un projet public** sur GitHub, sans promesse de support. Sa page publique montre, chiffres mesurés à l'appui, comment le mainteneur travaille avec des agents.
+- **Un projet public** sur GitHub, sans promesse de support. Sa page publique montre, chiffres à l'appui (le temps du mainteneur, estimé par script et présenté comme une estimation, RET-018), comment le mainteneur travaille avec des agents.
 
 ## Objectifs
 
@@ -37,7 +37,7 @@ Le kit est un **plugin Claude Code**, minimal, installé une fois sur le poste d
 
 | Horizon | Critère vérifiable |
 |---|---|
-| Fin du jalon K1 (deux à trois jours de travail) | Le repo ne contient plus le code de l'app. Le plugin s'installe sur le poste depuis le repo ; ses hooks et scripts passent leurs tests en CI. Le process et les profils sont génériques et tiennent sous leur plafond de taille. jam a sa fiche. Le `README.md` est la page publique, avec le temps du mainteneur mesuré sur les deux premières issues du jalon. Le kit est alors gelé. |
+| Fin du jalon K1 (deux à trois jours de travail) | Le repo ne contient plus le code de l'app. Le plugin s'installe sur le poste depuis le repo ; ses hooks et scripts passent leurs tests en CI. Le process et les profils sont génériques et tiennent sous leur plafond de taille. jam a sa fiche. Le `README.md` est la page publique, avec le temps du mainteneur sur les deux premières issues du jalon, estimé par le script de FR-055. Le kit est alors gelé. |
 
 ## Principes
 
@@ -47,7 +47,7 @@ Le kit est un **plugin Claude Code**, minimal, installé une fois sur le poste d
 - **Imposer ce qui peut l'être.** Ce qu'un hook peut garantir (aucune écriture du coordinateur, aucune sortie sans accord) ne repose pas sur un agent.
 - **Assez bon.** Une relecture qui ne trouve plus que du cosmétique s'arrête. La justesse prime sur l'exhaustivité.
 - **Petits lots** (pratiques DORA, [ADR 0011](../decisions/0011-pratiques-et-metriques-dora.md) §1). Des tâches petites, mergées vite dans `main`, vérifiées par des tests et une CI.
-- **Rien d'inventé.** La page publique ne cite que ce qui a été mesuré.
+- **Rien d'inventé.** La page publique ne cite que ce qui a été mesuré ou estimé par un script, et présente une estimation comme telle (FR-056).
 
 ## Contraintes
 

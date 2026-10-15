@@ -1,6 +1,6 @@
 # ADR 0017 : le coordinateur vit dans le `main` du projet, sur le poste de travail
 
-- **Statut** : acceptée (feu vert de cadrage du 2026-10-11)
+- **Statut** : acceptée (feu vert de cadrage du 2026-10-11). Précisée par l'[ADR 0018](0018-process-elague.md).
 - **Date** : 2026-10-11
 - **Tranche** : RET-015. Remplace la partie « Coordinateur dans le terminal flottant » de l'[ADR 0015](0015-remontee-carte-seule-coordinateur-flottant.md)
 

@@ -186,59 +186,72 @@ def last_user_message(transcript_path, max_bytes=20_000_000):
             event = json.loads(raw)
         except Exception:
             continue
-        # Valid JSON that is not an event is skipped like an unreadable line.
-        if not isinstance(event, dict) or not isinstance(event.get("message"), dict):
-            continue
-        # isMeta: harness-injected. isCompactSummary / isVisibleInTranscriptOnly:
-        # the session summary written after a context compaction, whose last
-        # words ("Continue the conversation…") would read as an approval.
-        if (event.get("type") != "user" or event.get("isMeta")
-                or event.get("isCompactSummary") or event.get("isVisibleInTranscriptOnly")):
-            continue
-
-        content = event["message"].get("content")
-        if isinstance(content, list):
-            # Tool results are not the maintainer talking (a green light read
-            # on a card arrives this way, and does not count).
-            if any(isinstance(b, dict) and b.get("type") == "tool_result"
-                   for b in content):
-                continue
-            text = "\n".join(
-                b.get("text", "") for b in content
-                if isinstance(b, dict) and b.get("type") == "text"
-            )
-        elif isinstance(content, str):
-            text = content
-        else:
-            continue
-
-        text = re.sub(r"<system-reminder>.*?</system-reminder>", "", text, flags=re.S)
-        text = re.sub(r"<ide_opened_file>.*?</ide_opened_file>", "", text, flags=re.S)
-        text = re.sub(r"<local-command-caveat>.*?</local-command-caveat>", "",
-                      text, flags=re.S)
-        # Harness-injected notifications are not the maintainer talking.
-        # Background task events arrive as "user" messages too; without this
-        # they were mistaken for the latest word and blocked an action just
-        # approved (a task event kept landing between the "go" and the push).
-        text = re.sub(r"<task-notification>.*?</task-notification>", "", text, flags=re.S)
-        if ("SYSTEM NOTIFICATION - NOT USER INPUT" in text
-                or "<task-notification" in text):
-            continue
-        # Strip the wrappers the harness adds around the real words, keeping them.
-        text = re.sub(r"(?m)^.*The user sent a new message while you were working:\s*$",
-                      "", text)
-        text = re.sub(
-            r"(?m)^\s*(?:UserPromptSubmit hook success:\s*)?(?:\[jam\]\s*)?\[état git\].*$",
-            "", text)
-        text = text.strip()
-
-        if not text or "[Request interrupted" in text or LOCAL_COMMAND.match(text):
-            continue
-        if SLASH_COMMAND.match(text):
-            args = SLASH_ARGS.search(text)
-            return args.group(1).strip() if args else ""
-        return text
+        words = maintainer_words(event)
+        if words is not None:
+            return words
     return None
+
+
+def maintainer_words(event):
+    """The maintainer's own words in one transcript event, or None.
+
+    None means the event is not the maintainer talking (tool result, injected
+    notice, `!` command…). A `/` command gives its arguments, "" when it has
+    none. Shared with scripts/maintainer_time.py, so both read a transcript
+    the same way.
+    """
+    # Valid JSON that is not an event is skipped like an unreadable line.
+    if not isinstance(event, dict) or not isinstance(event.get("message"), dict):
+        return None
+    # isMeta: harness-injected. isCompactSummary / isVisibleInTranscriptOnly:
+    # the session summary written after a context compaction, whose last
+    # words ("Continue the conversation…") would read as an approval.
+    if (event.get("type") != "user" or event.get("isMeta")
+            or event.get("isCompactSummary") or event.get("isVisibleInTranscriptOnly")):
+        return None
+
+    content = event["message"].get("content")
+    if isinstance(content, list):
+        # Tool results are not the maintainer talking (a green light read
+        # on a card arrives this way, and does not count).
+        if any(isinstance(b, dict) and b.get("type") == "tool_result"
+               for b in content):
+            return None
+        text = "\n".join(
+            b.get("text", "") for b in content
+            if isinstance(b, dict) and b.get("type") == "text"
+        )
+    elif isinstance(content, str):
+        text = content
+    else:
+        return None
+
+    text = re.sub(r"<system-reminder>.*?</system-reminder>", "", text, flags=re.S)
+    text = re.sub(r"<ide_opened_file>.*?</ide_opened_file>", "", text, flags=re.S)
+    text = re.sub(r"<local-command-caveat>.*?</local-command-caveat>", "",
+                  text, flags=re.S)
+    # Harness-injected notifications are not the maintainer talking.
+    # Background task events arrive as "user" messages too; without this
+    # they were mistaken for the latest word and blocked an action just
+    # approved (a task event kept landing between the "go" and the push).
+    text = re.sub(r"<task-notification>.*?</task-notification>", "", text, flags=re.S)
+    if ("SYSTEM NOTIFICATION - NOT USER INPUT" in text
+            or "<task-notification" in text):
+        return None
+    # Strip the wrappers the harness adds around the real words, keeping them.
+    text = re.sub(r"(?m)^.*The user sent a new message while you were working:\s*$",
+                  "", text)
+    text = re.sub(
+        r"(?m)^\s*(?:UserPromptSubmit hook success:\s*)?(?:\[jam\]\s*)?\[état git\].*$",
+        "", text)
+    text = text.strip()
+
+    if not text or "[Request interrupted" in text or LOCAL_COMMAND.match(text):
+        return None
+    if SLASH_COMMAND.match(text):
+        args = SLASH_ARGS.search(text)
+        return args.group(1).strip() if args else ""
+    return text
 
 
 # --- gh --------------------------------------------------------------------
