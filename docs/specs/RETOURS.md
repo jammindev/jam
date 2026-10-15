@@ -10,7 +10,7 @@
 - **Remarque** : le coordinateur a créé lui-même les milestones GitHub et les issues #1 à #4. Comme ces éléments posent les bases de l'app, ils auraient dû être produits par un autre agent, puis relus.
 - **Analyse** : le principe « une méthode imposée plutôt qu'espérée » ne vaut pas que pour le code. Le coordinateur orchestre : il ne produit aucun livrable. Tout livrable, y compris hors code (issues, specs, ADR, docs), suit le même chemin : production par un rôle, relecture indépendante, feu vert.
 - **Impact** :
-  - process : rôle `rédacteur` créé ([roles/redacteur.md](../process/roles/redacteur.md)) ; le cadrage passe par le rédacteur puis le relecteur ([process](../process/README.md)) ;
+  - process : rôle `rédacteur` créé ([roles/redacteur.md](../../roles/redacteur.md)) ; le cadrage passe par le rédacteur puis le relecteur ([process](../../process/README.md)) ;
   - FR-040 précisé ;
   - glossaire : « Coordinateur », « Rôle », « Rédacteur », « Feu vert » ;
   - rattrapage : les milestones et les issues #1 à #4 ont été relus. Les corrections sont dans `docs/plans/specs-retours-dora-issues.md` et seront publiées par le coordinateur après le feu vert.
@@ -55,7 +55,7 @@
 - **Analyse** : les garde-fous d'un rôle, coordinateur compris, sont tenus par du code et non par la mémoire de l'agent. Que le coordinateur ne produise aucun livrable (RET-001) ne doit pas dépendre de son obéissance. Le coordinateur devient donc un rôle avec son profil : la variable `JAM_ROLE=coordinateur` l'identifie, et un hook refuse ses écritures hors des emplacements autorisés (voir plus bas). Ce hook est personnel au poste du mainteneur, hors du repo. Il a été installé le 2026-10-09, après deux tours de relecture, et n'agit que si la session est lancée avec la variable (un `export` depuis le shell de l'agent n'atteint pas les hooks). Il autorise la mémoire, le plan de la session, les dossiers temporaires et l'installation d'un hook relu (Q-026). Dans jam, c'est le cœur qui jouera ce rôle.
 - **Impact** :
   - [ADR 0012](../decisions/0012-coordinateur-role-garde-fous-hook.md), qui complète l'ADR 0009 et y trace aussi les profils du rédacteur et de la variante du relecteur ;
-  - profil [roles/coordinateur.md](../process/roles/coordinateur.md) ;
+  - profil [roles/coordinateur.md](../../roles/coordinateur.md) ;
   - process et `AGENTS.md` : « aucun rôle du pipeline ni du cadrage ne committe » ; section « Ce qu'Orca ne permet pas » revue.
 - **Statut** : appliqué.
 
@@ -118,7 +118,7 @@
   - **feu vert relayé** (constat du tour 1 de relecture, option retenue par le mainteneur) : tout feu vert relayé d'un niveau à l'autre (cadrage, plan, recette, merge) cite les mots exacts du mainteneur, l'heure et la session où il l'a donné. Il vaut alors feu vert, et accord explicite au sens de la règle 6 d'`AGENTS.md` pour l'action que ce feu vert ouvre, et elle seule (commit, push et PR après le feu vert recette ou de cadrage ; merge après le feu vert merge ; publication après le feu vert de cadrage ; aucune après le feu vert plan). Sans ces trois éléments, il ne vaut qu'information (format étendu à tout feu vert au tour 2 de relecture, portée de l'accord précisée au tour 3). Limite : l'expéditeur d'un message relayé n'est pas authentifié ; dans jam, le feu vert sera une action du cockpit, enregistrée par le cœur ;
   - **question ouverte, non tranchée** : avancer le coordinateur conversationnel dans E0, pour que le niveau projet existe dans jam dès E0 (Q-039).
 - **Feu vert merge d'un cadrage**, proposé par le rédacteur et **décidé par le mainteneur** le 2026-10-09 : la PR d'un cadrage passe, comme toute PR, par un **feu vert merge** avant que le coordinateur la merge. Jusqu'ici, un cadrage n'avait que le feu vert de cadrage. Les issues et les milestones du cadrage sont publiés une fois sa PR mergée, pour que leurs liens vers les docs fonctionnent sur `main`.
-- **Impact** : [ADR 0013](../decisions/0013-orchestration-deux-niveaux.md), qui précise l'ADR 0012 et complète l'ADR 0009 ; profil [roles/orchestrateur-tache.md](../process/roles/orchestrateur-tache.md) ; profils du coordinateur, du rédacteur, du relecteur et de l'implémenteur ; process (acteurs, lancement, correspondance, signalement, relecture, garde-fous) ; `AGENTS.md` (section « Environnement », règle 6) ; glossaire (« Orchestrateur de tâche », « Coordinateur », « Rôle », « Lead », « Agent actif », « Cadrage », « Feu vert ») ; Q-036 à Q-039, Q-028 et Q-033 (porteur) ; risques R-02 et R-03 de la roadmap. Les exigences ne changent pas : FR-021, FR-027 et FR-034 décrivent déjà le pipeline codé, l'état partagé et le lead.
+- **Impact** : [ADR 0013](../decisions/0013-orchestration-deux-niveaux.md), qui précise l'ADR 0012 et complète l'ADR 0009 ; profil [roles/orchestrateur-tache.md](../../roles/orchestrateur-tache.md) ; profils du coordinateur, du rédacteur, du relecteur et de l'implémenteur ; process (acteurs, lancement, correspondance, signalement, relecture, garde-fous) ; `AGENTS.md` (section « Environnement », règle 6) ; glossaire (« Orchestrateur de tâche », « Coordinateur », « Rôle », « Lead », « Agent actif », « Cadrage », « Feu vert ») ; Q-036 à Q-039, Q-028 et Q-033 (porteur) ; risques R-02 et R-03 de la roadmap. Les exigences ne changent pas : FR-021, FR-027 et FR-034 décrivent déjà le pipeline codé, l'état partagé et le lead.
 - **Statut** : appliqué.
 
 ## RET-010 — La recette de l'agent part du même état que celle du mainteneur
@@ -132,7 +132,7 @@
   - la recette de l'agent a d'abord lancé l'app par Playwright, qui passe par `require('electron')` et a téléchargé le binaire. Elle n'a vérifié `pnpm dev` qu'en dernier (contrôle « 3 bis »), quand le binaire était déjà là : un contrôle a préparé le terrain du suivant ;
   - la CI ne lance jamais `pnpm dev`.
 - **Règle** : la recette de l'agent part d'une **installation neuve** (dépendances réinstallées depuis zéro, sans binaire préparé par un autre contrôle), et déroule **d'abord la check-list du mainteneur**, avec ses commandes et dans son ordre. Les contrôles outillés (Playwright, etc.) viennent ensuite. Aucun mécanisme nouveau. La réinstallation est une étape de la recette : elle relève de la « commande de recette » et du « réseau selon la recette » que l'[ADR 0009](../decisions/0009-permissions-par-role.md) donne au recetteur. Elle ne touche aucun fichier suivi par git : le recetteur reste en lecture seule sur le repo.
-- **Impact** : profil [roles/recetteur.md](../process/roles/recetteur.md) ; process (section « Recette ») ; Q-033 (la commande du recetteur doit permettre la réinstallation) ; brouillon d'issue du bug dans [`cadrage-orchestration-issues.md`](../plans/cadrage-orchestration-issues.md). Les exigences ne changent pas.
+- **Impact** : profil [roles/recetteur.md](../../roles/recetteur.md) ; process (section « Recette ») ; Q-033 (la commande du recetteur doit permettre la réinstallation) ; brouillon d'issue du bug dans [`cadrage-orchestration-issues.md`](../plans/cadrage-orchestration-issues.md). Les exigences ne changent pas.
 - **Statut** : appliqué.
 
 ## RET-011 — Consulter Orca avant de concevoir une brique qu'il possède
@@ -155,10 +155,10 @@
 - **Portée** : les tâches du repo jam seulement. Orca n'est une référence que pour ce repo : le même rôle planificateur, lancé sur une autre cible comme `house`, n'a ni section « Orca » ni clone. Ne s'applique pas à l'issue #7, dont le plan est déjà validé. S'applique dès la tâche suivante.
 - **Impact** :
   - [ADR 0014](../decisions/0014-lecture-clone-orca-implementeur.md), qui précise l'ADR 0009 ;
-  - profil du [planificateur](../process/roles/planificateur.md) : lecture du clone, section « Orca » du plan ;
-  - profils de l'[implémenteur](../process/roles/implementeur.md) (reprise, licence, accès au clone) et du [relecteur](../process/roles/relecteur.md) (axe conformité) ;
-  - profil du [rédacteur](../process/roles/redacteur.md) : compléter la carte au cadrage d'un jalon (complément 2) ;
-  - profil de l'[orchestrateur de tâche](../process/roles/orchestrateur-tache.md) : préparer et vérifier le clone, le donner au planificateur et, pour une reprise, à l'implémenteur (ajouté à l'intégration de `main`, Q-042) ;
+  - profil du [planificateur](../../roles/planificateur.md) : lecture du clone, section « Orca » du plan ;
+  - profils de l'[implémenteur](../../roles/implementeur.md) (reprise, licence, accès au clone) et du [relecteur](../../roles/relecteur.md) (axe conformité) ;
+  - profil du [rédacteur](../../roles/redacteur.md) : compléter la carte au cadrage d'un jalon (complément 2) ;
+  - profil de l'[orchestrateur de tâche](../../roles/orchestrateur-tache.md) : préparer et vérifier le clone, le donner au planificateur et, pour une reprise, à l'implémenteur (ajouté à l'intégration de `main`, Q-042) ;
   - [`docs/references/orca.md`](../references/orca.md) : rôle de carte, version de référence, procédure du clone, liste noire ;
   - `AGENTS.md`, règle 9 ; glossaire (« Clone de référence ») ; Q-040, Q-042, Q-043.
 - **Statut** : appliqué (feu vert de cadrage du 2026-10-09 ; intégration de `main` relue au tour 10).
@@ -227,4 +227,40 @@
   6. **Mesure** : pas de script d'indicateurs. Une seule mesure, notée à la main dans la PR ou le plan : le temps passé par le mainteneur sur l'issue. Elle alimente la page publique.
   7. **Périmètre** : le kit ne s'étend à aucun autre projet du mainteneur pendant ce jalon. Rien de propre à un autre projet ni à des tiers dans le kit ni dans les fiches : le repo est public.
 - **Impact** : [ADR 0016](../decisions/0016-kit-de-methode.md) (gel, contenu du plugin, niveaux, léger sans orchestrateur, relais allégé, mesure) ; `00-VISION.md`, `01-REQUIREMENTS.md` (FR-043 à FR-051 revues, FR-052 à FR-056, NFR-015 et NFR-016), `02-ARCHITECTURE.md`, `04-ROADMAP.md` (jalon K1 en trois issues, risque R-07) ; glossaire ; Q-053, Q-055, Q-057, Q-060, Q-061 revues, Q-062 et Q-063 ; `AGENTS.md`, `README.md` ; profils de l'implémenteur, du relecteur et du recetteur (commandes de l'issue 1) ; brouillons d'issues redécoupés.
+- **Statut** : appliqué.
+
+## RET-017 — La veille voit les cartes que personne ne tient, et un relais se vérifie
+
+- **Date** : 2026-10-11, ajouté à l'issue #23 (point 7)
+- **Remarque** : retour du coordinateur d'un autre projet du poste, repris dans l'issue #23. Un relais de feu vert envoyé par `orca terminal send` a été avalé par une fenêtre : il n'est jamais arrivé à la session visée, et rien ne l'a signalé. Pendant ce temps, la veille des cartes tournait à vide : la carte restait `▶`, et la veille ne se réveillait que sur `⏸`, `⛔`, `✓` ou `💬`.
+- **Analyse** :
+  - une carte est tenue par un agent. Bloqué sur une invite d'autorisation, arrêté, ou en attente d'un relais qui n'est pas venu, il ne la tient plus, et la carte reste `▶`. La règle « quand une carte reste longtemps `in-progress`, le coordinateur vérifie l'état de l'agent » (ADR 0013, ADR 0017) suppose qu'il y pense : il n'y pensait pas ;
+  - Orca connaît l'état de chaque agent d'un worktree (`orca worktree ps`) : la veille peut le lire. Elle se réveille sur une **transition**, un agent qui passe en attente d'autorisation ou une carte sans agent au travail depuis N minutes, une seule fois par **épisode** : sans cela, elle réveillerait le coordinateur à chaque lecture ;
+  - un relais qui n'arrive pas ne se voit que si on le cherche : 30 s après l'envoi, `orca terminal read` lit l'écran de la session visée. Le relais est court, et sans négation, que la garde de sortie lirait comme un refus (friction 24 de #22).
+- **Impact** : FR-046 ; `scripts/watch_cards.py` (deux réveils, `--idle-minutes`) ; process (« Carte, feux verts et veille ») et profil du coordinateur ; [ADR 0018](../decisions/0018-process-elague.md) (remplace la vérification à la main) ; glossaire (« Agent en cours », « Épisode », « Veille des cartes ») ; fiche concept `docs/concepts/veille-et-mesure.md`. Limite : une fenêtre d'autorisation du système laisse l'agent au travail, la veille ne la voit pas (Q-059).
+- **Statut** : appliqué.
+
+## RET-018 — Le temps du mainteneur est estimé par un script
+
+- **Date** : 2026-10-12, ajouté à l'issue #23 (point 8)
+- **Remarque** : ne plus demander au mainteneur le temps qu'il a passé sur une issue ; un script l'estime, et la session qui ouvre la PR l'y note.
+- **Analyse** :
+  - FR-055 demandait une mesure « notée à la main » : personne ne chronomètre, et une estimation au jugé ne vaut pas une mesure. Les transcripts de Claude Code gardent chaque message du mainteneur, avec son heure ;
+  - le script reprend le tri des messages du mainteneur de la garde de sortie (même fonction, pour que les deux lectures ne divergent pas) et écarte ce qu'il n'a pas tapé : commandes `!` et messages d'autres agents. Des messages à moins de 10 min l'un de l'autre forment un moment, qui vaut sa durée plus 3 min de lecture (feu vert plan de #23) ;
+  - seules les sessions du coordinateur, sur le worktree principal, sont lues, à l'écart de l'issue #23 qui nommait aussi celles de la tâche : à la recette de #23, tout ce qui arrivait dans le worktree de #22 venait d'agents, et le script en comptait les relais comme des messages du mainteneur (décision du mainteneur, 2026-10-13) ;
+  - c'est une estimation, avec des limites écrites : un « ok » qui suit un résumé de plusieurs tâches compte pour chacune ; un message qui ne nomme pas la tâche est perdu ; la recette du mainteneur, faite dans une session du worktree de la tâche, n'est pas comptée, ni un feu vert tapé là (Q-065). La page publique le présente comme une estimation ;
+  - le mainteneur ne compte rien lui-même, il ne valide donc pas le chiffre (retour du 2026-10-13, à la recette de #23) : sa vérification n'aurait été qu'un second relevé à la main. La publication de la page reste soumise à son feu vert. Ce n'est pas le script d'indicateurs que RET-016 écarte : il ne mesure que le temps du mainteneur.
+- **Impact** : FR-055, FR-046, FR-056 ; `00-VISION.md` et `04-ROADMAP.md` (critère de fin du jalon K1) ; `scripts/maintainer_time.py` ; process (« Mesure ») et profils du coordinateur et de l'orchestrateur de tâche ; [ADR 0018](../decisions/0018-process-elague.md) ; Q-057 ; glossaire (« Moment ») ; fiche concept `docs/concepts/veille-et-mesure.md` ; issue de la page publique (K1-3), dont le passage « Chiffres » demande des chiffres mesurés et est à aligner sur FR-056 (corps de l'issue modifié par le coordinateur après le merge, sur feu vert). Un message ne compte que s'il porte le numéro d'issue ou le nom du worktree de la tâche : la règle « Messages au mainteneur » (RET-019) rend ce numéro obligatoire.
+- **Statut** : appliqué.
+
+## RET-019 — Les messages au mainteneur se lisent seuls
+
+- **Date** : 2026-10-13, à la recette de l'issue #23 ; accord du mainteneur sur la règle le même jour, relayé par le coordinateur
+- **Remarque** : le mainteneur suit plusieurs projets et ne lit que les sessions de `main`. Il ne peut pas retenir à quoi renvoient « issue #22 » ou « friction 18 ». Un message qui en dépend l'oblige à aller chercher le sens ailleurs.
+- **Analyse** :
+  - le défaut est réel et vient de la tâche même : la tête « À décider » du rapport de recette de #23 parlait de « friction 18 » et de « #22 » sans dire ce qu'ils désignent ;
+  - les numéros servent aux rôles, qui ont les fichiers sous la main. Le mainteneur, lui, lit hors contexte, à côté d'autres projets ;
+  - la règle vaut pour tout ce qui lui est adressé : la carte, la tête « À décider » d'un fichier ouvert pour lui, le résumé du coordinateur. Elle ne touche pas les fichiers de travail entre rôles. Elle coûte quelques mots par message, sous le plafond du process.
+- **Règle** (« Messages au mainteneur ») : tout message adressé au mainteneur se lit seul. Il nomme le projet et la tâche en mots, la tâche suivie de son numéro d'issue entre parenthèses, avec son dièse (« (#23) »), que lit la mesure du temps (RET-018). Toute autre référence interne (friction, ADR, RET, FR) est remplacée par ce qu'elle désigne, le numéro au plus entre parenthèses.
+- **Impact** : process (« Messages au mainteneur ») et profils du coordinateur, de l'orchestrateur de tâche, du planificateur et du recetteur ; [ADR 0018](../decisions/0018-process-elague.md) (règle ajoutée, sans rien remplacer). Les exigences ne changent pas.
 - **Statut** : appliqué.

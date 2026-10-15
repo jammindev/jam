@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for session_start_recap.py — the Orca block and the repo process line.
+"""Tests for session_start_recap.py — the Orca block and the method line.
 
 Each case runs the hook the way Claude Code does: a JSON payload on stdin, the
 recap read on stdout. Calling the functions directly would test the helpers and
@@ -32,7 +32,13 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOOK = os.path.join(HERE, "session_start_recap.py")
-SCRIPTS = os.path.join(os.path.dirname(HERE), "scripts")
+PLUGIN = os.path.dirname(HERE)
+SCRIPTS = os.path.join(PLUGIN, "scripts")
+# The method line names the process and profiles of the plugin running the
+# hook, as absolute paths: never the copies a project may hold in its worktree.
+METHOD_LINE = (f"Méthode : fiche `docs/methode.md` · process "
+               f"`{os.path.join(PLUGIN, 'process', 'README.md')}` · profils "
+               f"`{os.path.join(PLUGIN, 'roles')}/`\n")
 
 # Runs the hook with orca_cli.APP_BIN replaced, so "no Orca anywhere" can be
 # tested on a machine where the Orca app is installed. The hook imports the
@@ -128,21 +134,30 @@ class SessionStartRecapTest(unittest.TestCase):
         self.root = os.path.realpath(tempfile.mkdtemp(prefix="session-start-recap-"))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
         self.plain = self.make_repo("plain")
-        self.with_process = self.make_repo("with-process", with_process=True)
+        self.with_method = self.make_repo("with-method", with_method=True)
 
     # --- fixtures --------------------------------------------------------
 
-    def make_repo(self, name, with_process=False):
+    def make_repo(self, name, with_method=False, own_process=True):
         path = os.path.join(self.root, name)
         os.makedirs(path)
         # Isolated HOME: no personal init.templateDir or hooks in test repos.
         subprocess.run(["git", "init", "-q", path], capture_output=True,
                        env=self.base_env(), check=True)
-        if with_process:
-            os.makedirs(os.path.join(path, "docs", "process"))
-            with open(os.path.join(path, "docs", "process", "README.md"), "w") as fh:
-                fh.write("# Process\n")
+        if with_method:
+            self.write(path, "docs/methode.md", "# Fiche\n")
+        if own_process:
+            # Copies of the method inside a project (jam holds one): the hook
+            # must never point at them, whether the repo has a fiche or not.
+            self.write(path, "process/README.md", "# Copie\n")
+            self.write(path, "docs/process/README.md", "# Ancien\n")
         return path
+
+    def write(self, repo, relative, content):
+        target = os.path.join(repo, relative)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "w") as fh:
+            fh.write(content)
 
     def make_fake(self, name, worktree=None, terminals=None, fail=(), delay=0,
                   garbage=False, raw=None):
@@ -209,6 +224,7 @@ class SessionStartRecapTest(unittest.TestCase):
         out = self.run_hook(self.plain, env)
         self.assertTrue(out.startswith("[jam] Reprise de contexte"), out)
         self.assertNotIn("## Orca", out)
+        self.assertNotIn("Méthode", out)
         self.assertNotIn("Process du repo", out)
         self.assertNotIn("toujours --json", out)
         self.assertEqual(self.fake_calls(idle), [])
@@ -222,13 +238,31 @@ class SessionStartRecapTest(unittest.TestCase):
         self.assertNotIn("## Orca", out)
         self.assertEqual(self.fake_calls(idle), [])
 
-    def test_repo_process_outside_orca(self):
-        # From a subfolder: the file is looked up at the repo root, not the cwd.
-        sub = os.path.join(self.with_process, "src", "deep")
+    def test_method_line_outside_orca(self):
+        # From a subfolder: the fiche is looked up at the repo root, not the cwd.
+        sub = os.path.join(self.with_method, "src", "deep")
         os.makedirs(sub)
         out = self.run_hook(sub, self.base_env())
-        self.assertIn("Process du repo : `docs/process/README.md`", out)
+        self.assertIn("\n" + METHOD_LINE, out)
+        self.assertEqual(out.count("Méthode"), 1)
+        # The repo's own process/ and docs/process/ are never named.
+        self.assertNotIn(os.path.join(self.with_method, "process"), out)
+        self.assertNotIn("Process du repo", out)
         self.assertNotIn("## Orca", out)
+
+    def test_no_fiche_no_method_line(self):
+        # A repo with copies of the process but no fiche does not follow the
+        # method: no line, rather than a pointer it would not use.
+        out = self.run_hook(self.plain, self.base_env())
+        self.assertIn("[jam] Reprise de contexte", out)
+        self.assertNotIn("Méthode", out)
+        self.assertNotIn("process", out)
+
+    def test_fiche_that_is_a_folder_is_no_fiche(self):
+        repo = self.make_repo("fiche-folder", own_process=False)
+        os.makedirs(os.path.join(repo, "docs", "methode.md"))
+        out = self.run_hook(repo, self.base_env())
+        self.assertNotIn("Méthode", out)
 
     # --- inside Orca ------------------------------------------------------
 
@@ -272,13 +306,13 @@ class SessionStartRecapTest(unittest.TestCase):
             terminal("term-c", "Shell vide"),
             terminal("term-d", "Testeur", "claude"),
         ])
-        out = self.run_hook(self.with_process, self.orca_env(fake))
+        out = self.run_hook(self.with_method, self.orca_env(fake))
         self.assertIn("Worktree `jam` · issue #12\n", out)
         self.assertIn("Ce terminal : « Moi » · session libre (sans rôle) : "
                       "ne pas écrire là où un rôle travaille\n", out)
         self.assertIn("⚠ Autre agent actif dans ce worktree : « Relecteur »\n", out)
         self.assertIn("⚠ Autre agent actif dans ce worktree : « Testeur »\n", out)
-        self.assertIn("Process du repo : `docs/process/README.md`", out)
+        self.assertIn(METHOD_LINE, out)
         self.assertNotIn("carte", out)
         self.assertNotIn("PR #", out)
         self.assertNotIn("Shell vide", out)

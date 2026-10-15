@@ -1,6 +1,6 @@
 # ADR 0016 : jam est un kit de méthode, pas un outil
 
-- **Statut** : acceptée (feu vert de cadrage du 2026-10-11)
+- **Statut** : acceptée (feu vert de cadrage du 2026-10-11). Précisée par l'[ADR 0018](0018-process-elague.md).
 - **Date** : 2026-10-11
 - **Tranche** : RET-014, RET-016. Rend caduques ou historiques plusieurs ADR, en précise d'autres, dont l'ADR 0013 (voir « Sort des ADR existantes »)
 

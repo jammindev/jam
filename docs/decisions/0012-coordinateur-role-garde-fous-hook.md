@@ -14,7 +14,7 @@ Depuis l'ADR 0009, deux autres profils en sortent aussi : le rédacteur, rôle n
 
 ## Décision
 
-- **Le coordinateur est un rôle**, avec son profil dans [`roles/coordinateur.md`](../process/roles/coordinateur.md).
+- **Le coordinateur est un rôle**, avec son profil dans [`roles/coordinateur.md`](../../roles/coordinateur.md).
 - **Deux exceptions à l'ADR 0009**, propres au coordinateur :
   - il committe, pousse, publie sur GitHub et merge, après le feu vert correspondant et avec l'accord explicite du mainteneur. C'est le rôle que tiendra le cœur dans jam ;
   - il tourne en session interactive, et non en refus sans invite : le mainteneur est présent, et toute commande hors des réglages lui demande son accord.

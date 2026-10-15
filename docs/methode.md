@@ -1,0 +1,20 @@
+# Méthode : fiche du projet
+
+Fiche de jam, d'après le [gabarit](../process/fiche-projet.md) du plugin. Le reste de la méthode est dans le [process](../process/README.md) et les [profils](../roles/) du plugin installé ; les copies d'un worktree de jam ne se lisent pas ([ADR 0018](decisions/0018-process-elague.md)).
+
+- **Niveau par défaut** : *léger*. jam n'est pas en production et ne touche ni à l'argent ni à des données de personnes ([ADR 0016](decisions/0016-kit-de-methode.md)).
+- **À lire avant toute tâche** : `AGENTS.md` ; `docs/specs/` (vision, exigences, architecture, roadmap, glossaire, questions ouvertes, `RETOURS.md` pour les retours du mainteneur) ; `docs/decisions/`.
+- **Commande de test** : `python3 -m unittest`, à la racine du repo.
+- **Grille de relecture** :
+  - `process/`, `roles/`, `hooks/`, `scripts/` et le manifeste : ni nom d'un autre projet, ni chemin du poste, ni nom d'hôte ou de personne (NFR-014) ; le test de taille de `hooks/test_plugin.py` passe (NFR-015) ;
+  - une règle nouvelle du process ou d'un profil répond à une friction vécue et dit ce qu'elle remplace ou retire, dans une ADR (NFR-016, ADR 0018) ;
+  - hooks et scripts : bibliothèque standard seule, messages préfixés `[jam]`, ce qu'un hook ne couvre pas écrit dans sa docstring ;
+  - `AGENTS.md`, règles 5, 7 et 8 : aucune mention d'assistant, repo public, langues.
+- **Recette** : au niveau *léger*, le mainteneur recette. Il ouvre, dans un terminal Orca du worktree, une session `claude --plugin-dir <chemin du worktree>`, qui charge le plugin du worktree pour cette seule session sans toucher l'installation du poste ; il vérifie le récapitulatif de démarrage (marque `[jam]`, ligne « Méthode ») puis le comportement changé, par des demandes à cette session. Pour une tâche montée en *standard*, la session du recetteur prend la même option `--plugin-dir <chemin du worktree>`, et sa liste blanche ajoute à la commande de test les seuls appels des scripts que la tâche touche (`Bash(python3 scripts/<script>.py *)` et sa forme `rtk`). Une session lancée ainsi ne peut écrire dans le worktree, quelle que soit la règle `Edit` ([ADR 0018](decisions/0018-process-elague.md)) : le recetteur écrit d'emblée son rapport dans son dossier de recette, et un rédacteur le recopie tel quel dans `docs/plans/`.
+- **Merge** : pas de mise en production d'un service. Mais le plugin est lu en place depuis le clone de `main` (Q-055) : le `git pull` qui suit le merge change les hooks et le process de toutes les sessions du poste, tous projets compris. Le feu vert merge se relaie sous sa forme complète, comme pour tout projet (FR-053).
+- **Plafond d'agents du projet** : 3.
+- **Règles propres** :
+  - le worktree d'une tâche s'appelle `<numéro>-<slug>` ; les milestones GitHub sont les jalons de `04-ROADMAP.md` ;
+  - le plan, ou au niveau *léger* l'issue qui en tient lieu (FR-052), a deux sections de plus : **Orca** (`AGENTS.md`, règle 9, RET-011), ce qu'on reprend d'Orca, ce dont on s'inspire, ce qu'on écarte, ou une ligne si la tâche ne touche aucune brique qu'Orca possède ; **Concepts**, la fiche à écrire dans `docs/concepts/` quand la tâche livre un jalon (`AGENTS.md`, règle 3) ;
+  - **clone de référence d'Orca** : sans objet tant que le kit ne reprend pas de code d'Orca ([ADR 0014](decisions/0014-lecture-clone-orca-implementeur.md), historique). Si le plan ou l'issue marque un morceau « repris », l'ADR 0014 redevient applicable : la session qui lance les rôles prépare et vérifie le clone selon le §0 de [`docs/references/orca.md`](references/orca.md), le donne au planificateur et à l'implémenteur par `--add-dir <clone-orca>`, chemin dans le brief seulement ; l'implémenteur ajoute la mention de licence et l'entrée de `THIRD_PARTY_NOTICES.md` ; le relecteur de conformité les vérifie. Le rédacteur d'un cadrage complète la carte du §0, relevée au tag de référence sur GitHub ;
+  - une tâche qui modifie `process/` ou `roles/` suit encore le process installé : ses changements entrent en vigueur au merge.

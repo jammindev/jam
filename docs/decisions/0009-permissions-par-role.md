@@ -1,6 +1,6 @@
 # ADR 0009 : permissions par rôle, jamais de mode sans permission
 
-- **Statut** : acceptée. Complétée par l'[ADR 0012](0012-coordinateur-role-garde-fous-hook.md) (profils du coordinateur, du rédacteur et d'une variante du relecteur ; exceptions du coordinateur) et par l'[ADR 0013](0013-orchestration-deux-niveaux.md) (profil et exceptions de l'orchestrateur de tâche). Précisée par l'[ADR 0014](0014-lecture-clone-orca-implementeur.md) : l'implémenteur lit aussi le clone de référence d'Orca quand le plan prévoit une reprise, sans écriture hors du worktree. Valable en partie depuis l'[ADR 0016](0016-kit-de-methode.md) : caducs, le repérage des refus par le cœur et leur entrée dans une file de l'app.
+- **Statut** : acceptée. Complétée par l'[ADR 0012](0012-coordinateur-role-garde-fous-hook.md) (profils du coordinateur, du rédacteur et d'une variante du relecteur ; exceptions du coordinateur) et par l'[ADR 0013](0013-orchestration-deux-niveaux.md) (profil et exceptions de l'orchestrateur de tâche). Précisée par l'[ADR 0014](0014-lecture-clone-orca-implementeur.md) : l'implémenteur lit aussi le clone de référence d'Orca quand le plan prévoit une reprise, sans écriture hors du worktree. Valable en partie depuis l'[ADR 0016](0016-kit-de-methode.md) : caducs, le repérage des refus par le cœur et leur entrée dans une file de l'app. Précisée par l'[ADR 0018](0018-process-elague.md) : profil du planificateur, avec la recherche web en lecture et sans la commande de test.
 - **Date** : 2026-10-08
 - **Tranche** : Q-010
 
@@ -21,7 +21,7 @@ Les étapes du pipeline tournent sans surveillance ([ADR 0008](0008-boucle-exter
 | Recetteur | Lecture seule | Commande ou skill de recette du repo | Selon la recette (navigateur local) |
 
 - **Aucun rôle ne committe, ne pousse ni ne merge.** Le commit, le push, la création de PR et le merge sont faits par le cœur (aujourd'hui, par le coordinateur), après le feu vert correspondant. C'est déjà la pratique du mainteneur : ses workers ne committent jamais.
-- Les profils exacts (commandes Claude Code) sont décrits dans [`docs/process/roles/`](../process/roles/).
+- Les profils exacts (commandes Claude Code) sont décrits dans [`roles/`](../../roles/).
 - **Un refus de permission est un signal.** Le cœur le repère (champ `permission_denials` du résultat `stream-json`, à vérifier au moment de l'implémentation). La tâche passe alors à « bloqué » et apparaît dans la file « À toi », avec la commande demandée. Le mainteneur peut l'autoriser une fois ou l'ajouter à la liste blanche du repo.
 
 ## Conséquences
