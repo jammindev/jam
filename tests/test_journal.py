@@ -383,6 +383,18 @@ def test_22_list_and_key(tmp_path, capsys, ticket):
     assert fields(out)["branch"] == "" and fields(out)["project_files"] == ""
 
 
+def test_22b_key_for_another_branch_and_pattern(tmp_path, capsys):
+    repo = make_repo(tmp_path / "r")
+    code, out, _ = run(capsys, repo, "key", "--branch", "abc-7-x", "--pattern", r"ABC-\d+")
+    assert code == 0 and fields(out)["key"] == "ABC-7"
+    assert fields(out)["branch"] == "abc-7-x"
+    assert not jam_home().exists()
+    git(repo, "checkout", "-q", "--detach")
+    assert fields(run(capsys, repo, "key", "--branch", "142-x")[1])["key"] == "142"
+    code, _, err = run(capsys, repo, "key", "--branch", "x", "--pattern", "(oops")
+    assert code == 1 and "pattern" in err
+
+
 # --- commands and close ------------------------------------------------------
 
 ENV_DUMP = ('printf "%s|" "$JAM_KEY" "$JAM_STAGE" "$JAM_REPO" "$JAM_PR" '
@@ -495,3 +507,8 @@ def test_21_resume_is_silent_on_bad_arguments(capsys, ticket):
     for extra in (["--bogus"], ["-h"]):
         assert journal.main(["resume", *extra]) == 0
         assert capsys.readouterr() == ("", "")
+
+
+def test_script_stays_under_the_line_ceiling():
+    """The spec's ceiling: past 600 lines, cut scope instead of growing the script."""
+    assert len(SCRIPT.read_text(encoding="utf-8").splitlines()) <= 600

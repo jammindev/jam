@@ -238,6 +238,15 @@ Prints, one per line: `key=`, `branch=`, `worktree=`, `repo=`, `journal=`,
 `exists=yes|no`, `archived=yes|no`, `project_files=` (paths separated by `:`, empty when
 none), `reports=`. A missing value is printed empty. Writes nothing.
 
+Two options let `init` prove a `Ticket pattern` before writing it:
+
+- `--branch <name>`: resolve the key as if `<name>` were the current branch, which
+  `branch=` then prints;
+- `--pattern <regex>`: use this pattern instead of the project files' `Ticket pattern`.
+  An invalid one is an error.
+
+`--key` still wins over both.
+
 ### `init`
 
 Required: `--title`, `--goal`, `--done-when`, `--resume`. Optional: `--plan`,
@@ -429,6 +438,9 @@ suite on Python 3.9 and 3.13, with `ruff check`.
     never exceeds 30 lines; exits 0 outside a git repository.
 22. `list`: header and rows; `no journal` when empty; `key` prints every field, empty ones
     included.
+22b. `key --branch abc-7-x --pattern 'ABC-\d+'` from the default branch prints `key=ABC-7`
+    and creates no file; `--branch 142-x` works on a detached HEAD; an invalid
+    `--pattern` exits 1.
 
 **Commands and close**
 

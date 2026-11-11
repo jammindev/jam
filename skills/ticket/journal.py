@@ -136,12 +136,13 @@ class Context:
                       "set it in the personal project file", file=sys.stderr)
             self.project.update(values)
             self.project_files.append(str(path))
-        pattern = self.project.get("Ticket pattern")
+        self.use_pattern(self.project.get("Ticket pattern"))
+
+    def use_pattern(self, pattern):
         try:
             self.pattern = re.compile(pattern or DEFAULT_PATTERN, re.IGNORECASE)
         except re.error as exc:
             raise JamError(f"invalid Ticket pattern {pattern!r}: {exc}") from None
-        self.declared = bool(pattern)
 
     def branch_key(self):
         """The key the current branch resolves to, or None (detached HEAD)."""
@@ -306,6 +307,11 @@ def stage_command(journal, ctx):
 
 
 def cmd_key(ctx, args):
+    # --branch and --pattern let `init` prove a pattern before writing it.
+    if args.pattern is not None:
+        ctx.use_pattern(args.pattern)
+    if args.branch is not None:
+        ctx.branch = args.branch
     key = ctx.resolve_key(args.key)
     rows = [("key", key), ("branch", ctx.branch or ""), ("worktree", ctx.toplevel),
             ("repo", ctx.repo_id), ("journal", ctx.journal(key)),
@@ -524,8 +530,11 @@ def build_parser():
     common.add_argument("--cwd", default=".")
     parser = argparse.ArgumentParser(prog="journal.py", description=__doc__.split("\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
-    for name in ("key", "show", "next", "resume", "list"):
+    for name in ("show", "next", "resume", "list"):
         sub.add_parser(name, parents=[common])
+    key = sub.add_parser("key", parents=[common])
+    key.add_argument("--branch")
+    key.add_argument("--pattern")
     init = sub.add_parser("init", parents=[common])
     for option in ("--title", "--goal", "--done-when", "--resume"):
         init.add_argument(option, required=True)
