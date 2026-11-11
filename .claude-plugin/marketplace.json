@@ -1,0 +1,16 @@
+{
+  "name": "jammindev",
+  "owner": {
+    "name": "jammindev"
+  },
+  "metadata": {
+    "description": "jam: a ticket workflow for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "jam",
+      "source": "./",
+      "description": "A ticket workflow for Claude Code, with a journal that survives /clear."
+    }
+  ]
+}

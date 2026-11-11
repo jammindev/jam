@@ -115,7 +115,7 @@ def parse_fields(path):
 class Context:
     """Everything known about the repository and the checkout given by --cwd."""
 
-    def __init__(self, cwd, quiet=False):
+    def __init__(self, cwd, quiet=False, pattern=None):
         self.toplevel = git(cwd, "rev-parse", "--show-toplevel")
         if not self.toplevel:
             raise JamError("not inside a git repository")
@@ -136,7 +136,9 @@ class Context:
                       "set it in the personal project file", file=sys.stderr)
             self.project.update(values)
             self.project_files.append(str(path))
-        self.use_pattern(self.project.get("Ticket pattern"))
+        # An explicit pattern (key --pattern) replaces the files' one before it is
+        # compiled, so a broken pattern in a file never blocks proving its fix.
+        self.use_pattern(pattern if pattern is not None else self.project.get("Ticket pattern"))
 
     def use_pattern(self, pattern):
         try:
@@ -308,8 +310,6 @@ def stage_command(journal, ctx):
 
 def cmd_key(ctx, args):
     # --branch and --pattern let `init` prove a pattern before writing it.
-    if args.pattern is not None:
-        ctx.use_pattern(args.pattern)
     if args.branch is not None:
         ctx.branch = args.branch
     key = ctx.resolve_key(args.key)
@@ -574,7 +574,8 @@ def main(argv=None):
         return 0
     args = build_parser().parse_args(argv)
     try:
-        globals()[f"cmd_{args.command}"](Context(args.cwd), args)
+        ctx = Context(args.cwd, pattern=getattr(args, "pattern", None))
+        globals()[f"cmd_{args.command}"](ctx, args)
     except (JamError, OSError) as exc:
         suffix = "; nothing was written" if args.command in WRITES else ""
         print(f"jam: {exc}{suffix}", file=sys.stderr)

@@ -393,6 +393,10 @@ def test_22b_key_for_another_branch_and_pattern(tmp_path, capsys):
     assert fields(run(capsys, repo, "key", "--branch", "142-x")[1])["key"] == "142"
     code, _, err = run(capsys, repo, "key", "--branch", "x", "--pattern", "(oops")
     assert code == 1 and "pattern" in err
+    # A broken pattern in the project file must not block proving its replacement.
+    write_project(repo / ".jam" / "project.md", **{"Ticket pattern": "ABC-("})
+    out = run(capsys, repo, "key", "--branch", "abc-9-x", "--pattern", r"ABC-\d+")[1]
+    assert fields(out)["key"] == "ABC-9"
 
 
 # --- commands and close ------------------------------------------------------

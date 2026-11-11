@@ -1,6 +1,6 @@
 # Spec: the `init` skill, installing jam on a project
 
-Status: draft for review · Target: first release, step 1 (skeleton)
+Status: accepted (maintainer's green light, 2026-11-11) · Target: first release, step 1 (skeleton)
 
 ## Why
 
@@ -64,10 +64,9 @@ From the toplevel of the current worktree:
 
 - `git` 2.31 or later and `python3` 3.9 or later; inside a git repository. Otherwise
   stop and say what is missing.
-- An existing project file: `init` becomes an update (see "Running init again").
-- Shared mode on a branch other than the default branch: warn that other worktrees will
-  not see the project file until that branch is merged, and recommend running `init`
-  from the default branch.
+- An existing project file: `init` becomes an update (see "Running init again"). If
+  `journal.py key` reports an invalid `Ticket pattern`, a fixed one is proved with
+  `--pattern` and agreed with the user first.
 
 ### 2. Detect
 
@@ -83,7 +82,8 @@ Each detected value is kept with its source (file and line, or command).
 | Run command | the same files (`dev`, `start`, `run` targets) |
 | Links | `CLAUDE.md`, `.claude/CLAUDE.md`, `AGENTS.md`; linter, formatter and type checker configs; PR or MR templates |
 
-**Ticket key.** Branch names are run through `journal.py key --branch`. If most ticket
+**Ticket key.** Branch names are run through `journal.py key --branch`, in one shell
+loop that prints each branch name, without its `origin/` prefix, with its `key=` line. If most ticket
 branches give a numeric key, no `Ticket pattern` is written: the script's default applies. If they
 carry one literal prefix (`ABC-123-…`, `feat/abc-123-…`), `init` proposes `ABC-\d+` and
 checks it with `key --branch <name> --pattern 'ABC-\d+'` on two real branch names.
@@ -112,14 +112,15 @@ The same message asks for agreement to run the commands of step 4, since some ar
 
 ### 4. Verify by running
 
-From the toplevel, with a 10-minute limit per command:
+From the toplevel, with a 10-minute limit per command, keeping only the exit code and the
+last lines of output:
 
 - tests and lint: must exit 0;
 - read a ticket: on one open ticket (from the list command, or a number the user gives),
   must print its title;
 - list my tickets: must exit 0, even with no result;
-- `PR state command`: with `JAM_PR` set in the environment to the most recent merged
-  PR, must print `merged` once stripped and lowercased; with no merged PR yet, it stays
+- `PR state command`: run as `JAM_PR=<number> /bin/sh -c '<command>'`, as the script
+  does, on the most recent merged PR, must print `merged` once stripped and lowercased; with no merged PR yet, it stays
   unverified;
 - `Ticket pattern`: already checked in step 2.
 
@@ -131,12 +132,20 @@ written with `<!-- unverified: <reason> -->` on the line above it.
 
 ### 5. Confirm and write
 
-One final confirmation shows the project file and the permission rules to add. Then:
+One final confirmation shows the project file and the permission rules to add. In shared
+mode it also warns when:
+
+- the current branch is not the default branch: other worktrees will not see the file
+  until it is merged, so running `init` from the default branch is recommended;
+- `git check-ignore` reports `.jam/project.md` or `.claude/settings.json` as ignored: the
+  file would never be committed, so personal mode is proposed instead.
+
+Then:
 
 - the project file is written whole, at the path of the chosen mode;
 - the settings file is merged, never replaced. Rules added to `permissions.ask`:
-  `Bash(git push:*)` and the prefix of the PR command (`Bash(gh pr create:*)`,
-  `Bash(glab mr create:*)`). A rule already present is not duplicated. A settings file
+  `Bash(git push *)` and the prefix of the PR command (`Bash(gh pr create *)`,
+  `Bash(glab mr create *)`). A rule already present is not duplicated. A settings file
   that is not valid JSON stops `init` before anything is written;
 - the summary: files written, files to commit (shared mode), unverified commands, and
   the next step, `/jam:ticket <id>`.
@@ -176,8 +185,9 @@ Template: `skills/init/project-template.md`. Sixty lines at most, comments inclu
 - PR template: .github/pull_request_template.md
 ```
 
-- Only the bold fields are read by `journal.py`: `Ticket pattern`, `PR state command`,
-  `Stage command` (see the journal spec). Everything else is read by the model.
+- Only the bold fields are read by `journal.py` (`Ticket pattern`, `PR state command`,
+  `Stage command`, see the journal spec), so they are always written in bold, such as
+  ``- **Ticket pattern**: `ABC-\d+` `` under Tickets. Everything else is read by the model.
 - **Review: project checks** starts empty. It is filled when a lesson is promoted at
   closing, never by `init`, so that nothing is copied from `CLAUDE.md`.
 - **Links** is where `ticket` looks when a lesson deserves to outlive its ticket:
@@ -188,8 +198,9 @@ Template: `skills/init/project-template.md`. Sixty lines at most, comments inclu
 
 ## Running init again
 
-- `init` detects again, runs nothing it already verified unless the command changed, and
-  never asks again what the user already answered (mode, sensitive areas, tracker).
+- `init` detects again, never reruns a command whose line is unchanged (marked
+  unverified or not), and never asks again what the user already answered (mode,
+  sensitive areas, tracker). No difference: it says so and stops.
 - It shows only the differences on detected fields, each with its source, and applies
   each one only with the user's agreement. Fields detection cannot see are kept.
 - The mode is the file that exists. When both exist, detected fields are updated in the
@@ -199,7 +210,7 @@ Template: `skills/init/project-template.md`. Sixty lines at most, comments inclu
 
 Running `init` runs the repository's commands (tests, scripts), as `make test` would.
 The README says so: do not run `init` on a repository you do not trust. A shared project
-file that sets `Stage command` is reported and ignored, as the journal spec requires;
+file that sets `Stage command` is reported to the user and ignored, as the journal spec requires;
 `init` never copies it into the personal file.
 
 ## Size

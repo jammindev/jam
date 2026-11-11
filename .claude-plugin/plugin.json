@@ -1,0 +1,9 @@
+{
+  "name": "jam",
+  "description": "A ticket workflow for Claude Code: framing, tests first, independent review, acceptance, with a journal that survives /clear.",
+  "author": {
+    "name": "jammindev"
+  },
+  "repository": "https://github.com/jammindev/jam",
+  "license": "MIT"
+}

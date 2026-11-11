@@ -1,6 +1,6 @@
 # Spec: `journal.py`, the ticket journal
 
-Status: draft for review · Target: first release, step 1 (skeleton)
+Status: accepted (maintainer's green light, 2026-11-11) · Target: first release, step 1 (skeleton)
 
 ## Why
 
@@ -242,8 +242,8 @@ Two options let `init` prove a `Ticket pattern` before writing it:
 
 - `--branch <name>`: resolve the key as if `<name>` were the current branch, which
   `branch=` then prints;
-- `--pattern <regex>`: use this pattern instead of the project files' `Ticket pattern`.
-  An invalid one is an error.
+- `--pattern <regex>`: use this pattern instead of the project files' `Ticket pattern`,
+  even when theirs is invalid. An invalid `--pattern` is an error.
 
 `--key` still wins over both.
 
