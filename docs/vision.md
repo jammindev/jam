@@ -25,8 +25,8 @@ bugs and support, specifications.
    script; the plumbing (subagents, hook, permission rules, plugin variables, `/clear`)
    is Claude Code's.
 2. **Installs on an existing project by itself.** `init` reads the repository, fills the
-   project file (forge, tracker, branches, commands), asks only what it cannot detect,
-   and checks each command by running it.
+   project file (forge, tracker, branches, commands) and asks only what it cannot
+   detect.
 3. **One ticket, one branch, one session.** The work of a ticket happens in its own
    worktree and session, which keeps the ticket's journal; the main session only starts
    tickets and follows them, and keeps no journal.
@@ -40,8 +40,8 @@ bugs and support, specifications.
    pull request) without the developer's agreement, and the merge is theirs.
 7. **Whoever writes does not review.** Reviews are done by a fresh agent, with a clear
    stopping rule: no blocking finding, three rounds at most. And the session that wrote
-   the code clears its conversation before review and acceptance: it would judge the
-   code by what it meant to do, not by the ticket.
+   the code of a medium ticket clears its conversation before review and acceptance: it
+   would judge the code by what it meant to do, not by the ticket.
 8. **Tests come from the request**, before the code, each done criterion naming its test.
 9. **Process in proportion.** The ticket's size, decided at the start, sets the amount
    of framing, review and acceptance.
@@ -98,7 +98,7 @@ the others.
 
 | Step | Content | Done when |
 |---|---|---|
-| 1. Skeleton | journal script, `init`, `ticket`, the two subagents, the hook, README, CI; sizes small and medium; then the repository goes public after a secret scan of its history | `init` fills the project file of a real repository without manual correction, and a first small real ticket reaches its green light before the pull request |
+| 1. Skeleton | journal script, `init`, `ticket`, the reviewer subagent, the hook, README, CI; sizes small and medium; then the repository goes public after a secret scan of its history | `init` fills the project file of a real repository without manual correction up to its first ticket, and a first small real ticket reaches its green light before the pull request |
 | 2. Real tickets | three tickets on a real personal project: one small, two medium, one of them sensitive; frictions noted in the lessons; for each, how often the developer corrected, review rounds, token use per subagent | the three pull requests are merged and their lessons written |
 | 3. Corrections | only what step 2 showed: the level above the ticket as soon as two tickets of one subject need it; the large size; whether plan and test plan stay merged, and whether the implementer stays a subagent | every addition answers a friction seen in step 2 |
 | 4. A team repository | installed in personal mode on a team repository with another forge and tracker; three tickets, next to the team's own tooling, without replacing it | installing needed changes to the project file only, none to the plugin |

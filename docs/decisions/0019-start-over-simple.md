@@ -24,6 +24,8 @@ cleared. Its memory is a journal kept outside the conversation, not a pipeline o
   `implementer` and `reviewer`; one script, `skills/ticket/journal.py`, with its pytest
   suite and CI; one non-blocking `SessionStart` hook that
   prints the current ticket's resume block. Nothing else until it has been used.
+  (Amended 2026-11-11: `implementer` waits for the medium ticket; `docs/specs/ticket.md`
+  builds the small ticket first.)
 - **Journals live outside the repository**, under `~/.jam/<repo-id>/`, so that every
   worktree of a repository sees the same journal and nothing about a ticket is committed.
   A project file is either committed (`.jam/project.md`, shared) or kept outside the

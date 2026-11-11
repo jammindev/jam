@@ -1,0 +1,248 @@
+# Spec: the `ticket` skill, from a ticket to its pull request
+
+Status: draft · Target: first release, step 1 (skeleton), the small ticket first
+
+## Why
+
+A ticket spans days and conversations. `ticket` runs it from reading it to its merged
+pull request, keeps its memory in the journal (`docs/specs/journal.md`), and stops to ask
+the developer only for the decisions that are theirs. The README, section "How jam
+works", describes the workflow as the user sees it; this spec says what each stage does,
+what it writes to the journal, and when it stops.
+
+## Scope of this first version
+
+The path of a **small** ticket, end to end: starting it from the main session; three
+lines of framing, the test then the code, one review pass by a fresh agent, one green
+light; delivery, follow-up and closing.
+
+The roadmap's first criterion is exactly this: a first small real ticket reaches its
+green light before the pull request (`docs/vision.md`, step 1). The **medium** ticket
+(framing review, the `implementer` subagent, the two clears, browser acceptance, the
+extra review pass of a sensitive ticket) is specified once a real small ticket has run,
+from what it showed.
+
+ADR 0019 lists two subagents. Only `reviewer` is built now: on a small ticket the session
+writes the code itself, and whether code is written by a subagent at all is an open
+question of the vision (decided at step 3).
+
+## How the skill is built
+
+`init` showed the cost of one long skill: past a certain length, the model drops rules.
+So:
+
+- `skills/ticket/SKILL.md` is a short router. It finds where the ticket is, then reads
+  **only** the file of the current stage.
+- One file per stage, in `skills/ticket/stages/`: `start.md`, `framing.md`, `code.md`,
+  `review.md`, `acceptance.md`, `delivery.md`, `follow-up.md`. Each says what the stage
+  does, what it writes to the journal, and when it stops. None names the next stage
+  (see "Moving on").
+- Anything with one right answer comes from `journal.py`: key, journal path, whether the
+  session is in the main worktree, stage, next stage, whether to clear first.
+- The front matter allows the script without a prompt each time:
+  `allowed-tools: Bash(python3 *journal.py *)`.
+- `JOURNAL` below means `python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`;
+  "the project file" means the merged result of the shared and personal files.
+
+### Requires from `journal.py`
+
+One addition to the journal spec and script: `key` also prints
+`main_worktree=yes|no`, `yes` when the checkout is the repository's main worktree (its
+git dir is the common git dir). Without it, the router would guess.
+
+## The router: `/jam:ticket [<id>]`
+
+1. `JOURNAL key` gives `main_worktree`, the key of the current branch, and whether its
+   journal exists or is archived. `key` fails (a detached HEAD, during a rebase for
+   instance): say so and stop.
+2. **Main worktree** (`main_worktree=yes`):
+   - on a branch other than the base branch: say that tickets start from the base
+     branch, and stop;
+   - with an id: `JOURNAL key --key <id>`. A journal exists: give the command to open its
+     session (`Worktree` from `JOURNAL show --key <id>`), nothing else. Archived: say the
+     ticket is closed. Otherwise: read `stages/start.md`;
+   - without an id: `JOURNAL list`, and ask which ticket to start or reopen.
+   The main session never creates or writes a journal.
+3. **Ticket worktree** (`main_worktree=no`):
+   - with an id: `JOURNAL key --key <id>`; a `key=` that differs from the branch's:
+     refused, the session works on its own ticket only;
+   - archived: say the ticket is closed, and stop;
+   - no journal: read `stages/framing.md`;
+   - a journal at `closed` (an archive move that failed): run `JOURNAL close` again, with
+     the same options;
+   - a journal: `JOURNAL show`, say where things stand in three sentences (goal, stage,
+     `Resume here`), and wait for the user. On the go-ahead, read the file of the
+     journal's stage.
+
+### Moving on
+
+At the end of a stage: `JOURNAL next`, then `set --stage <next>`, then read that stage's
+file. A small ticket never clears (`clear_first=no`), so the session goes on. Only going
+back is named in a stage file: acceptance → code, follow-up → code. At `follow-up`,
+`next` answers `closed`: never `set --stage closed`; the ticket ends with `JOURNAL close`
+once the PR is merged.
+
+**Before any `/clear` or end of session**, the journal is up to date: stage, `Resume
+here` (one or two sentences a new session can act on), new decisions. Every stage file
+of the ticket session repeats this rule: a stale journal is the only way to lose work.
+
+## Stages
+
+### start (main session)
+
+1. Read the ticket with the project file's `Read a ticket` command. No such command: ask
+   the user for its title and content.
+2. Build the branch name from `Ticket branch`: `{id}` is the ticket's id without `#`,
+   `{slug}` a few words of the title in lowercase ASCII joined by `-`, and `{type}`, when
+   the format has it, the kind of change (`feat`, `fix`…) among those seen in the
+   repository's branches. Propose the name to the user.
+3. Check with `JOURNAL key --branch <name>` (without `--key`, which would win) that it
+   gives the ticket's key. If not, typically a tracker key such as `ENG-142` without a
+   `Ticket pattern`, say so and propose either rerunning `/jam:init` to add the pattern,
+   or a branch named after the key itself.
+4. Create the worktree next to the main one, at `<main-dir>-<key>` (lowercased), from
+   the project file's `Base branch`, after `git fetch origin`:
+   - new branch: `git worktree add --no-track -b <branch> <path> origin/<base>`;
+   - local branch already there: `git worktree add <path> <branch>`;
+   - branch only on `origin`: `git worktree add -b <branch> <path> origin/<branch>`;
+   - branch already checked out in a worktree (`git worktree list`): reuse that path.
+5. Give the command that opens the ticket's session and starts framing:
+   `cd <path> && claude "/jam:ticket <id>"`. Say that jam must be enabled for that
+   folder too: installed in user scope, or in project scope with `.claude/settings.json`
+   committed on the base branch; not local scope. Write nothing else.
+
+### framing
+
+1. Read the ticket with `Read a ticket` (the id as the tracker writes it). No command:
+   ask the user. A branch with no ticket behind it (`refactor/auth`): ask what it is for.
+2. Read the code it touches. Propose a size with one sentence of reason, and say whether
+   it is sensitive: it is when it touches an area listed under `Sensitive` in the
+   project file.
+   - Sensitive: only the medium flow fits, and it does not exist yet. Say so and stop.
+   - Medium: say that only the small flow exists yet; the user may run it as small (a
+     decision recorded once the journal exists) or stop.
+3. Agree with the user on three lines: the goal, one done criterion, the test that proves
+   it. A product question the code cannot answer is asked as a short multiple-choice
+   question, recommended answer first.
+4. `JOURNAL init --size small --sensitive no` with `--title`, `--goal`,
+   `--done-when "- [ ] <criterion> · proof: <test id>"` and `--resume` (the next action,
+   such as "Write the failing test of …"); then the size decision, if any, and each
+   product answer with `set --decision`.
+5. Run the project file's `Tests` once on the untouched branch. A failure is not the
+   ticket's: record it with `set --log`, and agree with the user how to go on (a missing
+   `.env` or dependency in the new worktree, a red base branch).
+
+### code
+
+1. Write the test of the done criterion, run it, and check that it fails for the right
+   reason. Then write the code until it passes.
+2. Run `Tests` and `Lint` from the project file. A missing command: ask the user and
+   offer to add it to the project file. A failure unrelated to the change: stop, show the
+   end of the output, and agree a fix with the user.
+3. Each decision the code made on its own:
+   `set --decision "Decided by the code: … (to settle)"`.
+4. When the test passes: `set --done-when` with the line ticked (`- [x]`). Commit on the
+   ticket branch in the repository's style; the user's own settings may ask for
+   agreement.
+
+### review
+
+1. One pass by the `reviewer` subagent, given: the goal, the done criterion, the diff
+   `origin/<base>...HEAD`, the project file's `Review: project checks`, and the paths
+   under its `Links` that serve a review (agent instructions, a review grid).
+2. Check each finding in the code before acting on it. A finding is blocking only if it
+   describes a concrete failure scenario or breaks the done criterion. Fix the blocking
+   ones, rerun the tests, commit. A small ticket gets no second pass.
+3. `set --log "review: N blocking, M other"`.
+
+### acceptance
+
+The single green light of a small ticket, in one message:
+
+- the goal and the criterion with its test;
+- the decisions made by the code, to settle;
+- what the review found, what was fixed, what was left;
+- if the change is visible: at most three points to check, and how to see them (the
+  project file's `Run` command, a page, a command).
+
+The answer is recorded with `JOURNAL stop`:
+
+- accepted as is: `stop seen` (or `explained` after an explanation); that is the green
+  light;
+- changed: `stop corrected --note "…"`, then back to code (`set --stage code`); the flow
+  comes back here with a new message and a new stop.
+
+Each decision to settle gets one line, since `Decisions` only grows:
+`set --decision "Settled: <decision> → kept"` or `→ changed: …`.
+
+### delivery
+
+1. **Lessons**, one to three, with `set --lesson`: a trap in the code, a friction in the
+   workflow, or a rule or step of jam that served no purpose on this ticket. A lesson
+   about the project may be promoted, with the user's agreement, to `CLAUDE.md`, to the
+   project file's `Review: project checks`, or to a linter rule. A lesson about jam
+   stays in the journal for the maintainer: removing a rule is as valid an outcome as
+   adding one.
+2. Push the branch: `git push -u origin <branch>` (the permission rules make Claude ask).
+3. No PR yet: open it with the project file's `Open a PR` command, adding a title and a
+   body (`--title` and `--body-file -` reading stdin for `gh`, `--title` and
+   `--description` for `glab`; never a body file inside the repository).
+   The body follows the PR template under `Links` if there is one, and holds the goal,
+   the criterion and its test, the product decisions, and `Closes #<id>` when the
+   tracker is the forge's. Decisions live in the journal, on this machine only: the PR
+   is where others see them. Then `set --pr <number>`, the bare number read from the
+   command's output.
+4. A PR already exists (back from follow-up): skip lessons and the PR, push only.
+
+### follow-up
+
+- On resume or when asked: the PR's checks with the forge CLI (`gh pr checks`,
+  `glab ci status`). A failing check is fixed on the branch.
+- A human reviewer asks for a change: `set --decision` with the request, to settle, then
+  `set --stage code`; the flow comes back through review, acceptance and delivery, which
+  then only pushes.
+- The merge is the user's. Once merged: `JOURNAL close`, with `--pending` for what remains
+  open outside the code. `close --force` only on the user's explicit request. Then give
+  the commands to run from the main session to remove the worktree and the branch
+  (`git worktree remove <path>`, `git branch -D <branch>`, since a squash merge leaves
+  it unmerged locally), and run nothing.
+
+## The `reviewer` subagent
+
+`agents/reviewer.md` in the plugin.
+
+- Fresh context: it receives only what the review stage gives it, never the conversation.
+- Tools: `Read`, `Grep`, `Glob`, and `Bash` for `git diff` and `git log`. It is told to
+  modify nothing; `Bash` itself is not restricted.
+- A strong model: review is where judgment is needed (`docs/vision.md`, principle 10).
+- It returns a list of findings, each with file and line, the failure scenario or the
+  broken criterion, and `blocking` or `other`; or says there is none. No style remarks
+  the linter already covers.
+
+## Also in this version
+
+- The session-start hook, exactly as the journal spec defines it.
+- Journal content in the user's language; field names and section titles in English.
+- Nothing is written to the tracker, except what the PR's closing line does on merge.
+
+## Out of scope for this version
+
+- The medium ticket and the sensitive one (see "Scope").
+- The large ticket; the level above the ticket.
+- Copying decisions to the ticket in the tracker (the PR carries them).
+- Reading past lessons at framing.
+- Reviewing someone else's PR; a PR closed without merge.
+
+## Done when
+
+On a real repository with a project file:
+
+- `/jam:ticket <id>` from the main session creates the branch and the worktree and gives
+  the command to open the session; it writes no journal;
+- in that session, a small real ticket goes through framing, code, review and acceptance
+  to its green light, then delivery opens the PR after the user's agreement;
+- a `/clear` in the middle, followed by `/jam:ticket`, resumes at the right stage from
+  the journal alone;
+- the journal holds the goal, the criterion and its test, the decisions, at least one
+  lesson, and one stop line;
+- after the merge, `close` archives the journal.

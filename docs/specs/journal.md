@@ -43,6 +43,7 @@ $JAM_HOME (default ~/.jam)/
     project.md            personal project file (optional)
     journals/<KEY>.md     one active journal per ticket
     reports/<KEY>/        review reports, written by the skill, not by the script
+                          (the small ticket writes none; kept for the medium one)
     archive/<KEY>.md      closed journals
 ```
 
@@ -234,9 +235,10 @@ Every command accepts `--key` and `--cwd`.
 
 ### `key`
 
-Prints, one per line: `key=`, `branch=`, `worktree=`, `repo=`, `journal=`,
-`exists=yes|no`, `archived=yes|no`, `project_files=` (paths separated by `:`, empty when
-none), `reports=`. A missing value is printed empty. Writes nothing.
+Prints, one per line: `key=`, `branch=`, `worktree=`, `main_worktree=yes|no` (`yes` when
+the checkout is the repository's main worktree, its git dir being the common git dir),
+`repo=`, `journal=`, `exists=yes|no`, `archived=yes|no`, `project_files=` (paths
+separated by `:`, empty when none), `reports=`. A missing value is printed empty. Writes nothing.
 
 Two options let `init` prove a `Ticket pattern` before writing it:
 
@@ -439,7 +441,7 @@ suite on Python 3.9 and 3.13, with `ruff check`.
 21. `resume`: nothing without a journal; leaves out routine stops; keeps a `corrected` one;
     never exceeds 30 lines; exits 0 outside a git repository.
 22. `list`: header and rows; `no journal` when empty; `key` prints every field, empty ones
-    included.
+    included, and `main_worktree=yes` from the main worktree, `no` from a linked one.
 22b. `key --branch abc-7-x --pattern 'ABC-\d+'` from the default branch prints `key=ABC-7`
     and creates no file; `--branch 142-x` works on a detached HEAD; an invalid
     `--pattern` exits 1.

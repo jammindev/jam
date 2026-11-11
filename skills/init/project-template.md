@@ -11,7 +11,7 @@
 - Tests: `make test`
 - Lint: `make lint`
 - Run: `make dev`
-- Open a PR: `gh pr create --fill --base main`
+- Open a PR: `gh pr create --base main`
 - **PR state command**: `gh pr view "$JAM_PR" --json state --jq .state`
 
 ## Sensitive (one extra review pass)
@@ -21,5 +21,6 @@
 
 ## Links
 - Agent instructions: CLAUDE.md
+- Specs: docs/specs/
 - Lint config: pyproject.toml ([tool.ruff])
 - PR template: .github/pull_request_template.md

@@ -5,10 +5,10 @@ ticket: framed with you, tests before code, reviewed by a fresh agent, checked, 
 pull request. Its memory is a journal kept outside the conversation, so a ticket survives
 `/clear`, compaction, and days between sessions. Built to fit any stack and any tracker.
 
-> **Status: early.** `/jam:init` and the journal script are written and tested.
-> `/jam:ticket`, its two subagents and the session-start hook are being written: from
-> "Starting a ticket" on, the next section describes what they will do. jam runs on
-> Claude Code today.
+> **Status: early.** `/jam:init` and the journal script are written; the script is tested.
+> `/jam:ticket`, its review subagent and the session-start hook are being written, small
+> tickets first: the part of "How jam works" from "Starting a ticket" on describes what
+> they will do. jam runs on Claude Code today.
 
 ## Where it is going
 
@@ -38,11 +38,10 @@ your tracker, the branch you develop from, the format of your branch names, the 
 that run tests and lint, and links to the files that already describe your project
 (`CLAUDE.md`, specs, tool configs, PR templates). It links to them; it copies nothing.
 
-It then asks you, one topic at a time, what it cannot be sure of, with what it detected
-as the recommended answer. With your agreement, it runs each command before writing it,
-to check that it works. It never runs a command that starts a server or opens a pull
-request.
-Then it writes two things:
+It asks you where to keep the file and what is sensitive in your code, and only asks
+about the rest when it hesitates, with what it detected as the recommended answer. It
+runs none of the commands: the first ticket does, and a wrong one is fixed in the file.
+Then it shows you the whole file and, once you confirm, writes two things:
 
 - the project file, either in the repository (`.jam/project.md`, for you to commit) or
   outside it (`~/.jam/<repo-id>/project.md`), as you choose;
@@ -86,12 +85,12 @@ A **medium** ticket, the usual case, goes through six stages:
    goes through it in a browser and attaches screenshots; then you get at most five
    points to check. You give the second green light.
 5. **Delivery.** The session writes one to three lessons in the journal: a trap in the
-   code, a point of friction in the workflow. Later framings read them, and a lesson worth keeping
-   can be moved to `CLAUDE.md` or the project file, with your agreement. Then the session
+   code, a point of friction in the workflow, or a step that served no purpose. A lesson
+   worth keeping can be moved to `CLAUDE.md` or the project file, with your agreement. Then the session
    pushes and opens the pull request, asking you first.
-6. **Follow-up.** The session watches CI. A comment from a human reviewer on the pull
+6. **Follow-up.** The session checks CI. A comment from a human reviewer on the pull
    request sends the ticket back to the code. The merge is yours. Once merged, the journal
-   is archived and jam offers to remove the working copy.
+   is archived and jam gives you the commands to remove the working copy.
 
 A **small** ticket gets three lines of framing (goal, done criterion, test). The session
 writes the test, then the code itself; one quick review pass follows; there is no
@@ -114,7 +113,7 @@ tests, sees them fail, writes the export, and notes one decision it made alone: 
 month gives a file with only the header. You accept it. `/clear`, `/jam:ticket`: the
 review finds nothing blocking. `/clear`, `/jam:ticket`: the acceptance agent opens the
 export page, downloads the file and attaches a screenshot; you check three points; second green light. The session
-writes one lesson, asks before pushing, opens the pull request and watches CI; you merge,
+writes one lesson, asks before pushing, opens the pull request and checks CI; you merge,
 and the journal is archived.
 
 ### What jam asks of you
@@ -131,9 +130,9 @@ often you had to correct its work shows how well the workflow serves you.
 - `<repo-id>` is a name derived from the repository's `origin` remote, such as
   `acme-shop`.
 - The project file: in the repository, or in `~/.jam/<repo-id>/`, as chosen.
-- Journals and review reports: always in `~/.jam/<repo-id>/`, never in the repository. A
+- Journals: always in `~/.jam/<repo-id>/`, never in the repository. A
   journal lives only on the machine where you work, so product decisions are copied into
-  the pull request and the ticket, with your agreement.
+  the pull request.
 - When a session starts or resumes, and after `/clear` or a compaction, a hook gives
   Claude a short summary of the current ticket from its journal. It blocks nothing and
   writes nothing.
@@ -159,8 +158,7 @@ merged. Jira and Linear have not been tried yet.
 
 ## Trust
 
-A project file is code, like a Makefile: `init` runs the commands it finds, and jam runs
-the commands the file lists. Do not run jam on a repository, or a branch, whose project
+A project file is code, like a Makefile: jam runs the commands it lists. Do not run jam on a repository, or a branch, whose project
 file you do not trust, as you would not run its `make test`.
 
 The permission rules are a safety net, not a barrier: a variant such as `git -C . push`
