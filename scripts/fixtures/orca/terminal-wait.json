@@ -1,9 +1,0 @@
-{
-  "id": "req-terminal-wait",
-  "ok": true,
-  "result": {
-    "wait": {
-      "satisfied": true
-    }
-  }
-}

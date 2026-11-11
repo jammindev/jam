@@ -1,9 +1,0 @@
-{
-  "id": "req-terminal-send",
-  "ok": true,
-  "result": {
-    "send": {
-      "accepted": true
-    }
-  }
-}

@@ -1,6 +1,8 @@
-# Instructions locales d'agent (non versionnées)
+# Local agent instructions and settings (not versioned)
 CLAUDE.md
 .claude/settings.local.json
 
-# Cache Python des tests
+# Python, test and lint caches
 __pycache__/
+.pytest_cache/
+.ruff_cache/

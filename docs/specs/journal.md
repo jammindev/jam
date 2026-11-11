@@ -1,0 +1,449 @@
+# Spec: `journal.py`, the ticket journal
+
+Status: draft for review · Target: first release, step 1 (skeleton)
+
+## Why
+
+A Claude Code session forgets: `/clear` empties it, compaction summarizes it. A ticket
+lasts days and spans several sessions, sometimes several worktrees. The journal is the
+ticket's memory outside the conversation: goal, plan, decisions, and what to do next.
+
+Anything that has exactly one correct answer is computed by the script: which ticket
+this is, where its journal lives, which stage follows, whether to clear the conversation
+first. The model writes the content; the script owns the format.
+
+## Constraints
+
+- One file, `skills/ticket/journal.py`. Python 3.9+, standard library only.
+- About 500 lines, tests excluded. 600 is the ceiling: past it, cut scope.
+- Nobody edits a journal by hand, the model included. Every change goes through a command.
+- Writes are atomic: a temporary file in the same directory, then `os.replace`.
+- Files are read and written as UTF-8, explicitly.
+- Every `git` call has a 3 s timeout. The only commands that may reach the network are
+  the ones the project file declares (see below).
+- A refused write prints its reason on stderr, says that nothing was written, and exits 1.
+  Read-only commands (`key`, `show`, `next`, `list`) print the reason and exit 1.
+  Usage errors keep argparse's exit code 2.
+- Limitation, stated in the README: two sessions writing the same journal at the same time
+  can lose one write. Atomic writes prevent a truncated file, not a lost update.
+
+## Vocabulary
+
+- **Ticket**: the unit of work, usually an issue in the tracker. Its **key** names its journal.
+- **Stage**: where the ticket stands (table below).
+- **Stop**: a moment where the session waits for the user, either a green light or a
+  request to run `/clear`. The user's answer is recorded with `stop`.
+- **Project file**: Markdown file describing the project for the model and the script.
+
+## Where things live
+
+```
+$JAM_HOME (default ~/.jam)/
+  <repo-id>/
+    project.md            personal project file (optional)
+    journals/<KEY>.md     one active journal per ticket
+    reports/<KEY>/        review reports, written by the skill, not by the script
+    archive/<KEY>.md      closed journals
+```
+
+### repo-id
+
+It must be identical from the main worktree and from every linked worktree. Two distinct
+repositories get distinct ids in practice; rare collisions are accepted (`acme/shop-x`
+and `acme-shop/x` share `acme-shop-x`, and the host is not part of the id).
+
+1. If `origin` exists: take `git remote get-url origin`, remove the scheme, the user, the
+   host and the port, and a trailing `.git`. Keep the whole remaining path, so GitLab
+   subgroups stay distinct. Join its segments with `-`, lowercase.
+   - `git@github.com:Acme/Shop.git` → `acme-shop`
+   - `https://github.com/acme/shop` → `acme-shop`
+   - `ssh://git@gitlab.example.com:2222/group/sub/app.git` → `group-sub-app`
+   - A local path as remote (`/srv/git/app.git`) → its path segments, same rule.
+2. Without `origin`: the main worktree's directory name, lowercased, then `-` and the first
+   6 hex characters of the SHA-1 of the absolute path of `git rev-parse --git-common-dir`.
+   The main worktree is the parent of that directory; for a bare repository, the directory
+   itself. Ask git for an absolute path (`--path-format=absolute`, git 2.31+).
+3. Sanitize: characters outside `[a-z0-9_.-]` become `-`, repeated `-` collapse, leading
+   and trailing `-` and `.` are removed. An empty result is an error.
+
+### Project files
+
+Two may exist, and both are read:
+
+- the shared one, `<toplevel>/.jam/project.md`, committed with the repository;
+- the personal one, `$JAM_HOME/<repo-id>/project.md`, never committed.
+
+The personal file overrides the shared one field by field. A project file that is only
+git-ignored inside the repository is not supported: it would exist in one worktree only.
+
+## Fields the script reads
+
+Written as `- **Field**: value`. A pair of backticks around the whole value is removed.
+Everything else in the file is for the model.
+
+| Field | Where it may be set | Example |
+|---|---|---|
+| `Ticket pattern` | shared or personal | `ABC-\d+` |
+| `PR state command` | shared or personal | `gh pr view "$JAM_PR" --json state --jq .state` |
+| `Stage command` | **personal only** | `orca worktree set --worktree "path:$JAM_WORKTREE" --comment "$JAM_STAGE: $JAM_RESUME"` |
+
+### Trust
+
+A project file is code, like a Makefile. The skill runs the commands it lists (tests,
+opening a PR), the script runs `PR state command` on `close`, and the session-start hook
+evaluates `Ticket pattern`. The README says so plainly: do not run jam on a branch whose
+project file you do not trust, exactly as you would not run its `make test`.
+
+One field gets a stricter rule. `Stage command` runs on every stage change, without any
+command being visible in the conversation, so it is read from the personal file only. A
+shared file that sets it is ignored, with a warning on stderr.
+
+An invalid `Ticket pattern` (`re.error`) is reported by every command except `resume`,
+which stays silent. A pathological pattern can still hang the regex engine: the hook
+entry carries a 5 s timeout so that a session start is never blocked longer.
+
+### How commands run
+
+- Through `/bin/sh -c`, with the working directory set to the toplevel of the worktree
+  given by `--cwd` (or the current one).
+- Values reach the command **only as environment variables**, never interpolated into the
+  command string:
+  - `JAM_KEY`, `JAM_STAGE`, `JAM_REPO`;
+  - `JAM_PR`: the PR value, empty when `(none)`;
+  - `JAM_WORKTREE`: empty when `(none)`;
+  - `JAM_RESUME`: the first line of `Resume here`, not truncated.
+- Timeouts: 5 s for `Stage command`, 20 s for `PR state command`.
+
+## Ticket key
+
+Every key is uppercased, so that `abc-12` and `ABC-12` can never become two files on a
+case-sensitive filesystem and one on macOS.
+
+1. `--key <value>`: sanitized, uppercased.
+2. The project file's `Ticket pattern`, used as written (the script adds no anchor) and
+   searched case-insensitively in the branch name. If the pattern has a capturing group,
+   the key is group 1; otherwise the whole match. A declared pattern replaces the default
+   one: when it does not match, go to step 4.
+3. Without a pattern, the default: a number at the start of the branch or right after a
+   `/`, followed by `-` or the end: `(?:^|/)(\d+)(?=-|$)`.
+   - `142-export-schedule` and `feat/142-export` → `142`
+   - `fix-2026-dates` → no match (a number in the middle is never a key)
+   - `feat/abc-12-x` → no match: prefixed keys need a declared pattern, which `init`
+     proposes when it detects them in the branch names.
+4. No match: the sanitized branch name. `refactor/auth` → `REFACTOR-AUTH`.
+5. Detached HEAD without `--key`, or not inside a git repository: error.
+
+Every result, whatever the step, is sanitized then uppercased. Sanitizing: characters
+outside `[A-Za-z0-9_.-]` become `-`, repeated `-` collapse, leading and trailing `-` and
+`.` are removed. An empty result is an error. A key can therefore never contain `/` or
+start with `.`.
+
+## Stages
+
+Declared once, as data. Adding a stage must only change this table.
+
+| Stage | Clear the conversation first |
+|---|---|
+| `framing` | no |
+| `code` | no |
+| `review` | yes |
+| `acceptance` | yes |
+| `delivery` | no |
+| `follow-up` | no |
+| `closed` | only reachable with `close` |
+
+Review and acceptance start from an empty conversation because the session that wrote
+the code judges it by what it meant to do; a new session can only judge it by the ticket.
+
+For a ticket of `Size: small`, `next` always answers `clear_first=no`: the small-ticket
+flow has no clear.
+
+## Journal format
+
+Content follows the user's language. Field names and section titles are fixed, in English,
+because the script parses them. Sections always appear in this order.
+
+```markdown
+# 142 · Export the class schedule as CSV
+
+- **Stage**: review
+- **Size**: medium
+- **Sensitive**: no
+- **Branch**: 142-export-schedule
+- **Worktree**: /home/dev/work/shop-142
+- **PR**: (none)
+- **Updated**: 2026-11-12 21:10
+
+## Goal
+The manager downloads the month's schedule to print it.
+
+## Done when
+- [x] The file has date, time, class, room, level · proof: tests/test_export.py::test_columns
+- [x] A cancelled class does not appear · proof: tests/test_export.py::test_cancelled
+
+## Plan
+1. Export view  2. Filter out cancelled classes  3. Button on the schedule page
+
+## Decisions
+- Stop at framing (green light): corrected, add the level column
+- Semicolon separator: the file opens in French-locale Excel.
+- Cancelled classes are left out, not listed separately.
+- Decided by the code: an empty month gives a header-only file (to settle)
+
+## Resume here
+Run the code review on the branch, then check each finding in the code before fixing.
+
+## Lessons
+
+## Log
+- 2026-11-11 20:40 · created at framing
+- 2026-11-11 21:30 · framing review, round 1: 1 blocking, 2 suggestions
+- 2026-11-11 21:50 · stop at framing: corrected
+- 2026-11-11 21:55 · framing → code (+2 decisions)
+- 2026-11-12 21:10 · code → review (+1 decision)
+```
+
+- The first line is `# <KEY> · <title>`.
+- `Updated` and log timestamps are local time, `YYYY-MM-DD HH:MM`.
+- `Decisions` and `Log` are chronological: new lines are appended.
+- `Size` is `small`, `medium` or `large`. `Sensitive` is `yes` or `no`.
+- The parser recognizes only the section titles above, as `## Title` at the start of a
+  line. Anything else is content.
+- `Branch`, `Worktree` and `PR` hold `(none)` when unknown.
+- A ticked box in `Done when` means its test passes, nothing more.
+
+## Input rules
+
+They apply to every command that writes, and are checked before anything is written.
+
+- **One-line values** (`--title`, `--decision`, `--lesson`, `--log`, `--pending`,
+  `--note`, `--about`, `--pr`): any run of whitespace, line breaks included, becomes one space.
+- **Multi-line values** (`--goal`, `--done-when`, `--plan`, `--resume`): line breaks are
+  kept; a line whose first non-space character is `#` is refused, because it could read
+  as a section.
+- **A decision that imitates a stop line** is refused, and the message gives the `stop`
+  command. Imitation means matching, case-insensitively,
+  `^stop at \S+.*:\s*(seen|corrected|explained)\b`. "Stop the cron before migrating" is
+  an ordinary decision.
+- `--about` containing `(` or `)` is refused, since the written stop line uses
+  parentheses around it.
+
+## Commands
+
+Every command accepts `--key` and `--cwd`.
+
+### `key`
+
+Prints, one per line: `key=`, `branch=`, `worktree=`, `repo=`, `journal=`,
+`exists=yes|no`, `archived=yes|no`, `project_files=` (paths separated by `:`, empty when
+none), `reports=`. A missing value is printed empty. Writes nothing.
+
+### `init`
+
+Required: `--title`, `--goal`, `--done-when`, `--resume`. Optional: `--plan`,
+`--size` (default `medium`), `--sensitive` (default `no`), `--force`.
+
+Creates the journal at `framing`, with the log line `created at framing`.
+
+- An archived journal exists for the key: refused, even with `--force`. The message gives
+  the archive's path. Reopening is out of scope.
+- An active journal exists: refused, unless `--force`.
+- No `--key` and the branch is the repository's default branch (from
+  `git symbolic-ref refs/remotes/origin/HEAD`, else `main` or `master`): refused. A ticket
+  journal on the default branch would show up in every session of the main worktree.
+- `Branch` and `Worktree` are filled from the checkout given by `--cwd` (or the current
+  one) only when that checkout resolves to the same key; otherwise they stay `(none)`.
+  The skill creates the ticket's worktree first, then runs `init --cwd <that worktree>`.
+
+### `show`
+
+Prints the whole journal. No journal: error.
+
+### `set`
+
+Options: `--stage`, `--title`, `--goal`, `--done-when`, `--plan`, `--resume`, `--pr`,
+`--size`, `--sensitive`, and the repeatable `--decision`, `--lesson`, `--log`.
+
+- `set` with no option is refused.
+- `--stage`, `--size` and `--sensitive` use argparse choices: an invalid value is a usage
+  error (exit 2). `closed` is not among the stage choices.
+- Going back is allowed (`review` → `code`). Passing the current stage is not a stage
+  change: no arrow in the log, no `Stage command` for it; the other options of the same
+  call still apply.
+- `Branch` and `Worktree` are refreshed only when the checkout given by `--cwd` (or the
+  current one) resolves to the same key. This keeps a call from the main worktree, with
+  `--key`, from recording the default branch as the ticket's branch.
+- `Updated` is set on every write.
+
+**Log line**: one per `set`, made of these parts in this order, joined by ` · `, each
+only when it applies:
+
+1. `<old> → <new>` on a stage change, followed by ` (+N decisions)` when decisions were added;
+2. `+N decisions` when decisions were added without a stage change;
+3. `PR <value>`;
+4. each `--log` text.
+
+In both forms, N = 1 is written `+1 decision`. Stop lines, added by `stop`, are not
+counted here.
+
+A `set` that only changes other fields (title, goal, plan, resume, size, sensitive,
+lessons) writes no log line.
+
+### `stop <seen|corrected|explained>`
+
+Options: `--about` and `--note`. The stage is read from the journal.
+
+- `seen`: the user accepted as is. `corrected`: the user changed something; `--note` is
+  required. `explained`: the user asked for an explanation, then accepted.
+- The line `Stop at <stage>` + ` (<about>)` if given + `: <verdict>` + `, <note>` if
+  given is appended to `Decisions`.
+- Log line: `stop at <stage>: <verdict>`.
+- The share of `corrected` among all stop lines of `Decisions` measures how often the user
+  had to rework the agent's output. The format must stay parseable for that count.
+
+### `next`
+
+Prints `current=`, `next=`, `clear_first=yes|no`. At `follow-up`, prints `next=closed`
+and `hint=run close once the PR is merged`.
+
+### `resume`
+
+The block injected by the session-start hook. Built in memory, printed in one write.
+
+Content, in order: the title line; stage, size and PR if any; the first line of `Goal`;
+the last three decisions that are not routine stops; `Resume here`; the journal's path
+with a reminder to update the journal before any `/clear`.
+
+- A routine stop is a `seen` or `explained` stop without a note. A `corrected` stop is
+  always kept.
+- At most 30 lines: if `Resume here` would exceed it, it is cut and ends with `…`.
+- No journal for the current key: prints nothing, exit 0.
+- **Never fails.** Any exception, a missing git included, ends silently with exit 0.
+
+### `list`
+
+Active journals of the current repository: a header line, then one row per journal with
+key, stage, PR and last update, aligned in columns. No journal: prints `no journal`.
+Outside a git repository: error.
+
+### `close`
+
+Options: the repeatable `--pending` (what remains open outside the code) and `--force`.
+
+Checks, in this order, before anything is written:
+
+1. No archive may exist for the key.
+2. Without `--force`: the journal has a PR, a `PR state command` is set, and its output,
+   stripped and lowercased, is `merged`. A command that fails or times out refuses the
+   close and says so.
+
+Then, in this order: the stage becomes `closed`; `Resume here` becomes
+`Closed on YYYY-MM-DD.` followed by one `- <item>` line per pending item; the log line
+`closed · N pending` (or `closed (forced) · N pending`) is added; the journal is written and moved to `archive/`; `Stage command`
+runs. Worktree removal is not the script's job: it prints the path, and the session asks the
+user before removing anything.
+
+## Stage command
+
+After a successful `init`, `set` that changed the stage or `Resume here`, or `close`, the
+script runs the personal `Stage command` if one is set and a worktree is recorded. Its
+failure, its timeout or its output never change the exit code or the journal. This is how
+an Orca card can follow the ticket without the script knowing Orca.
+
+## Session-start hook
+
+`hooks/hooks.json` in the plugin: event `SessionStart`, matcher
+`startup|resume|clear|compact`, command
+`python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py" resume`, `"timeout": 5`. It
+blocks nothing and writes nothing.
+
+## Out of scope for step 1
+
+- A second track for reviewing someone else's PR, and closing on a PR closed without merge.
+- Product validation as an interrupting stage, with a return to the interrupted stage.
+- A review stamp (a fingerprint of the reviewed diff) and a delivery guard that checks it.
+- Reopening an archived journal; decisions inherited from a parent ticket.
+- Writing follow-ups anywhere else than the archived journal.
+- Starting `init` at a later stage, or with a PR.
+- Listing every repository at once.
+- Repairing journals written by another version (missing sections or fields).
+- Any write to the tracker. The skill does it with commands from the project file, with
+  the user's agreement.
+
+## Tests
+
+`tests/test_journal.py`, pytest. Each test builds temporary git repositories (with a
+linked worktree where needed) and points `JAM_HOME` to a temporary directory. CI runs the
+suite on Python 3.9 and 3.13, with `ruff check`.
+
+**Key and repo-id**
+
+1. With the pattern `ABC-\d+`: `abc-123-filter` → `ABC-123`. With `(\d+)-`: `x/77-y` → `77`.
+2. Default pattern: `142-export` → `142`; `feat/142-export` → `142`;
+   `fix-2026-dates` → `FIX-2026-DATES`; `feat/abc-12-x` → `FEAT-ABC-12-X`;
+   `refactor/auth` → `REFACTOR-AUTH`.
+3. `--key abc-12` → `ABC-12`, whatever the branch.
+4. Detached HEAD without `--key`, and a directory outside git: error.
+5. repo-id: the https and ssh forms of one remote give the same id; ssh with a port; a
+   GitLab subgroup keeps every segment; identical from a linked worktree.
+6. Two repositories without remote and with the same directory name get two repo-ids; a
+   repository without remote gets the same id from a linked worktree.
+6b. `--key ..` and `--key .x` are refused or sanitized so that no path leaves `$JAM_HOME`;
+    detached HEAD with `--key` works.
+7. Two repositories with a ticket `142` never share a journal file.
+
+**Project files**
+
+8. The personal file overrides a field of the shared one.
+9. A `Stage command` in the shared file is ignored, with a warning, and never runs.
+9b. An invalid `Ticket pattern` makes `key` fail with a message and `resume` print nothing.
+10. A value wrapped in backticks is read without them.
+
+**Writing**
+
+11. `init`: refused when a journal exists, overwritten with `--force`; refused when an
+    archive exists, even with `--force`; refused on the default branch without `--key`;
+    `Size` and `Sensitive` default to `medium` and `no`.
+12. `init --key 142` from another checkout leaves `Branch` and `Worktree` at `(none)`.
+13. `set --stage nope`, `set --stage closed`, `--size huge` and `--sensitive maybe` exit
+    2; `set` with no option exits 1; in every case the file stays byte for byte unchanged.
+14. A multi-line `--decision` is stored on one line. A `--goal`, `--plan`, `--done-when`
+    or `--resume` with a `## ` line is refused.
+15. `--decision "Stop at framing: seen"` is refused; `--decision "Stop the cron first"`
+    is accepted.
+16. `set --key 142` run from the main worktree leaves `Branch` and `Worktree` untouched.
+17. Log lines: `framing → code (+2 decisions)` for a stage change with two decisions,
+    `framing → code (+1 decision)` with one, `+1 decision` for one decision alone; `--log` text appended; no log line for a title
+    change alone; `set --stage <current>` writes no arrow.
+18. An exception injected during the write (patched `os.replace`) leaves the previous
+    journal intact and no temporary file behind.
+
+**Stops, next, resume, list**
+
+19. `stop corrected` without `--note` and `stop seen --about "a (b)"` are refused;
+    `stop seen --about "merge ok"` appends `Stop at <stage> (merge ok): seen` to
+    `Decisions` and `stop at <stage>: seen` to `Log`.
+20. `next`: `clear_first=yes` before `review` and `acceptance`, `no` before `delivery`;
+    `no` everywhere when `Size: small`; `next=closed` at `follow-up`.
+21. `resume`: nothing without a journal; leaves out routine stops; keeps a `corrected` one;
+    never exceeds 30 lines; exits 0 outside a git repository.
+22. `list`: header and rows; `no journal` when empty; `key` prints every field, empty ones
+    included.
+
+**Commands and close**
+
+23. A `Stage command` that fails or exceeds its timeout does not change the exit code; it
+    does not run when the command was refused; it receives `JAM_KEY`, `JAM_STAGE`,
+    `JAM_REPO`, `JAM_PR` (empty when none), `JAM_WORKTREE` and the first line of
+    `Resume here` as `JAM_RESUME`; a `Resume here` containing `$(touch pwned)` reaches it
+    as plain text and creates no file.
+24. `close`: refused without a PR; refused when the state command prints `OPEN`, fails or
+    times out, or when no `PR state command` is set; archives when it prints `MERGED`; `--force` archives without a PR; an
+    existing archive refuses before anything is written.
+
+## Done when
+
+- Every test above passes in CI, and `ruff check` is clean.
+- The script stays under 600 lines.
+- On a real repository: `key`, `init`, `set`, `stop`, `next`, `resume` and `list` run on a
+  ticket branch, and the session-start hook shows the resume block after a `/clear`.

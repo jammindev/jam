@@ -1,9 +1,0 @@
-{
-  "id": "req-worktree-create",
-  "ok": true,
-  "result": {
-    "worktree": {
-      "id": "repo-jam::/work/jam-worktrees/23-nouvelle"
-    }
-  }
-}

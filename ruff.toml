@@ -1,0 +1,6 @@
+# Pinned here so that CI and every machine lint the same way.
+target-version = "py39"
+line-length = 100
+
+[lint]
+select = ["E", "F", "W", "B", "UP", "PLW1510"]

@@ -5,18 +5,26 @@ on:
   push:
     branches: [main]
 
-# The job only reads the code: the token gets no write access (public repo).
+# The job only reads the code: the token gets no write access.
 permissions:
   contents: read
 
 jobs:
-  check:
-    # The kit is Python standard library only: the runner's python3 and git are enough.
-    runs-on: ubuntu-latest
-    # A test stuck on a child process must not hold the runner for the default 6 hours.
+  test:
+    # Pinned: Python 3.9 builds are not published for newer Ubuntu images.
+    runs-on: ubuntu-24.04
+    # A test stuck on a child process must not hold the runner for hours.
     timeout-minutes: 10
+    strategy:
+      matrix:
+        # The oldest supported Python and a recent one.
+        python: ["3.9", "3.13"]
     steps:
       - uses: actions/checkout@v5
-      # Discovery runs from the root into the hooks/ and scripts/ packages; on
-      # Python 3.12+, finding zero tests fails the job, so it cannot pass empty.
-      - run: python3 -m unittest
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      # Pinned so that a new release cannot turn the build red on its own.
+      - run: pip install pytest==8.4.2 ruff==0.17.4
+      - run: ruff check .
+      - run: pytest -q tests
