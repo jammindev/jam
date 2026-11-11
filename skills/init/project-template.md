@@ -14,7 +14,7 @@
 - Open a PR: `gh pr create --fill --base main`
 - **PR state command**: `gh pr view "$JAM_PR" --json state --jq .state`
 
-## Sensitive (never small, one extra review pass)
+## Sensitive (one extra review pass)
 - Payment calculations, accounts and permissions, personal data, migrations
 
 ## Review: project checks

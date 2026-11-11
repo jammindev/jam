@@ -6,3 +6,6 @@ CLAUDE.md
 __pycache__/
 .pytest_cache/
 .ruff_cache/
+
+# Private context of the maintainer (never versioned)
+local/

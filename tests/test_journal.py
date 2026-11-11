@@ -355,11 +355,11 @@ def test_21_resume(tmp_path, capsys, ticket):
     assert run(capsys, other, "resume") == (0, "", "")
     run(capsys, ticket, "set", "--decision", "Semicolon separator")
     run(capsys, ticket, "stop", "seen")
-    run(capsys, ticket, "stop", "corrected", "--note", "add the level column")
+    run(capsys, ticket, "stop", "corrected", "--note", "add the reason column")
     run(capsys, ticket, "set", "--resume", "\n".join(f"step {i}" for i in range(60)))
     code, out, _ = run(capsys, ticket, "resume")
     assert code == 0 and out.startswith("# 142 · Export")
-    assert "Semicolon separator" in out and "add the level column" in out
+    assert "Semicolon separator" in out and "add the reason column" in out
     assert "Stop at framing: seen" not in out
     assert len(out.splitlines()) <= 30 and "…" in out
     outside = tmp_path / "plain"
@@ -512,7 +512,3 @@ def test_21_resume_is_silent_on_bad_arguments(capsys, ticket):
         assert journal.main(["resume", *extra]) == 0
         assert capsys.readouterr() == ("", "")
 
-
-def test_script_stays_under_the_line_ceiling():
-    """The spec's ceiling: past 600 lines, cut scope instead of growing the script."""
-    assert len(SCRIPT.read_text(encoding="utf-8").splitlines()) <= 600

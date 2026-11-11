@@ -106,9 +106,21 @@ with options and the recommended one first:
 2. **What is sensitive here?** A short list proposed from what the code shows (payments,
    authentication, personal data, migrations). A sensitive ticket is never `small` and
    gets one extra review pass.
-3. **Which tracker, and which ticket prefix?** Only when detection left either ambiguous.
+3. **Which forge, tracker or ticket prefix?** Only when detection left one open (no
+   `origin`: the forge).
 
-The same message asks for agreement to run the commands of step 4, since some are slow.
+The same message asks for agreement to run the commands of step 4: it lists them, says
+why (a command enters the file only if it works) and that they may take minutes.
+
+**Questions readable without jam's documentation.** The user often meets jam through
+`init`. The message opens with two or three sentences: jam takes a ticket from reading
+it to a PR (branch, tests, code, review), using a project file that lists the
+repository's commands, `init` writes that file and rules that
+make Claude ask before each push and each PR, and it commits nothing. Each question says in one sentence what it decides and
+why jam needs it; each option says what it writes, where, and whom it affects. No jam
+vocabulary: each choice is described by its effects. Permission rules are described
+as what they do: ask before each push and each PR. The question tool is used when
+available.
 
 ### 4. Verify by running
 
@@ -155,7 +167,8 @@ escapes them. The README says so.
 
 ## The project file
 
-Template: `skills/init/project-template.md`. Sixty lines at most, comments included.
+Template: `skills/init/project-template.md`. The file stays short: it links, never copies,
+and each line answers a need of the workflow.
 
 ```markdown
 # Project
@@ -174,7 +187,7 @@ Template: `skills/init/project-template.md`. Sixty lines at most, comments inclu
 - Open a PR: `gh pr create --fill --base main`
 - **PR state command**: `gh pr view "$JAM_PR" --json state --jq .state`
 
-## Sensitive (never small, one extra review pass)
+## Sensitive (one extra review pass)
 - Payment calculations, accounts and permissions, personal data, migrations
 
 ## Review: project checks
@@ -215,8 +228,11 @@ file that sets `Stage command` is reported to the user and ignored, as the journ
 
 ## Size
 
-`skills/init/SKILL.md` stays under 600 words, the template under 60 lines. All of the
-plugin's Markdown (skills, subagents, template) stays under 2,000 words.
+The project file stays short: it links, never copies.
+`SKILL.md` has no word ceiling: a numeric ceiling made it drop rules of this spec. Its
+length is checked at review instead, against two questions: does each rule answer a
+need of this spec or a friction seen on a real ticket, and does any rule repeat
+another?
 
 ## Out of scope for step 1
 
@@ -230,7 +246,7 @@ plugin's Markdown (skills, subagents, template) stays under 2,000 words.
 
 ## Done when
 
-On a real repository (the plan's criterion: `init` fills the project file without any
+On a real repository (the roadmap's criterion, `docs/vision.md` step 1: `init` fills the project file without any
 correction by hand):
 
 - shared mode: every command in the file ran successfully or is marked unverified with

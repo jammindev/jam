@@ -4,13 +4,13 @@
     "name": "jammindev"
   },
   "metadata": {
-    "description": "jam: a ticket workflow for Claude Code."
+    "description": "jam: a workflow for product builders working with coding agents."
   },
   "plugins": [
     {
       "name": "jam",
       "source": "./",
-      "description": "A ticket workflow for Claude Code, with a journal that survives /clear."
+      "description": "A workflow for product builders working with coding agents. It starts with the ticket: framed with you, reviewed by a fresh agent, resumed from a journal."
     }
   ]
 }

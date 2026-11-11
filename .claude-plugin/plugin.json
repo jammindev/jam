@@ -1,6 +1,6 @@
 {
   "name": "jam",
-  "description": "A ticket workflow for Claude Code: framing, tests first, independent review, acceptance, with a journal that survives /clear.",
+  "description": "A workflow for product builders working with coding agents. It starts with the ticket: framed with you, reviewed by a fresh agent, resumed from a journal.",
   "author": {
     "name": "jammindev"
   },

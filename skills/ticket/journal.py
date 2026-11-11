@@ -35,7 +35,7 @@ CLOSED = "closed"
 
 FIELDS = ["Stage", "Size", "Sensitive", "Branch", "Worktree", "PR", "Updated"]
 SECTIONS = ["Goal", "Done when", "Plan", "Decisions", "Resume here", "Lessons", "Log"]
-SIZES = ["small", "medium", "large"]
+SIZES = ["small", "medium"]  # "large" comes with its workflow
 YES_NO = ["yes", "no"]
 VERDICTS = ["seen", "corrected", "explained"]
 
@@ -298,7 +298,7 @@ def run_command(command, journal, ctx, timeout, output=subprocess.PIPE):
 
 
 def stage_command(journal, ctx):
-    """Let an outside tool (an Orca card) follow the ticket; never fails the call."""
+    """Let an outside tool (a terminal title, a task board) follow the ticket; never fails."""
     command = ctx.project.get("Stage command")
     if not command or journal.fields["Worktree"] == NONE:
         return

@@ -4,7 +4,7 @@ Status: accepted (maintainer's green light, 2026-11-11) · Target: first release
 
 ## Why
 
-A Claude Code session forgets: `/clear` empties it, compaction summarizes it. A ticket
+An agent's conversation forgets: `/clear` empties it, compaction summarizes it. A ticket
 lasts days and spans several sessions, sometimes several worktrees. The journal is the
 ticket's memory outside the conversation: goal, plan, decisions, and what to do next.
 
@@ -15,7 +15,7 @@ first. The model writes the content; the script owns the format.
 ## Constraints
 
 - One file, `skills/ticket/journal.py`. Python 3.9+, standard library only.
-- About 500 lines, tests excluded. 600 is the ceiling: past it, cut scope.
+- Nothing useless: every command and option answers a need of this spec or of a skill.
 - Nobody edits a journal by hand, the model included. Every change goes through a command.
 - Writes are atomic: a temporary file in the same directory, then `os.replace`.
 - Files are read and written as UTF-8, explicitly.
@@ -85,7 +85,7 @@ Everything else in the file is for the model.
 |---|---|---|
 | `Ticket pattern` | shared or personal | `ABC-\d+` |
 | `PR state command` | shared or personal | `gh pr view "$JAM_PR" --json state --jq .state` |
-| `Stage command` | **personal only** | `orca worktree set --worktree "path:$JAM_WORKTREE" --comment "$JAM_STAGE: $JAM_RESUME"` |
+| `Stage command` | **personal only** | `tmux rename-window -t "$TMUX_PANE" "$JAM_KEY $JAM_STAGE"` |
 
 ### Trust
 
@@ -126,7 +126,7 @@ case-sensitive filesystem and one on macOS.
    one: when it does not match, go to step 4.
 3. Without a pattern, the default: a number at the start of the branch or right after a
    `/`, followed by `-` or the end: `(?:^|/)(\d+)(?=-|$)`.
-   - `142-export-schedule` and `feat/142-export` → `142`
+   - `142-export-stock` and `feat/142-export` → `142`
    - `fix-2026-dates` → no match (a number in the middle is never a key)
    - `feat/abc-12-x` → no match: prefixed keys need a declared pattern, which `init`
      proposes when it detects them in the branch names.
@@ -164,30 +164,30 @@ Content follows the user's language. Field names and section titles are fixed, i
 because the script parses them. Sections always appear in this order.
 
 ```markdown
-# 142 · Export the class schedule as CSV
+# 142 · Export the month's stock movements as CSV
 
 - **Stage**: review
 - **Size**: medium
 - **Sensitive**: no
-- **Branch**: 142-export-schedule
+- **Branch**: 142-export-stock
 - **Worktree**: /home/dev/work/shop-142
 - **PR**: (none)
 - **Updated**: 2026-11-12 21:10
 
 ## Goal
-The manager downloads the month's schedule to print it.
+The warehouse manager downloads the month's stock movements to check them.
 
 ## Done when
-- [x] The file has date, time, class, room, level · proof: tests/test_export.py::test_columns
-- [x] A cancelled class does not appear · proof: tests/test_export.py::test_cancelled
+- [x] The file has date, product, quantity, reason · proof: tests/test_export.py::test_columns
+- [x] A cancelled movement does not appear · proof: tests/test_export.py::test_cancelled
 
 ## Plan
-1. Export view  2. Filter out cancelled classes  3. Button on the schedule page
+1. Export view  2. Filter out cancelled movements  3. Button on the stock page
 
 ## Decisions
-- Stop at framing (green light): corrected, add the level column
+- Stop at framing (green light): corrected, leave cancelled movements out
 - Semicolon separator: the file opens in French-locale Excel.
-- Cancelled classes are left out, not listed separately.
+- Each line keeps the movement's reason as entered.
 - Decided by the code: an empty month gives a header-only file (to settle)
 
 ## Resume here
@@ -206,7 +206,7 @@ Run the code review on the branch, then check each finding in the code before fi
 - The first line is `# <KEY> · <title>`.
 - `Updated` and log timestamps are local time, `YYYY-MM-DD HH:MM`.
 - `Decisions` and `Log` are chronological: new lines are appended.
-- `Size` is `small`, `medium` or `large`. `Sensitive` is `yes` or `no`.
+- `Size` is `small` or `medium`; `large` comes with its workflow. `Sensitive` is `yes` or `no`.
 - The parser recognizes only the section titles above, as `## Title` at the start of a
   line. Anything else is content.
 - `Branch`, `Worktree` and `PR` hold `(none)` when unknown.
@@ -262,7 +262,7 @@ Creates the journal at `framing`, with the log line `created at framing`.
   journal on the default branch would show up in every session of the main worktree.
 - `Branch` and `Worktree` are filled from the checkout given by `--cwd` (or the current
   one) only when that checkout resolves to the same key; otherwise they stay `(none)`.
-  The skill creates the ticket's worktree first, then runs `init --cwd <that worktree>`.
+  The ticket session runs `init` from its own worktree, which keeps the journal there.
 
 ### `show`
 
@@ -357,7 +357,8 @@ user before removing anything.
 After a successful `init`, `set` that changed the stage or `Resume here`, or `close`, the
 script runs the personal `Stage command` if one is set and a worktree is recorded. Its
 failure, its timeout or its output never change the exit code or the journal. This is how
-an Orca card can follow the ticket without the script knowing Orca.
+an outside tool (a terminal title, a task board) can follow the ticket without the script
+knowing it.
 
 ## Session-start hook
 
@@ -371,7 +372,8 @@ blocks nothing and writes nothing.
 - A second track for reviewing someone else's PR, and closing on a PR closed without merge.
 - Product validation as an interrupting stage, with a return to the interrupted stage.
 - A review stamp (a fingerprint of the reviewed diff) and a delivery guard that checks it.
-- Reopening an archived journal; decisions inherited from a parent ticket.
+- Reopening an archived journal; decisions inherited from the ticket's subject (a
+  milestone or tracker project, the level above the ticket; see `docs/vision.md`).
 - Writing follow-ups anywhere else than the archived journal.
 - Starting `init` at a later stage, or with a PR.
 - Listing every repository at once.
@@ -456,6 +458,5 @@ suite on Python 3.9 and 3.13, with `ruff check`.
 ## Done when
 
 - Every test above passes in CI, and `ruff check` is clean.
-- The script stays under 600 lines.
 - On a real repository: `key`, `init`, `set`, `stop`, `next`, `resume` and `list` run on a
   ticket branch, and the session-start hook shows the resume block after a `/clear`.
