@@ -313,8 +313,15 @@ def cmd_key(ctx, args):
     if args.branch is not None:
         ctx.branch = args.branch
     key = ctx.resolve_key(args.key)
+    # The main worktree's git dir is the shared one; a linked worktree has its own.
+    git_dirs = [git(ctx.toplevel, "rev-parse", "--path-format=absolute", flag)
+                for flag in ("--git-dir", "--git-common-dir")]
+    if None in git_dirs:
+        raise JamError("cannot find the repository's git directory")
+    git_dirs = [os.path.realpath(path) for path in git_dirs]
+    main_worktree = "yes" if git_dirs[0] == git_dirs[1] else "no"
     rows = [("key", key), ("branch", ctx.branch or ""), ("worktree", ctx.toplevel),
-            ("repo", ctx.repo_id), ("journal", ctx.journal(key)),
+            ("main_worktree", main_worktree), ("repo", ctx.repo_id), ("journal", ctx.journal(key)),
             ("exists", "yes" if ctx.journal(key).is_file() else "no"),
             ("archived", "yes" if ctx.archive(key).is_file() else "no"),
             ("project_files", ":".join(ctx.project_files)),

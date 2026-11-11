@@ -378,9 +378,18 @@ def test_22_list_and_key(tmp_path, capsys, ticket):
     assert run(capsys, empty, "list")[1].strip() == "no journal"
     git(empty, "checkout", "-q", "--detach")
     out = run(capsys, empty, "key", "--key", "9")[1]
-    assert list(fields(out)) == ["key", "branch", "worktree", "repo", "journal",
-                                 "exists", "archived", "project_files", "reports"]
+    assert list(fields(out)) == ["key", "branch", "worktree", "main_worktree", "repo",
+                                 "journal", "exists", "archived", "project_files",
+                                 "reports"]
     assert fields(out)["branch"] == "" and fields(out)["project_files"] == ""
+
+
+def test_22c_key_tells_the_main_worktree(tmp_path, capsys):
+    # The ticket skill routes on it: start in the main worktree, framing in a linked one.
+    main = make_repo(tmp_path / "main")
+    git(main, "worktree", "add", "-q", "-b", "142-x", str(tmp_path / "wt"))
+    assert fields(run(capsys, main, "key")[1])["main_worktree"] == "yes"
+    assert fields(run(capsys, tmp_path / "wt", "key")[1])["main_worktree"] == "no"
 
 
 def test_22b_key_for_another_branch_and_pattern(tmp_path, capsys):

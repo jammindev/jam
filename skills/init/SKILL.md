@@ -36,7 +36,8 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
      (payments, accounts, personal data, migrations). A ticket touching it gets one more
      review before its PR.
    - Only when detection hesitates: base branch, ticket branch format, test or lint
-     command.
+     command. Branches with several prefixes (`feat/`, `fix/`…) are a hesitation:
+     propose `{type}/{id}-{slug}` first.
 4. **Confirm, then write.** Show the file, using `project-template.md` for its layout
    only (every value in it is an example), filled with the detected and answered
    values, fields with no value left out; on a rerun, show the lines that change. Show

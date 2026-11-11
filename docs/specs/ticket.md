@@ -40,7 +40,7 @@ So:
 - Anything with one right answer comes from `journal.py`: key, journal path, whether the
   session is in the main worktree, stage, next stage, whether to clear first.
 - The front matter allows the script without a prompt each time:
-  `allowed-tools: Bash(python3 *journal.py *)`.
+  `allowed-tools: Bash(python3 *journal.py*)`.
 - `JOURNAL` below means `python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`;
   "the project file" means the merged result of the shared and personal files.
 
@@ -48,24 +48,33 @@ So:
 
 One addition to the journal spec and script: `key` also prints
 `main_worktree=yes|no`, `yes` when the checkout is the repository's main worktree (its
-git dir is the common git dir). Without it, the router would guess.
+git dir is the common git dir). The router uses it to refuse a ticket branch checked
+out in the main worktree.
 
 ## The router: `/jam:ticket [<id>]`
 
-1. `JOURNAL key` gives `main_worktree`, the key of the current branch, and whether its
+The id, if any, is the skill's argument (`$ARGUMENTS`).
+
+1. `JOURNAL key` gives the current branch, its key, `main_worktree`, and whether the
    journal exists or is archived. `key` fails (a detached HEAD, during a rebase for
-   instance): say so and stop.
-2. **Main worktree** (`main_worktree=yes`):
-   - on a branch other than the base branch: say that tickets start from the base
-     branch, and stop;
+   instance): say so and stop. No project file, or no `Base branch` in it: propose
+   `/jam:init`, and stop.
+2. **On the project file's `Base branch`, in any worktree**: the main session. The
+   branch decides, not the worktree: with a bare repository, the main session is in a
+   linked worktree on the base branch. A test
+   run on a bare repository routed its main session to framing, on a ticket named after
+   the base branch.
    - with an id: `JOURNAL key --key <id>`. A journal exists: give the command to open its
      session (`Worktree` from `JOURNAL show --key <id>`), nothing else. Archived: say the
      ticket is closed. Otherwise: read `stages/start.md`;
    - without an id: `JOURNAL list`, and ask which ticket to start or reopen.
    The main session never creates or writes a journal.
-3. **Ticket worktree** (`main_worktree=no`):
+3. **On another branch, in the main worktree** (`main_worktree=yes`): say that tickets
+   start from the base branch, each in its own worktree, and stop.
+4. **On another branch, in a linked worktree**: the ticket's session.
    - with an id: `JOURNAL key --key <id>`; a `key=` that differs from the branch's:
-     refused, the session works on its own ticket only;
+     refused, the session works on its own ticket only; to start that ticket, run
+     `/jam:ticket <id>` in a session on the base branch;
    - archived: say the ticket is closed, and stop;
    - no journal: read `stages/framing.md`;
    - a journal at `closed` (an archive move that failed): run `JOURNAL close` again, with
@@ -100,14 +109,16 @@ of the ticket session repeats this rule: a stale journal is the only way to lose
    gives the ticket's key. If not, typically a tracker key such as `ENG-142` without a
    `Ticket pattern`, say so and propose either rerunning `/jam:init` to add the pattern,
    or a branch named after the key itself.
-4. Create the worktree next to the main one, at `<main-dir>-<key>` (lowercased), from
+4. Create the worktree next to this session's, at `<worktree>-<key>` (lowercased,
+   `<worktree>` from `JOURNAL key`), from
    the project file's `Base branch`, after `git fetch origin`:
    - new branch: `git worktree add --no-track -b <branch> <path> origin/<base>`;
    - local branch already there: `git worktree add <path> <branch>`;
    - branch only on `origin`: `git worktree add -b <branch> <path> origin/<branch>`;
    - branch already checked out in a worktree (`git worktree list`): reuse that path.
 5. Give the command that opens the ticket's session and starts framing:
-   `cd <path> && claude "/jam:ticket <id>"`. Say that jam must be enabled for that
+   `cd <path> && claude "/jam:ticket"`: the ticket session finds the ticket from its
+   branch, and the same command resumes it later. Say that jam must be enabled for that
    folder too: installed in user scope, or in project scope with `.claude/settings.json`
    committed on the base branch; not local scope. Write nothing else.
 
