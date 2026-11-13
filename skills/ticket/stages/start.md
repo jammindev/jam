@@ -15,6 +15,11 @@ over to a new session there.
    of one, proven or only suspected: give it in one to three lines with what shows it,
    and ask the user whether to go on; stop if they say no. Write nothing to the
    tracker.
+   **Already started?** Look for work on this ticket, whatever created it: a branch
+   whose `JOURNAL key --branch <name>` gives this key (`git branch -a`), or a worktree
+   on such a branch (`git worktree list`). Found: create nothing, say so, and give the
+   command to open a session in that worktree (or create the worktree for that branch,
+   as in step 4). Two sessions may start the same ticket a few minutes apart.
 2. Build the branch name from `Ticket branch`:
    - `{id}`: the ticket's id, without `#`;
    - `{slug}`: a few words of the title, lowercase ASCII, joined by `-`;

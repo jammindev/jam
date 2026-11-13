@@ -121,6 +121,10 @@ tracker and sorts no backlog: closing the ticket is the user's call.
 1. Read the ticket with the project file's `Read a ticket` command. No such command: ask
    the user for its title and content. Then **check that it is still worth doing** (see
    "Still worth doing?"), before any branch or worktree exists.
+   Then look for work already started on this ticket, whatever created it: a branch
+   whose key is the ticket's, or a worktree on it. Found: reuse it, create nothing, and
+   say so. A real run had two main sessions start the same ticket three minutes apart;
+   only one worktree survived, by luck.
 2. Build the branch name from `Ticket branch`: `{id}` is the ticket's id without `#`,
    `{slug}` a few words of the title in lowercase ASCII joined by `-`, and `{type}`, when
    the format has it, the kind of change (`feat`, `fix`…) among those seen in the
