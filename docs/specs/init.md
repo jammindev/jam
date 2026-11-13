@@ -42,7 +42,9 @@ returns when a real ticket shows the need. The first version stays in git histor
 - **Project commands are read, not guessed.** Test, lint and run commands are proposed
   only if a file names them; CI's comes first. None: the field is left out, and `ticket`
   asks when it needs it. Forge commands (read, list, open a PR, PR state) come from the
-  forge CLI; `PR state command` must print `merged` once a PR is merged.
+  forge CLI; `PR state command` must print `merged` once a PR is merged; `PR size
+  command` prints lines added, lines removed and files changed, and is written only when
+  the forge CLI gives these figures (`gh` does).
 - **The user's language** for prose in the file; section titles and field names stay
   in English, as the script and the skills parse them.
 - **Not run by `init`.** A wrong command shows on the first ticket, where it is fixed in
@@ -99,6 +101,7 @@ and each line answers a need of the workflow.
 - Run: `make dev`
 - Open a PR: `gh pr create --base main`
 - **PR state command**: `gh pr view "$JAM_PR" --json state --jq .state`
+- **PR size command**: `gh pr view "$JAM_PR" --json additions,deletions,changedFiles --jq '"\(.additions) \(.deletions) \(.changedFiles)"'`
 
 ## Sensitive (one extra review pass)
 - Payment calculations, accounts and permissions, personal data, migrations
@@ -113,7 +116,7 @@ and each line answers a need of the workflow.
 ```
 
 - Only the bold fields are read by `journal.py` (`Ticket pattern`, `PR state command`,
-  `Stage command`, see the journal spec), so they are always written in bold, such as
+  `PR size command`, `Stage command`, see the journal spec), so they are always written in bold, such as
   ``- **Ticket pattern**: `ABC-\d+` `` under Tickets. Everything else is read by the model.
 - **Review: project checks** starts empty. It is filled when a lesson is promoted at
   closing, never by `init`, so that nothing is copied from `CLAUDE.md`.
