@@ -41,12 +41,11 @@ that run tests and lint, and links to the files that already describe your proje
 It asks you where to keep the file and what is sensitive in your code, and only asks
 about the rest when it hesitates, with what it detected as the recommended answer. It
 runs none of the commands: the first ticket does, and a wrong one is fixed in the file.
-Then it shows you the whole file and, once you confirm, writes two things:
-
-- the project file, either in the repository (`.jam/project.md`, for you to commit) or
-  outside it (`~/.jam/<repo-id>/project.md`), as you choose;
-- permission rules that make Claude ask you before each `git push` and each pull request.
-  Outside the repository, these rules apply to all your repositories.
+Then it shows you the whole file and, once you confirm, writes it, either in the
+repository (`.jam/project.md`, for you to commit on your base branch, so that new
+worktrees have it) or outside it (`~/.jam/<repo-id>/project.md`), as you choose. It
+touches no permission setting: the session asks you before each push and each pull
+request.
 
 It never commits, never pushes, never writes to your tracker or code host.
 
@@ -120,7 +119,7 @@ and the journal is archived.
 
 On a medium ticket: confirm the size, frame it with the session, settle the decisions the
 code made, run `/clear` twice, give two green lights, decide when a loop reaches three
-rounds, answer the permission prompts before push and pull request, and merge.
+rounds, agree to the push and the pull request, and merge.
 
 At each pause, jam notes whether you accepted, corrected, or asked for an explanation. How
 often you had to correct its work shows how well the workflow serves you.
@@ -160,9 +159,6 @@ merged. Jira and Linear have not been tried yet.
 
 A project file is code, like a Makefile: jam runs the commands it lists. Do not run jam on a repository, or a branch, whose project
 file you do not trust, as you would not run its `make test`.
-
-The permission rules are a safety net, not a barrier: a variant such as `git -C . push`
-escapes them.
 
 ## Limitations
 

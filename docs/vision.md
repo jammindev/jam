@@ -20,10 +20,10 @@ bugs and support, specifications.
 ## Principles
 
 1. **Generic first.** Any stack, any tracker (GitHub, GitLab, Jira, Linear…), any
-   project. The workflow names no tool: it runs the commands of the project file. Running
-   outside Claude Code is welcome, not required: the core is Markdown and a Python
-   script; the plumbing (subagents, hook, permission rules, plugin variables, `/clear`)
-   is Claude Code's.
+   project. The workflow names no tool: it runs the commands of the project file. jam
+   is built for Claude Code first, and kept open to other agent tools: the core is
+   Markdown and a Python script; only the plumbing (subagents, hook, plugin variables,
+   `/clear`) is Claude Code's.
 2. **Installs on an existing project by itself.** `init` reads the repository, fills the
    project file (forge, tracker, branches, commands) and asks only what it cannot
    detect.
@@ -45,9 +45,9 @@ bugs and support, specifications.
 8. **Tests come from the request**, before the code, each done criterion naming its test.
 9. **Process in proportion.** The ticket's size, decided at the start, sets the amount
    of framing, review and acceptance.
-10. **Spend tokens where they matter**: a strong model where judgment is needed
-    (framing, review), a medium one to write code, a small one to explore; and a short
-    context.
+10. **Spend effort where it matters**: subagents run on Opus, at `xhigh` effort where
+    they must think (plan, review), at `medium` where they apply a plan (code); and a
+    short context.
 11. **Link, never copy.** The project's conventions stay in `CLAUDE.md`, tool configs
     and forge templates; jam points to them. A lesson that deserves to last is moved
     there, with the developer's agreement.
@@ -111,8 +111,9 @@ the others.
 - A place for the project's conventions: they live where the project already keeps them.
 
 Not in the first release: guards written as hooks, such as one requiring proof of review
-before delivery. Claude Code's permission rules are the safety net for now; the guards
-come back only if a push ever leaves without the developer's agreement.
+before delivery, or permission rules. The skills ask in the conversation before a push
+or a pull request; rules and guards come back only if a push ever leaves without the
+developer's agreement.
 
 ## Open questions
 
@@ -120,6 +121,9 @@ come back only if a push ever leaves without the developer's agreement.
 - Whether code is written by a subagent or by the ticket session itself (decided at
   step 3, from token use and how often the developer corrected).
 - The three-round ceiling on review loops: a starting value, to tune on real tickets.
+- A lighter mode by ticket weight: lower effort for the subagents of a small ticket
+  (a review at `high` rather than `xhigh`), decided from the token use and correction
+  rate measured at step 2.
 - The most reliable way to read Jira and Linear tickets (step 4).
 - The shape of the level above the ticket: what a subject holds (context, decisions),
   how a ticket knows its subject (the tracker's milestone or project is the natural key),

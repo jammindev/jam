@@ -11,10 +11,10 @@ The journal already has a PR (`JOURNAL show`, field `PR`): skip steps 1 and 3, p
    `CLAUDE.md`, to the project file's `Review: project checks`, or to a linter rule. A
    lesson about jam stays in the journal: its maintainer reads them, and removing a
    rule is as good an outcome as adding one.
-2. Push: `git push -u origin <branch>`. The permission rules make Claude ask first.
-3. Open the PR with the project file's `Open a PR` command, adding a title and a body:
-   `--title "…" --body-file -` with the body on stdin for `gh`, `--title "…"
-   --description "…"` for `glab`. Never write the body to a file inside the
+2. Ask the user, then push: `git push -u origin <branch>`.
+3. Ask the user, then open the PR with the project file's `Open a PR` command, adding a
+   title and a body: `--title "…" --body-file -` with the body on stdin for `gh`,
+   `--title "…" --description "…"` for `glab`. Never write the body to a file inside the
    repository. The body follows the PR template under the project file's `Links` if
    there is one, and holds the goal, the criterion and its test, the product decisions,
    and `Closes #<id>` when the tracker is the forge's: the journal stays on this machine,

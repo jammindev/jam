@@ -3,7 +3,6 @@ name: ticket
 description: Take a ticket from reading it to its merged pull request, with its journal kept outside the conversation.
 argument-hint: "[ticket id]"
 disable-model-invocation: true
-allowed-tools: Bash(python3 *journal.py*)
 ---
 
 The ticket id, if any, is `$ARGUMENTS`. `JOURNAL` means

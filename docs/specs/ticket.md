@@ -39,8 +39,6 @@ So:
   (see "Moving on").
 - Anything with one right answer comes from `journal.py`: key, journal path, whether the
   session is in the main worktree, stage, next stage, whether to clear first.
-- The front matter allows the script without a prompt each time:
-  `allowed-tools: Bash(python3 *journal.py*)`.
 - `JOURNAL` below means `python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`;
   "the project file" means the merged result of the shared and personal files.
 
@@ -194,8 +192,9 @@ Each decision to settle gets one line, since `Decisions` only grows:
    project file's `Review: project checks`, or to a linter rule. A lesson about jam
    stays in the journal for the maintainer: removing a rule is as valid an outcome as
    adding one.
-2. Push the branch: `git push -u origin <branch>` (the permission rules make Claude ask).
-3. No PR yet: open it with the project file's `Open a PR` command, adding a title and a
+2. Ask the user, then push the branch: `git push -u origin <branch>`. jam sets no
+   permission rule: the skill itself asks, here and before the PR.
+3. No PR yet: ask the user, then open it with the project file's `Open a PR` command, adding a title and a
    body (`--title` and `--body-file -` reading stdin for `gh`, `--title` and
    `--description` for `glab`; never a body file inside the repository).
    The body follows the PR template under `Links` if there is one, and holds the goal,
@@ -225,7 +224,11 @@ Each decision to settle gets one line, since `Decisions` only grows:
 - Fresh context: it receives only what the review stage gives it, never the conversation.
 - Tools: `Read`, `Grep`, `Glob`, and `Bash` for `git diff` and `git log`. It is told to
   modify nothing; `Bash` itself is not restricted.
-- A strong model: review is where judgment is needed (`docs/vision.md`, principle 10).
+- `model: opus`, `effort: xhigh`: review is where judgment is needed (`docs/vision.md`,
+  principle 10). The alias follows the latest Opus; a subagent that applies a plan,
+  such as the future `implementer`, gets `effort: medium`, with one rule: when the plan
+  does not fit the code, it stops and reports what it found, instead of forcing its way
+  (weakening a test, adding a workaround, changing the plan silently).
 - It returns a list of findings, each with file and line, the failure scenario or the
   broken criterion, and `blocking` or `other`; or says there is none. No style remarks
   the linter already covers.

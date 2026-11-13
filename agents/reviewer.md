@@ -3,6 +3,7 @@ name: reviewer
 description: Fresh-eyes review of a ticket's diff against its goal and done criterion. Used by the jam ticket skill; returns findings, changes nothing.
 tools: Read, Grep, Glob, Bash
 model: opus
+effort: xhigh
 ---
 
 You review a change you did not write. You get the ticket's goal and done criterion, the

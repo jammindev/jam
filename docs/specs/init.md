@@ -23,11 +23,12 @@ returns when a real ticket shows the need. The first version stays in git histor
 | Output | In the repository | Outside it |
 |---|---|---|
 | Project file | `<toplevel>/.jam/project.md`, to be committed | `<jam-dir>/project.md` |
-| Permission rules | `<toplevel>/.claude/settings.json`, to be committed | `~/.claude/settings.json`, which applies to **every** repository of the user |
 
 - `<jam-dir>` is the grandparent of the `journal=` path printed by
   `journal.py key --key setup`.
-- `init` writes these files and nothing else. It never commits, pushes or opens a PR,
+- `init` writes this file and nothing else. It sets no permission rule: the user's
+  own settings decide what Claude may run, and the skills ask before a push or a PR.
+  Rules may come back when a real use needs them. It never commits, pushes or opens a PR,
   writes nothing to the tracker or the forge, and creates no journal.
 - The skill is invoked as `/jam:init`, with `disable-model-invocation: true` so that it
   never starts on its own.
@@ -70,16 +71,12 @@ returns when a real ticket shows the need. The first version stays in git histor
      hesitates.
    Each question says what it decides; each option says what it writes and where.
 4. **Confirm and write**: the file as it will be written (on a rerun, the lines that
-   change) and the permission rules, one confirmation (with the question tool, the file
+   change), one confirmation (with the question tool, the file
    sits in the `preview` of the option that writes it: a test run cut the text before
    the question down to one sentence and the file was never shown), corrections applied before
-   writing (the changed lines are shown again). Rules added to `permissions.ask`, without duplicates: `Bash(git push *)` and
-   the PR command's prefix. A settings file that is not valid JSON stops `init` before
-   anything is written.
-5. **Summarize**: files written, files to commit, next step `/jam:ticket <id>`.
-
-The permission rules are a safety net, not a barrier: a variant such as `git -C . push`
-escapes them. The README says so.
+   writing (the changed lines are shown again).
+5. **Summarize**: the file written, whether to commit it (in the repository, on the base
+   branch, so that new worktrees have it), next step `/jam:ticket <id>`.
 
 ## The project file
 
@@ -127,6 +124,8 @@ and each line answers a need of the workflow.
 
 ## Deferred until a real ticket needs it
 
+- Permission rules asking before a push or a PR (the maintainer runs Claude without
+  prompts; the skills ask in the conversation).
 - Running each command before writing it.
 - An introduction to jam longer than one sentence (the README has it).
 - Updates question by question; a teammate meeting a committed file.
@@ -140,7 +139,7 @@ On a real repository (`docs/vision.md`, step 1):
 - `init` asks two questions, plus one per value detection hesitates on, and writes a
   file the user does not have to correct by hand up to the first ticket, which runs its
   commands;
-- in the repository: `init` adds no file other than `.jam/project.md` and
-  `.claude/settings.json`; outside it: nothing inside the repository;
+- in the repository: `init` adds no file other than `.jam/project.md`; outside it:
+  nothing inside the repository;
 - on a ticket branch, `journal.py key` gives the expected key, and the read command of
   the file prints that ticket.

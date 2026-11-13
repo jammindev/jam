@@ -1,6 +1,6 @@
 ---
 name: init
-description: Set jam up on this repository - write its project file and permission rules.
+description: Set jam up on this repository - write its project file.
 disable-model-invocation: true
 ---
 
@@ -28,10 +28,9 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
    Each question says in one sentence what it decides; each option says what it writes
    and where. Start the message with one sentence: jam takes a ticket from reading it to
    a PR, using the file this command writes; more in the README.
-   - Always: where the file lives. In the repository (`.jam/project.md`, to commit,
-     permission rules in `.claude/settings.json`), or outside it (`<jam-dir>/project.md`,
-     rules in `~/.claude/settings.json`, which apply to all the user's repositories).
-     Recommend the repository when the recent commits are all the user's, else outside.
+   - Always: where the file lives. In the repository (`.jam/project.md`, to commit), or
+     outside it (`<jam-dir>/project.md`, the repository untouched). Recommend the
+     repository when the recent commits are all the user's, else outside.
    - Always: what is sensitive here, several answers allowed, proposed from the code
      (payments, accounts, personal data, migrations). A ticket touching it gets one more
      review before its PR.
@@ -40,18 +39,16 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
      propose `{type}/{id}-{slug}` first.
 4. **Confirm, then write.** Show the file, using `project-template.md` for its layout
    only (every value in it is an example), filled with the detected and answered
-   values, fields with no value left out; on a rerun, show the lines that change. Show
-   the permission rules too, and ask once. With the question tool, the whole file goes
-   in the `preview` of the option that writes it: text before a question may be cut
-   short, the preview is always shown. If the user corrects something, apply it,
-   show the changed lines and ask again. Then write:
-   - the file at the chosen path. `<jam-dir>` is the grandparent directory of the
-     `journal=` path of `JOURNAL key --key setup`; create it if needed;
-   - the rules, merged under `permissions.ask` without duplicates: `Bash(git push *)`
-     and the PR command's prefix, such as `Bash(gh pr create *)`. A settings file that
-     is not valid JSON: write nothing and stop.
-5. **Summarize** in three lines: what was written, what to commit, next step
-   `/jam:ticket <id>`.
+   values, fields with no value left out; on a rerun, show the lines that change. Ask
+   once. With the question tool, the whole file goes in the `preview` of the option
+   that writes it: text before a question may be cut short, the preview is always
+   shown. If the user corrects something, apply it,
+   show the changed lines and ask again. Then write the file at the chosen path.
+   `<jam-dir>` is the grandparent directory of the `journal=` path of
+   `JOURNAL key --key setup`; create it if needed. Write nothing else: no permission
+   rule, no settings file.
+5. **Summarize** in three lines: what was written; in the repository, to commit on the
+   base branch so that new worktrees have it; next step `/jam:ticket <id>`.
 
 ## Rules
 
