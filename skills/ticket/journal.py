@@ -487,6 +487,27 @@ def cmd_list(ctx, args):
         print("  ".join(cell.ljust(w) for cell, w in zip(row, widths)) + "  " + row[3])
 
 
+def gather_jam_lessons(journal, ctx, key, day):
+    """Copy the lessons about jam itself to one file, across every repository.
+
+    They belong to jam, not to the project: the journal keeps their context, and jam's
+    maintainer reads this file instead of every journal. `jam: nothing to report` only
+    tells, in the journal, a silent answer from a forgotten question: it is not copied.
+    Lessons are one line each (`set --lesson` flattens them). Never fails the close.
+    """
+    lessons = [item.strip() for item in journal.items("Lessons")
+               if item.strip().lower().startswith("jam:")
+               and item.strip().lower() != "jam: nothing to report"]
+    if not lessons:
+        return
+    text = "".join(f"- {day} · {ctx.repo_id}#{key} · {lesson}\n" for lesson in lessons)
+    try:
+        with open(ctx.home.parent / "jam-lessons.md", "a", encoding="utf-8") as handle:
+            handle.write(text)
+    except OSError as exc:
+        print(f"jam: warning: lessons about jam not gathered: {exc}", file=sys.stderr)
+
+
 def cmd_close(ctx, args):
     pending = [one_line(value, "pending") for value in args.pending]
     key = ctx.resolve_key(args.key)
@@ -510,9 +531,10 @@ def cmd_close(ctx, args):
         state = result.stdout.strip().lower()
         if state != "merged":
             raise JamError(f"the PR is not merged (state: {state or 'empty'})")
+    day = f"{datetime.now():%Y-%m-%d}"
     journal.fields["Stage"] = CLOSED
     journal.sections["Resume here"] = "\n".join(
-        [f"Closed on {datetime.now():%Y-%m-%d}."] + [f"- {item}" for item in pending])
+        [f"Closed on {day}."] + [f"- {item}" for item in pending])
     journal.log(f"closed{' (forced)' if args.force else ''} · {len(pending)} pending")
     journal.fields["Updated"] = now()
     # Written in place, then moved: if the move fails, the journal stays active at
@@ -521,6 +543,7 @@ def cmd_close(ctx, args):
     ctx.archive(key).parent.mkdir(parents=True, exist_ok=True)
     os.replace(ctx.journal(key), ctx.archive(key))
     print(f"archived={ctx.archive(key)}")
+    gather_jam_lessons(journal, ctx, key, day)
     if journal.fields["Worktree"] != NONE:
         print(f"worktree={journal.fields['Worktree']} (ask the user before removing it)")
     stage_command(journal, ctx)

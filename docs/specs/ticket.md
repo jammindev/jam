@@ -219,8 +219,9 @@ Each decision to settle gets one line, since `Decisions` only grows:
    to `CLAUDE.md`, to the project file's `Review: project checks`, or to a linter rule.
    About jam: an instruction that failed, had to be worked around, or served no
    purpose, each lesson starting with `jam:`; none at all is written
-   `jam: nothing to report`. These stay in the journal for the maintainer: removing a
-   rule is as valid an outcome as adding one. A single question about "a friction in
+   `jam: nothing to report`. At close, `journal.py` copies the others to
+   `$JAM_HOME/jam-lessons.md` for the maintainer: removing a rule is as valid an
+   outcome as adding one. A single question about "a friction in
    the workflow" was tried on the first real ticket: the session wrote only lessons
    about the code, while jam had failed four times.
 2. Ask the user, then push the branch: `git push -u origin <branch>`. jam sets no

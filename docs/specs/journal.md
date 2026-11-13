@@ -39,6 +39,7 @@ first. The model writes the content; the script owns the format.
 
 ```
 $JAM_HOME (default ~/.jam)/
+  jam-lessons.md          lessons about jam itself, gathered from every closed journal
   <repo-id>/
     project.md            personal project file (optional)
     journals/<KEY>.md     one active journal per ticket
@@ -350,8 +351,14 @@ Checks, in this order, before anything is written:
 
 Then, in this order: the stage becomes `closed`; `Resume here` becomes
 `Closed on YYYY-MM-DD.` followed by one `- <item>` line per pending item; the log line
-`closed · N pending` (or `closed (forced) · N pending`) is added; the journal is written and moved to `archive/`; `Stage command`
-runs. Worktree removal is not the script's job: it prints the path, and the session asks the
+`closed · N pending` (or `closed (forced) · N pending`) is added; the journal is written
+and moved to `archive/`; its lessons starting with `jam:` (case-insensitive) are appended
+to `$JAM_HOME/jam-lessons.md`, one line each:
+`- YYYY-MM-DD · <repo-id>#<KEY> · <lesson>` (the closing day; `jam: nothing to report` is
+not copied); `Stage command` runs. Lessons about jam
+belong to jam, not to the project: the journal keeps their context, this file gathers
+them across every repository for jam's maintainer. A failure to write it is reported on
+stderr and changes neither the exit code nor the archive. Worktree removal is not the script's job: it prints the path, and the session asks the
 user before removing anything.
 
 ## Stage command

@@ -476,6 +476,31 @@ def test_24_close(tmp_path, capsys, ticket, monkeypatch):
     assert path.read_text(encoding="utf-8") == text
 
 
+def test_24b_close_gathers_jam_lessons(capsys, ticket):
+    # Lessons about jam leave the project's journal for one file the maintainer reads.
+    run(capsys, ticket, "set", "--lesson", "a trap in the code",
+        "--lesson", "jam: the read command printed nothing", "--lesson", "JAM: two sessions",
+        "--lesson", "jam: nothing to report")
+    gathered = jam_home() / "jam-lessons.md"
+    gathered.write_text("- an earlier line\n", encoding="utf-8")
+    assert run(capsys, ticket, "close", "--force")[0] == 0
+    lines = gathered.read_text(encoding="utf-8").splitlines()
+    repo = fields(run(capsys, ticket, "key")[1])["repo"]
+    assert lines[0] == "- an earlier line"
+    assert [line.split(" · ", 1)[1] for line in lines[1:]] == [
+        f"{repo}#142 · jam: the read command printed nothing", f"{repo}#142 · JAM: two sessions"]
+    assert all(line.startswith("- 20") for line in lines[1:])
+
+
+def test_24b_close_survives_an_unwritable_lessons_file(tmp_path, capsys):
+    repo = make_repo(tmp_path / "r", branch="9-x")
+    run(capsys, repo, "init", *INIT_ARGS)
+    run(capsys, repo, "set", "--lesson", "jam: something")
+    (jam_home() / "jam-lessons.md").mkdir(parents=True)
+    code, out, err = run(capsys, repo, "close", "--force")
+    assert code == 0 and "archived=" in out and "not gathered" in err
+
+
 def test_24_close_forced_without_pr(tmp_path, capsys):
     repo = make_repo(tmp_path / "r", branch="9-x")
     run(capsys, repo, "init", *INIT_ARGS)

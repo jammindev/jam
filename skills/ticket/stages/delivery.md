@@ -12,9 +12,9 @@ The journal already has a PR (`JOURNAL show`, field `PR`): skip steps 1 and 3, p
    - About jam: an instruction that failed, had to be worked around, or served no
      purpose? Start from the `jam:` lessons already in the journal and add what is
      missing, each starting with `jam:`. None at all: write `jam: nothing to report`, so
-     that a silent answer is told from a forgotten question. These stay in the journal:
-     jam's maintainer reads them, and removing a rule is as good an outcome as adding
-     one.
+     that a silent answer is told from a forgotten question. At close, the script
+     copies them to `~/.jam/jam-lessons.md`, where jam's maintainer reads them;
+     removing a rule is as good an outcome as adding one.
 2. Ask the user, then push: `git push -u origin <branch>`.
 3. Ask the user, then open the PR with the project file's `Open a PR` command, adding a
    title and a body: `--title "…" --body-file -` with the body on stdin for `gh`,

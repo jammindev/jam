@@ -135,8 +135,10 @@ often you had to correct its work shows how well the workflow serves you.
 - `<repo-id>` is a name derived from the repository's `origin` remote, such as
   `acme-shop`.
 - The project file: in the repository, or in `~/.jam/<repo-id>/`, as chosen.
-- Journals: always in `~/.jam/<repo-id>/`, never in the repository. A
-  journal lives only on the machine where you work, so product decisions are copied into
+- Journals: always in `~/.jam/<repo-id>/`, never in the repository. When a ticket
+  closes, its lessons about jam itself are also copied to `~/.jam/jam-lessons.md`, one
+  file across all your repositories. A journal lives only on the machine where you
+  work, so product decisions are copied into
   the pull request.
 - When a session starts or resumes, and after `/clear` or a compaction, a hook gives
   Claude a short summary of the current ticket from its journal. It blocks nothing and
