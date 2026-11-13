@@ -2,7 +2,7 @@
 
 ## Tickets
 - Tracker: GitHub Issues
-- Read a ticket: `gh issue view {id} --comments`
+- Read a ticket: `gh issue view {id} --json title,body,comments --jq '.title, .body, (.comments[] | .author.login + ": " + .body)'`
 - List my tickets: `gh issue list --assignee @me`
 
 ## Code

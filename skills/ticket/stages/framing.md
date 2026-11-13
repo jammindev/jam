@@ -6,6 +6,16 @@ Before any `/clear` or end of session, the journal is up to date: stage, `Resume
 1. Read the ticket with the project file's `Read a ticket` command, with the id as the
    tracker writes it. No command: ask the user. A branch with no ticket behind it
    (`refactor/auth`): ask the user what it is for.
+   **Still worth doing?** Before anything else, check, reading only and on this ticket
+   only:
+   - already done: a merged PR names it, or the code already does what it asks (for a
+     bug, read the function it blames);
+   - blocked: it depends on a ticket still open (a "blocked by" line, a link);
+   - outdated: the code it names is gone, or a later ticket or decision replaced it.
+   Nothing points to done, blocked or outdated: say so in one line and go on. Any sign
+   of one, proven or only suspected: give it in one to three lines with what shows it,
+   and ask the user whether to go on; stop if they say no. Write nothing to the
+   tracker. The worktree stays: removing it is the user's call.
 2. Read the code the ticket touches. Propose a size, `small` or `medium`, with one
    sentence of reason, and say whether it is sensitive: it is when it touches an area
    listed under `Sensitive` in the project file.

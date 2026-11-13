@@ -5,6 +5,16 @@ over to a new session there.
 
 1. Read the ticket with the project file's `Read a ticket` command, `{id}` replaced by
    the id. No such command: ask the user for the ticket's title and content.
+   **Still worth doing?** Before anything else, check, reading only and on this ticket
+   only:
+   - already done: a merged PR names it, or the code already does what it asks (for a
+     bug, read the function it blames);
+   - blocked: it depends on a ticket still open (a "blocked by" line, a link);
+   - outdated: the code it names is gone, or a later ticket or decision replaced it.
+   Nothing points to done, blocked or outdated: say so in one line and go on. Any sign
+   of one, proven or only suspected: give it in one to three lines with what shows it,
+   and ask the user whether to go on; stop if they say no. Write nothing to the
+   tracker.
 2. Build the branch name from `Ticket branch`:
    - `{id}`: the ticket's id, without `#`;
    - `{slug}`: a few words of the title, lowercase ASCII, joined by `-`;

@@ -39,7 +39,9 @@ So:
   (see "Moving on").
 - Anything with one right answer comes from `journal.py`: key, journal path, whether the
   session is in the main worktree, stage, next stage, whether to clear first.
-- `JOURNAL` below means `python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`;
+- `JOURNAL` below means `python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`,
+  written in full in each command, never through a shell variable (zsh would not split
+  it);
   "the project file" means the merged result of the shared and personal files.
 
 ### Requires from `journal.py`
@@ -95,10 +97,30 @@ of the ticket session repeats this rule: a stale journal is the only way to lose
 
 ## Stages
 
+### Still worth doing?
+
+A ticket picked from the backlog may be done, blocked or outdated. Finding out after a
+worktree, a new environment and a full test run wastes a session (seen on a real
+ticket: six minutes of tests before anyone asked). So, right after reading the ticket,
+reading only and on this ticket only:
+
+- already done: a merged PR names it, or the code already does what it asks;
+- blocked: it depends on a ticket still open;
+- outdated: the code it names is gone, or a later ticket or decision replaced it.
+
+Nothing points to done, blocked or outdated: one line, and the stage goes on without a
+question. Any sign of one, proven or only suspected: one to three lines with what shows
+it, and the user decides whether to go on.
+This is a check inside start and framing, not a stage. When start ran, framing checks
+again: a cheap repeat, kept for worktrees made without start, and because start may
+read a base branch older than the worktree's. jam writes nothing to the
+tracker and sorts no backlog: closing the ticket is the user's call.
+
 ### start (main session)
 
 1. Read the ticket with the project file's `Read a ticket` command. No such command: ask
-   the user for its title and content.
+   the user for its title and content. Then **check that it is still worth doing** (see
+   "Still worth doing?"), before any branch or worktree exists.
 2. Build the branch name from `Ticket branch`: `{id}` is the ticket's id without `#`,
    `{slug}` a few words of the title in lowercase ASCII joined by `-`, and `{type}`, when
    the format has it, the kind of change (`feat`, `fix`…) among those seen in the
@@ -128,6 +150,8 @@ of the ticket session repeats this rule: a stale journal is the only way to lose
 
 1. Read the ticket with `Read a ticket` (the id as the tracker writes it). No command:
    ask the user. A branch with no ticket behind it (`refactor/auth`): ask what it is for.
+   Then check that it is still worth doing, as in start: the worktree may have been
+   created by another tool, without start.
 2. Read the code it touches. Propose a size with one sentence of reason, and say whether
    it is sensitive: it is when it touches an area listed under `Sensitive` in the
    project file.

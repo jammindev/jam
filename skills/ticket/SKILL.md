@@ -6,7 +6,8 @@ disable-model-invocation: true
 ---
 
 The ticket id, if any, is `$ARGUMENTS`. `JOURNAL` means
-`python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`. Stage files are in
+`python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`: write it in full in each
+command, never through a shell variable (zsh would not split it). Stage files are in
 `${CLAUDE_PLUGIN_ROOT}/skills/ticket/stages/`. "The project file" is what `JOURNAL key`
 lists under `project_files`; a personal file overrides the shared one, field by field.
 
