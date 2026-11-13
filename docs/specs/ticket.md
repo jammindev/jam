@@ -214,12 +214,15 @@ Each decision to settle gets one line, since `Decisions` only grows:
 
 ### delivery
 
-1. **Lessons**, one to three, with `set --lesson`: a trap in the code, a friction in the
-   workflow, or a rule or step of jam that served no purpose on this ticket. A lesson
-   about the project may be promoted, with the user's agreement, to `CLAUDE.md`, to the
-   project file's `Review: project checks`, or to a linter rule. A lesson about jam
-   stays in the journal for the maintainer: removing a rule is as valid an outcome as
-   adding one.
+1. **Lessons**, with `set --lesson`, from two separate questions. About the code or the
+   project: a trap met on this ticket, which may be promoted, with the user's agreement,
+   to `CLAUDE.md`, to the project file's `Review: project checks`, or to a linter rule.
+   About jam: an instruction that failed, had to be worked around, or served no
+   purpose, each lesson starting with `jam:`; none at all is written
+   `jam: nothing to report`. These stay in the journal for the maintainer: removing a
+   rule is as valid an outcome as adding one. A single question about "a friction in
+   the workflow" was tried on the first real ticket: the session wrote only lessons
+   about the code, while jam had failed four times.
 2. Ask the user, then push the branch: `git push -u origin <branch>`. jam sets no
    permission rule: the skill itself asks, here and before the PR.
 3. No PR yet: ask the user, then open it with the project file's `Open a PR` command, adding a title and a
@@ -266,6 +269,8 @@ Each decision to settle gets one line, since `Decisions` only grows:
 - The session-start hook, exactly as the journal spec defines it.
 - Journal content in the user's language; field names and section titles in English.
 - Nothing is written to the tracker, except what the PR's closing line does on merge.
+- A jam instruction that fails, is worked around or serves no purpose is recorded at
+  once as a `jam:` lesson, in any stage: by delivery it would be forgotten.
 
 ## Out of scope for this version
 

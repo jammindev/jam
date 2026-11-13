@@ -14,6 +14,9 @@ lists under `project_files`; a personal file overrides the shared one, field by 
 - Talk to the user in their language. The journal's content is in that language too;
   its field names and section titles stay in English.
 - Nothing is written to the tracker, except what the PR's closing line does on merge.
+- When an instruction of jam fails, has to be worked around, or serves no purpose on
+  this ticket, record it at once: `JOURNAL set --lesson "jam: …"`. By delivery it would
+  be forgotten.
 
 ## Find where the ticket is
 

@@ -88,10 +88,11 @@ A **medium** ticket, the usual case, goes through six stages:
 4. **Acceptance.** `/clear` and `/jam:ticket` again. If the change is visible, an agent
    goes through it in a browser and attaches screenshots; then you get at most five
    points to check. You give the second green light.
-5. **Delivery.** The session writes one to three lessons in the journal: a trap in the
-   code, a point of friction in the workflow, or a step that served no purpose. A lesson
-   worth keeping can be moved to `CLAUDE.md` or the project file, with your agreement. Then the session
-   pushes and opens the pull request, asking you first.
+5. **Delivery.** The session writes the ticket's lessons in the journal, from two
+   questions: a trap in the code, and a friction with jam itself (noted as it happens,
+   during the whole ticket). A lesson about the code can be moved to `CLAUDE.md` or the
+   project file, with your agreement; those about jam are how jam improves. Then the
+   session pushes and opens the pull request, asking you first.
 6. **Follow-up.** The session checks CI. A comment from a human reviewer on the pull
    request sends the ticket back to the code. The merge is yours. Once merged, the journal
    is archived and jam gives you the commands to remove the working copy.

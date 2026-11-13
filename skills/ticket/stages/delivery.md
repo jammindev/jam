@@ -5,12 +5,16 @@ Before any `/clear` or end of session, the journal is up to date: stage, `Resume
 
 The journal already has a PR (`JOURNAL show`, field `PR`): skip steps 1 and 3, push only.
 
-1. **Lessons**, one to three, each with `JOURNAL set --lesson "…"`: a trap in the code, a
-   friction in the workflow, or a rule or step of jam that served no purpose on this
-   ticket. A lesson about the project may be promoted, with the user's agreement, to
-   `CLAUDE.md`, to the project file's `Review: project checks`, or to a linter rule. A
-   lesson about jam stays in the journal: its maintainer reads them, and removing a
-   rule is as good an outcome as adding one.
+1. **Lessons**, each with `JOURNAL set --lesson "…"`. Ask two separate questions:
+   - About the code or the project: a trap met on this ticket? One or two lessons, or
+     none. One may be promoted, with the user's agreement, to `CLAUDE.md`, to the
+     project file's `Review: project checks`, or to a linter rule.
+   - About jam: an instruction that failed, had to be worked around, or served no
+     purpose? Start from the `jam:` lessons already in the journal and add what is
+     missing, each starting with `jam:`. None at all: write `jam: nothing to report`, so
+     that a silent answer is told from a forgotten question. These stay in the journal:
+     jam's maintainer reads them, and removing a rule is as good an outcome as adding
+     one.
 2. Ask the user, then push: `git push -u origin <branch>`.
 3. Ask the user, then open the PR with the project file's `Open a PR` command, adding a
    title and a body: `--title "…" --body-file -` with the body on stdin for `gh`,
