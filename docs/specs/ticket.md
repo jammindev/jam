@@ -107,7 +107,11 @@ of the ticket session repeats this rule: a stale journal is the only way to lose
    gives the ticket's key. If not, typically a tracker key such as `ENG-142` without a
    `Ticket pattern`, say so and propose either rerunning `/jam:init` to add the pattern,
    or a branch named after the key itself.
-4. Create the worktree next to this session's, at `<worktree>-<key>` (lowercased,
+4. When the project's own instructions (`CLAUDE.md`, the project's memory) say how to
+   create a worktree or open a session, with a tool of the user's, follow them for this
+   step and the next. jam names no such tool: the router only needs a ticket branch in
+   a linked worktree, whoever created it. Otherwise,
+   create the worktree next to this session's, at `<worktree>-<key>` (lowercased,
    `<worktree>` from `JOURNAL key`), from
    the project file's `Base branch`, after `git fetch origin`:
    - new branch: `git worktree add --no-track -b <branch> <path> origin/<base>`;

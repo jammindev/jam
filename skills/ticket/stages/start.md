@@ -15,7 +15,11 @@ over to a new session there.
    must equal the ticket's key from the router. If not (a tracker key such as `ENG-142`
    with no `Ticket pattern`, typically), say so and propose either `/jam:init` again to
    add the pattern, or a branch named after the key itself.
-4. Run `git fetch origin`, then create the worktree next to this session's, at
+4. The project's own instructions (`CLAUDE.md`, the project's memory) say how to create
+   a worktree or open a session, with a tool of theirs: follow them for steps 4 and 5,
+   with this branch name and the project file's `Base branch`, then say which way was
+   used. Otherwise:
+   run `git fetch origin`, then create the worktree next to this session's, at
    `<worktree>-<key>` lowercased (`<worktree>`: the `worktree=` of `JOURNAL key`), from
    the project file's `Base branch`:
    - new branch: `git worktree add --no-track -b <branch> <path> origin/<base>`;

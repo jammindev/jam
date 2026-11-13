@@ -58,6 +58,11 @@ journal; your main session keeps none. There, `/jam:ticket` creates the journal 
 first run, and later finds it from the branch, says where things stand in three
 sentences, and waits for you.
 
+If a tool of yours already creates worktrees and opens sessions in them, keep using it:
+`/jam:ticket` follows what your `CLAUDE.md` says about it, or you create the worktree
+yourself, on a branch named after the ticket (`fix/142-…`), and run `/jam:ticket` in its
+session.
+
 ### What a ticket goes through
 
 The session reads the ticket and the code, then proposes a size; you confirm it. The size
