@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Fresh-eyes review of a ticket's diff against its goal and done criteria. Used by the jam ticket skill; returns findings, may run the tests, leaves nothing changed.
+description: Fresh-eyes review of a ticket's diff against its goal and done criteria. Used by the jam skill; returns findings, may run the tests, leaves nothing changed.
 tools: Read, Grep, Glob, Bash
 model: opus
 effort: xhigh

@@ -5,7 +5,7 @@ ticket: framed with you, tests before code, reviewed by a fresh agent, checked, 
 pull request. Its memory is a journal kept outside the conversation, so a ticket survives
 `/clear`, compaction, and days between sessions. Built to fit any stack and any tracker.
 
-> **Status: early.** `/jam:init`, `/jam:ticket`, its two review subagents, the journal
+> **Status: early.** The `/jam` command, its two review subagents, the journal
 > script (tested) and the session-start hook are written. Small tickets have run on real
 > repositories; the medium and sensitive ones are being tried. jam runs on Claude Code
 > today.
@@ -31,12 +31,14 @@ jam hard-codes no tool. It runs the commands written in your repository's projec
 read a ticket, run the tests, open a pull request. To change tracker or stack, you change
 that file.
 
-### Setting up a repository: `/jam:init`
+### Setting up a repository: `/jam`
 
-`/jam:init` reads your repository to fill the project file: your code host (GitHub, GitLab),
-your tracker, the branch you develop from, the format of your branch names, the commands
-that run tests and lint, and links to the files that already describe your project
-(`CLAUDE.md`, specs, tool configs, PR templates). It links to them; it copies nothing.
+One command does everything: `/jam`. On a repository with no project file, it sets jam
+up; `/jam init` runs the setup again later. It reads your repository to fill the project
+file: your code host (GitHub, GitLab), your tracker, the branch you develop from, the
+format of your branch names, the commands that run tests and lint, and links to the
+files that already describe your project (`CLAUDE.md`, specs, tool configs, PR
+templates). It links to them; it copies nothing.
 
 It asks you where to keep the file and what is sensitive in your code, and only asks
 about the rest when it hesitates, with what it detected as the recommended answer. It
@@ -51,16 +53,16 @@ It never commits, never pushes, never writes to your tracker or code host.
 
 ### Starting a ticket
 
-From your main session (the one in your repository's main folder), `/jam:ticket 142` reads ticket 142, creates its branch and a
+From your main session (the one in your repository's main folder), `/jam 142` reads ticket 142, creates its branch and a
 separate working copy (a git worktree), and gives you the command to open a session
 there. All the work on the ticket happens in that session, which keeps the ticket's
-journal; your main session keeps none. There, `/jam:ticket` creates the journal on the
+journal; your main session keeps none. There, `/jam` creates the journal on the
 first run, and later finds it from the branch, says where things stand in three
 sentences, and waits for you.
 
 If a tool of yours already creates worktrees and opens sessions in them, keep using it:
-`/jam:ticket` follows what your `CLAUDE.md` says about it, or you create the worktree
-yourself, on a branch named after the ticket (`fix/142-…`), and run `/jam:ticket` in its
+`/jam` follows what your `CLAUDE.md` says about it, or you create the worktree
+yourself, on a branch named after the ticket (`fix/142-…`), and run `/jam` in its
 session.
 
 ### What a ticket goes through
@@ -79,14 +81,14 @@ A **medium** ticket, the usual case, goes through six stages:
    code, step by step along the plan; when the plan does not fit the code, it stops and
    asks you. It lists the decisions the code made on its own; you settle them.
 3. **Review.** The session updates the journal and asks you to run `/clear`, then
-   `/jam:ticket`. The session that wrote the code would judge it by what it meant to do; a
+   `/jam`. The session that wrote the code would judge it by what it meant to do; a
    fresh one can only judge it by the ticket. A fresh agent reviews the diff against the
    ticket and the criteria, and each finding is checked in the code before it is fixed. A
    finding is blocking only if it describes a concrete failure scenario or breaks a done
    criterion. The
    loop stops when a pass finds nothing blocking, after three rounds at most (a starting
    value, to be tuned on real tickets); then you decide.
-4. **Acceptance.** `/clear` and `/jam:ticket` again. If the change is visible, you get
+4. **Acceptance.** `/clear` and `/jam` again. If the change is visible, you get
    at most five points to check and how to see them, prepared with your project's
    acceptance procedure if you link one in the project file. You give the second green
    light. A change you ask for goes back to the code, then through a targeted review
@@ -121,8 +123,8 @@ confirm. During framing it asks one question: semicolon or comma as separator? Y
 semicolon. The done criteria name two tests. A fresh agent finds a gap (cancelled
 movements), which you settle; first green light. The session writes both tests, sees
 them fail, writes the export, and notes one decision it made alone: an empty month gives
-a file with only the header. You accept it. `/clear`, `/jam:ticket`: the review finds
-nothing blocking. `/clear`, `/jam:ticket`: you get three points to check, with the page
+a file with only the header. You accept it. `/clear`, `/jam`: the review finds
+nothing blocking. `/clear`, `/jam`: you get three points to check, with the page
 to open; second green light. The session asks before pushing, opens the pull request and
 watches CI; you merge; the session writes one lesson, and the journal is archived.
 
@@ -168,7 +170,7 @@ In Claude Code:
 
 `/plugin install` lets you choose where the plugin is enabled. Updates from a third-party
 marketplace are not automatic: update from `/plugin`. Then, in a repository:
-`/jam:init`.
+`/jam`.
 
 Requirements: `git` 2.31 or later, `python3` 3.9 or later, and a CLI for your forge
 (`gh` or `glab`) so that jam can read tickets, open pull requests and see when they are
@@ -193,7 +195,7 @@ file you do not trust, as you would not run its `make test`.
 
 ## Development
 
-The journal script is `skills/ticket/journal.py`, Python standard library only, with its
+The journal script is `skills/jam/journal.py`, Python standard library only, with its
 tests in `tests/`. Specs are in `docs/specs/`, decisions in `docs/decisions/`.
 
 ```

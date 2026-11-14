@@ -27,7 +27,9 @@ cleared. Its memory is a journal kept outside the conversation, not a pipeline o
   (Amended 2026-11-11: `implementer` waits for the medium ticket; `docs/specs/ticket.md`
   builds the small ticket first. Amended 2026-11-14: the medium ticket's code is written
   by the session too; a `framing-reviewer` subagent reviews its framing; whether code
-  moves to an `implementer` is decided at step 3, see `docs/specs/ticket.md`, "Scope".)
+  moves to an `implementer` is decided at step 3, see `docs/specs/ticket.md`, "Scope".
+  Amended 2026-11-14 again: `init` and `ticket` become one skill, `jam`, invoked as
+  `/jam`; the script moves to `skills/jam/journal.py`.)
 - **Journals live outside the repository**, under `~/.jam/<repo-id>/`, so that every
   worktree of a repository sees the same journal and nothing about a ticket is committed.
   A project file is either committed (`.jam/project.md`, shared) or kept outside the

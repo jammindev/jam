@@ -111,7 +111,7 @@ the others.
 - A place for the project's conventions: they live where the project already keeps them.
 
 Not in the first release: guards written as hooks, such as one requiring proof of review
-before delivery, or permission rules. The skills ask in the conversation before a push
+before delivery, or permission rules. jam asks in the conversation before a push
 or a pull request; rules and guards come back only if a push ever leaves without the
 developer's agreement.
 

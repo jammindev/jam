@@ -1,11 +1,11 @@
-# Spec: the `ticket` skill, from a ticket to its pull request
+# Spec: a ticket, from reading it to its pull request (`/jam`)
 
 Status: draft · Target: first release, steps 1 (skeleton, the small ticket) and 2 (real
 tickets, the medium and sensitive ones)
 
 ## Why
 
-A ticket spans days and conversations. `ticket` runs it from reading it to its merged
+A ticket spans days and conversations. `/jam` runs it from reading it to its merged
 pull request, keeps its memory in the journal (`docs/specs/journal.md`), and stops to ask
 the developer only for the decisions that are theirs. The README, section "How jam
 works", describes the workflow as the user sees it; this spec says what each stage does,
@@ -44,9 +44,13 @@ first announced:
 `init` showed the cost of one long skill: past a certain length, the model drops rules.
 So:
 
-- `skills/ticket/SKILL.md` is a short router. It finds where the ticket is, then reads
-  **only** the file of the current stage.
-- One file per stage, in `skills/ticket/stages/`: `start.md`, `framing.md`, `code.md`,
+- One command, `/jam`, for setting up and for every ticket: the user should not have
+  to remember which command fits where, and typing `/jam:ticket` after each `/clear`
+  was a friction the maintainer met on a real ticket. A plugin skill named after its plugin answers
+  to `/jam`.
+- `skills/jam/SKILL.md` is a short router. It finds where the ticket is, then reads
+  **only** the file of the current stage, or `init.md` to set up.
+- One file per stage, in `skills/jam/stages/`: `start.md`, `framing.md`, `code.md`,
   `review.md`, `acceptance.md`, `delivery.md`, `follow-up.md`. Each says what the stage
   does, what it writes to the journal, and when it stops. None names the next stage
   (see "Moving on"). The medium ticket's framing differs enough to live in its own
@@ -54,7 +58,7 @@ So:
   stages say in a line or two what changes for a medium ticket.
 - Anything with one right answer comes from `journal.py`: key, journal path, whether the
   session is in the main worktree, stage, next stage, whether to clear first.
-- `JOURNAL` below means `python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`,
+- `JOURNAL` below means `python3 "${CLAUDE_PLUGIN_ROOT}/skills/jam/journal.py"`,
   written in full in each command, never through a shell variable (zsh would not split
   it);
   "the project file" means the merged result of the shared and personal files.
@@ -66,14 +70,16 @@ One addition to the journal spec and script: `key` also prints
 git dir is the common git dir). The router uses it to refuse a ticket branch checked
 out in the main worktree.
 
-## The router: `/jam:ticket [<id>]`
+## The router: `/jam [<id> | init]`
 
-The id, if any, is the skill's argument (`$ARGUMENTS`).
+The skill's argument (`$ARGUMENTS`) is `init`, a ticket id, or nothing.
 
-1. `JOURNAL key` gives the current branch, its key, `main_worktree`, and whether the
+1. `init`: read `init.md` (see `docs/specs/init.md`) and follow it. Otherwise,
+   `JOURNAL key` gives the current branch, its key, `main_worktree`, and whether the
    journal exists or is archived. `key` fails (a detached HEAD, during a rebase for
-   instance): say so and stop. No project file, or no `Base branch` in it: propose
-   `/jam:init`, and stop.
+   instance): say so and stop. No project file, or no `Base branch` in it: say that jam
+   is not set up here yet and follow `init.md`, which asks before it writes anything;
+   the ticket waits for the next `/jam`.
 2. **On the project file's `Base branch`, in any worktree**: the main session. The
    branch decides, not the worktree: with a bare repository, the main session is in a
    linked worktree on the base branch. A test
@@ -82,14 +88,15 @@ The id, if any, is the skill's argument (`$ARGUMENTS`).
    - with an id: `JOURNAL key --key <id>`. A journal exists: give the command to open its
      session (`Worktree` from `JOURNAL show --key <id>`), nothing else. Archived: say the
      ticket is closed. Otherwise: read `stages/start.md`;
-   - without an id: `JOURNAL list`, and ask which ticket to start or reopen.
+   - without an id: `JOURNAL list`, and the project file's `List my tickets` if it has
+     one, then ask which ticket to start or reopen.
    The main session never creates or writes a journal.
 3. **On another branch, in the main worktree** (`main_worktree=yes`): say that tickets
    start from the base branch, each in its own worktree, and stop.
 4. **On another branch, in a linked worktree**: the ticket's session.
    - with an id: `JOURNAL key --key <id>`; a `key=` that differs from the branch's:
      refused, the session works on its own ticket only; to start that ticket, run
-     `/jam:ticket <id>` in a session on the base branch;
+     `/jam <id>` in a session on the base branch;
    - archived: say the ticket is closed, and stop;
    - no journal: read `stages/framing.md`;
    - a journal at `closed` (an archive move that failed): run `JOURNAL close` again, with
@@ -108,7 +115,7 @@ once the PR is merged.
 
 **A clear** (`clear_first=yes`, before review and acceptance of a medium ticket): set
 the next stage, write `Resume here` so that a new session can start that stage from the
-journal alone, then ask the user to run `/clear`, then `/jam:ticket`, and stop. The
+journal alone, then ask the user to run `/clear`, then `/jam`, and stop. The
 router of the new session says where things stand and waits for the user's go-ahead:
 that summary lets the user check that the journal carried what the stage needs. No stop
 line is written for a clear: the stops measure green lights. What a later stage needs
@@ -166,7 +173,7 @@ backlog: closing the ticket is the user's call.
    accepted six times out of six, once after a minute's wait.
 3. Check with `JOURNAL key --branch <name>` (without `--key`, which would win) that it
    gives the ticket's key. If not, typically a tracker key such as `ENG-142` without a
-   `Ticket pattern`, say so and propose either rerunning `/jam:init` to add the pattern,
+   `Ticket pattern`, say so and propose either rerunning `/jam init` to add the pattern,
    or a branch named after the key itself.
 4. When the project's own instructions (`CLAUDE.md`, the project's memory) say how to
    create a worktree or open a session, with a tool of the user's, follow them for this
@@ -180,7 +187,7 @@ backlog: closing the ticket is the user's call.
    - branch only on `origin`: `git worktree add -b <branch> <path> origin/<branch>`;
    - branch already checked out in a worktree (`git worktree list`): reuse that path.
 5. Give the command that opens the ticket's session and starts framing:
-   `cd <path> && claude "/jam:ticket"`: the ticket session finds the ticket from its
+   `cd <path> && claude "/jam"`: the ticket session finds the ticket from its
    branch, and the same command resumes it later. Say that jam must be enabled for that
    folder too: installed in user scope, or in project scope with `.claude/settings.json`
    committed on the base branch; not local scope. Write nothing else.
@@ -493,16 +500,16 @@ Each decision to settle gets one line, since `Decisions` only grows:
 
 On a real repository with a project file:
 
-- `/jam:ticket <id>` from the main session creates the branch and the worktree and gives
+- `/jam <id>` from the main session creates the branch and the worktree and gives
   the command to open the session; it writes no journal;
 - in that session, a small real ticket goes through framing, code, review and acceptance
   to its green light, then delivery opens the PR after the user's agreement;
-- a `/clear` in the middle, followed by `/jam:ticket`, resumes at the right stage from
+- a `/clear` in the middle, followed by `/jam`, resumes at the right stage from
   the journal alone;
 - the journal holds the goal, the criterion and its test, the decisions, at least one
   lesson, and one stop line;
 - after the merge, `close` archives the journal;
 - a real medium ticket and a real sensitive one go through the framing review and the
   first green light, code, a `/clear`, review (with the extra pass for the sensitive
-  one), a `/clear`, acceptance and delivery, each `/clear` followed by `/jam:ticket`
+  one), a `/clear`, acceptance and delivery, each `/clear` followed by `/jam`
   resuming at the right stage from the journal alone.

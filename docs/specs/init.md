@@ -1,11 +1,11 @@
-# Spec: the `init` skill, installing jam on a project
+# Spec: setting jam up on a project (`/jam init`)
 
 Status: accepted (maintainer's green light, 2026-11-11; reduced to its core on
 2026-11-11, see "Why so small") · Target: first release, step 1 (skeleton)
 
 ## Why
 
-The `ticket` skill knows no tool. Reading a ticket, running the tests, opening a PR: it
+jam knows no tool. Reading a ticket, running the tests, opening a PR: it
 runs the commands written in the project file. Changing stack or tracker means changing
 that file, not the plugin. `init` writes it, so that nobody has to learn its format.
 
@@ -27,11 +27,13 @@ returns when a real ticket shows the need. The first version stays in git histor
 - `<jam-dir>` is the grandparent of the `journal=` path printed by
   `journal.py key --key setup`.
 - `init` writes this file and nothing else. It sets no permission rule: the user's
-  own settings decide what Claude may run, and the skills ask before a push or a PR.
+  own settings decide what Claude may run, and jam asks before a push or a PR.
   Rules may come back when a real use needs them. It never commits, pushes or opens a PR,
   writes nothing to the tracker or the forge, and creates no journal.
-- The skill is invoked as `/jam:init`, with `disable-model-invocation: true` so that it
-  never starts on its own.
+- It is invoked as `/jam init`, or by `/jam` on a repository with no project file; its
+  steps live in `skills/jam/init.md`, read by the router of the `jam` skill (see
+  `docs/specs/ticket.md`, "The router"). The skill has `disable-model-invocation: true`
+  so that it never starts on its own.
 
 ## Principles
 
@@ -40,13 +42,13 @@ returns when a real ticket shows the need. The first version stays in git histor
 - **Detected before asked.** Every value the repository can tell is read from it, and
   shown through a question or in the final file, never in a list of findings.
 - **Project commands are read, not guessed.** Test, lint and run commands are proposed
-  only if a file names them; CI's comes first. None: the field is left out, and `ticket`
+  only if a file names them; CI's comes first. None: the field is left out, and `/jam`
   asks when it needs it. Forge commands (read, list, open a PR, PR state) come from the
   forge CLI; `PR state command` must print `merged` once a PR is merged; `PR size
   command` prints lines added, lines removed and files changed, and is written only when
   the forge CLI gives these figures (`gh` does).
 - **The user's language** for prose in the file; section titles and field names stay
-  in English, as the script and the skills parse them.
+  in English, as the script and the skill parse them.
 - **Not run by `init`.** A wrong command shows on the first ticket, where it is fixed in
   the file. Running tests at setup took minutes and failed for reasons unrelated to
   the command (a stack not started).
@@ -82,14 +84,14 @@ returns when a real ticket shows the need. The first version stays in git histor
    base branch: `git switch <base>` (an uncommitted file follows; with the base checked
    out in another worktree, the file moves there, and so does the work). In the
    repository: commit the file on the base branch and push it, since `start` creates
-   worktrees from `origin/<base>`. Then `/jam:ticket <id>`, from a session on the base
+   worktrees from `origin/<base>`. Then `/jam <id>`, from a session on the base
    branch. On a real repository, `init` ran on a branch other than the base, and gave
-   `/jam:ticket <id>` as the next step, which the router refuses there; on another, the
+   `/jam <id>` as the next step, which the router refuses there; on another, the
    file was committed on the local base branch but not pushed.
 
 ## The project file
 
-Template: `skills/init/project-template.md`. The file stays short: it links, never copies,
+Template: `skills/jam/project-template.md`. The file stays short: it links, never copies,
 and each line answers a need of the workflow.
 
 ```markdown
@@ -127,7 +129,7 @@ and each line answers a need of the workflow.
   ``- **Ticket pattern**: `ABC-\d+` `` under Tickets. Everything else is read by the model.
 - **Review: project checks** starts empty. It is filled when a lesson is promoted at
   closing, never by `init`, so that nothing is copied from `CLAUDE.md`.
-- **Links** is where `ticket` looks when a lesson deserves to outlive its ticket:
+- **Links** is where `/jam` looks when a lesson deserves to outlive its ticket:
   promoting it to `CLAUDE.md`, to this file or to a linter rule is proposed at closing
   and written only with the user's agreement. That rule belongs to the `ticket` spec.
 - `init` never writes `Stage command`; the user adds it to a personal file by hand.
@@ -135,7 +137,7 @@ and each line answers a need of the workflow.
 ## Deferred until a real ticket needs it
 
 - Permission rules asking before a push or a PR (the maintainer runs Claude without
-  prompts; the skills ask in the conversation).
+  prompts; jam asks in the conversation).
 - Running each command before writing it.
 - An introduction to jam longer than one sentence (the README has it).
 - Updates question by question; a teammate meeting a committed file.

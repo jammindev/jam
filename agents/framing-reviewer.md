@@ -1,6 +1,6 @@
 ---
 name: framing-reviewer
-description: Fresh-eyes review of a medium ticket's framing (criteria, product rules, plan) against the ticket and the code, before any code is written. Used by the jam ticket skill; returns findings, changes nothing.
+description: Fresh-eyes review of a medium ticket's framing (criteria, product rules, plan) against the ticket and the code, before any code is written. Used by the jam skill; returns findings, changes nothing.
 tools: Read, Grep, Glob
 model: opus
 effort: xhigh

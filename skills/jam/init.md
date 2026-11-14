@@ -1,11 +1,7 @@
----
-name: init
-description: Set jam up on this repository - write its project file.
-disable-model-invocation: true
----
+# Set up: write the project file
 
-Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL` means
-`python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py"`.
+Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL` is
+the command the `jam` skill defines.
 
 ## Steps
 
@@ -39,7 +35,7 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
    - Only when detection hesitates: base branch, ticket branch format, test or lint
      command. Branches with several prefixes (`feat/`, `fix/`…) are a hesitation:
      propose `{type}/{id}-{slug}` first.
-4. **Confirm, then write.** Show the file, using `project-template.md` for its layout
+4. **Confirm, then write.** Show the file, using `project-template.md` (next to this file) for its layout
    only (every value in it is an example), filled with the detected and answered
    values, fields with no value left out; on a rerun, show the lines that change. Ask
    once. With the question tool, the whole file goes in the `preview` of the option
@@ -56,7 +52,7 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
      work there instead);
    - in the repository: commit the file on the base branch, and push it, since new
      worktrees start from `origin/<base>`;
-   - `/jam:ticket <id>`, from a session on the base branch.
+   - `/jam <id>`, from a session on the base branch.
 
 ## Rules
 

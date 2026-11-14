@@ -14,7 +14,7 @@ first. The model writes the content; the script owns the format.
 
 ## Constraints
 
-- One file, `skills/ticket/journal.py`. Python 3.9+, standard library only.
+- One file, `skills/jam/journal.py`. Python 3.9+, standard library only.
 - Nothing useless: every command and option answers a need of this spec or of a skill.
 - Nobody edits a journal by hand, the model included. Every change goes through a command.
 - Writes are atomic: a temporary file in the same directory, then `os.replace`.
@@ -482,7 +482,7 @@ its usual form, since the version is what tells which update moved the format:
   figure is read against the ticket's size.
 
 **Which transcripts belong to the ticket.** A ticket session always runs in the
-ticket's own linked worktree (the ticket skill stops otherwise), so the worktree
+ticket's own linked worktree (the `/jam` router stops otherwise), so the worktree
 identifies them; nothing has to be recorded when a session starts, and the session-start
 hook stays read-only.
 
@@ -568,7 +568,7 @@ traced to an update. A format change rarely breaks
 the reading outright; it makes figures silently wrong. So when at least one session
 belongs to the ticket, each of these, checked across the whole ticket (an empty session
 on its own is normal), makes the transcript figures `suspect (<reason>)` instead of
-printing them as true: no `assistant` entry, no `usage`, no busy interval. (No user prompt is not one: a session launched with `/jam:ticket` and
+printing them as true: no `assistant` entry, no `usage`, no busy interval. (No user prompt is not one: a session launched with `/jam` and
 driven by questions alone has none.)
 
 **Reporting it.** At `close`, any `unavailable` or `suspect` of the transcript figures,
@@ -595,7 +595,7 @@ knowing it.
 
 `hooks/hooks.json` in the plugin: event `SessionStart`, matcher
 `startup|resume|clear|compact`, command
-`python3 "${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py" resume`, `"timeout": 5`. It
+`python3 "${CLAUDE_PLUGIN_ROOT}/skills/jam/journal.py" resume`, `"timeout": 5`. It
 blocks nothing and writes nothing.
 
 ## Out of scope for step 1

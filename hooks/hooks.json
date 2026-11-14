@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/skills/ticket/journal.py\" resume",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/skills/jam/journal.py\" resume",
             "timeout": 5
           }
         ]

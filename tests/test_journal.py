@@ -1,4 +1,4 @@
-"""Tests for skills/ticket/journal.py, numbered after docs/specs/journal.md."""
+"""Tests for skills/jam/journal.py, numbered after docs/specs/journal.md."""
 
 import json
 import os
@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "skills" / "ticket" / "journal.py"
+SCRIPT = ROOT / "skills" / "jam" / "journal.py"
 sys.path.insert(0, str(SCRIPT.parent))
 
 import journal  # noqa: E402
@@ -389,7 +389,7 @@ def test_22_list_and_key(tmp_path, capsys, ticket):
 
 
 def test_22c_key_tells_the_main_worktree(tmp_path, capsys):
-    # The ticket skill routes on it: start in the main worktree, framing in a linked one.
+    # The /jam router routes on it: start in the main worktree, framing in a linked one.
     main = make_repo(tmp_path / "main")
     git(main, "worktree", "add", "-q", "-b", "142-x", str(tmp_path / "wt"))
     assert fields(run(capsys, main, "key")[1])["main_worktree"] == "yes"

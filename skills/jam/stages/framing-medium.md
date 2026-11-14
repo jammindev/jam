@@ -8,7 +8,7 @@ next step changed; nothing changed, nothing to write. After a `/clear` or a clos
 window, no turn is left to do it.
 
 `framing.md` has read the ticket, checked it is still worth doing, and agreed the size
-with the user: medium. Resumed with a journal already there: never run `init` again;
+with the user: medium. Resumed with a journal already there: never run `JOURNAL init` again;
 run step 1, read the ticket again with `Read a ticket`, then go on from the step
 `Resume here` names. At step 7, a `Stop at framing` line already `seen` or `explained`
 means the green light was given: move on.
