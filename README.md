@@ -130,6 +130,13 @@ rounds, agree to the push and the pull request, and merge.
 At each pause, jam notes whether you accepted, corrected, or asked for an explanation. How
 often you had to correct its work shows how well the workflow serves you.
 
+When a ticket closes, its journal records the ticket's figures: elapsed time, time the
+agents actually worked, how often you stepped in, review runs and findings, tokens per
+agent and model, the size of the pull request, compactions and clears. Most are read
+from Claude Code's own transcripts and from the journal, so no model is asked to count;
+the size comes from your forge, through a command in the project file.
+`journal.py stats` prints them at any time.
+
 ### Where things live
 
 - `<repo-id>` is a name derived from the repository's `origin` remote, such as
@@ -170,7 +177,11 @@ file you do not trust, as you would not run its `make test`.
 
 ## Limitations
 
-- Tested with Claude Code only.
+- Tested with Claude Code only. The ticket figures read Claude Code's transcripts, whose
+  format is not documented. A change that breaks the reading makes the figures say
+  `unavailable` or `suspect`, and the close notes it in `~/.jam/jam-lessons.md`; a
+  subtler change can make a figure drift without warning, and the figures name the
+  Claude Code version they were read from, so the drift can be traced.
 - Two sessions writing the same journal at the same time can lose one write.
 - A journal is not shared between machines.
 

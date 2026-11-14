@@ -12,6 +12,7 @@ Before any `/clear` or end of session, the journal is up to date: stage, `Resume
 2. Check each finding in the code before acting on it. A finding is blocking only if it
    describes a concrete failure scenario or breaks the done criterion. Fix the blocking
    ones, run the tests again, commit. A small ticket gets no second pass.
-3. `JOURNAL set --log "review: <N> blocking, <M> other"`.
+3. `JOURNAL set --log "review: <N> blocking, <M> other"`, once per reviewer run, a
+   targeted second review included, in exactly that form: the ticket's stats count it.
 
 Then move on, as the skill says.

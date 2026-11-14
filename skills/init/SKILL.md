@@ -15,7 +15,9 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
    `Stage command`, lines added by hand); step 4 shows what changes.
 2. **Detect**, silently, from the repository's files and its forge CLI (`gh`, `glab`):
    - tracker, and the forge commands from its CLI: read a ticket, list my tickets, open
-     a PR, `PR state command` (prints `merged` once the PR is merged);
+     a PR, `PR state command` (prints `merged` once the PR is merged), `PR size command`
+     (prints lines added, lines removed, files changed; only when the CLI gives them,
+     as `gh` does);
    - base branch: the one most of the last 30 merged PRs target, else the default branch;
    - test, lint and run commands, only if a file names them (prefer what CI runs);
    - links: agent instructions, specs, tool configs, PR template;
@@ -53,7 +55,8 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
 ## Rules
 
 - No command is run to test it: the first ticket runs them.
-- Fields the script reads are bold, as in the template: `PR state command`, and
+- Fields the script reads are bold, as in the template: `PR state command`,
+  `PR size command`, and
   `` - **Ticket pattern**: `ABC-\d+` `` under Tickets when one is needed.
 - The file links to other files by path and copies nothing from them.
   `Review: project checks` starts empty.

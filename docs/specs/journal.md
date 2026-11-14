@@ -420,7 +420,8 @@ were measured on a real ticket:
 
 When the transcripts cannot be used, every figure that depends on them reads
 `unavailable (<reason>)` or `suspect (<reason>)` (see below), and the journal's figures
-stay:
+stay. `Source` reads `none` when they are unavailable; when they are suspect it keeps
+its usual form, since the version is what tells which update moved the format:
 
 ```markdown
 ## Stats
@@ -442,7 +443,8 @@ stay:
   below) and the `created at framing` log line (framing happens before `init`), and ends
   at the last `closed` log line, or now for an active journal. Both ends are truncated to
   the minute, as displayed, before subtracting. It includes the wait between the merge
-  and the close.
+  and the close. With neither a creation line nor a counted entry, it reads
+  `unavailable (no creation line)`.
 - **Corrected stops**: the stop lines of `Decisions`, as in `stop`.
 - **Findings**: the sum of the `review: <N> blocking, <M> other` log entries the review
   stage writes. Each log line is split on ` · ` and each part is read on its own (a
@@ -513,12 +515,14 @@ hook stays read-only.
   request): `type` `user`, not `isMeta`, not `isCompactSummary`, `promptSource` not
   `system`, with text or image content and no `tool_result` block, the text not starting
   with `<task-notification>`, `<local-command`, `<command-name>`, `<command-message>`,
-  `<bash-input>`, `<bash-stdout>` or `<bash-stderr>` (slash commands and shell escapes are
-  not interventions); or an `attachment` of type `queued_command` whose `origin.kind` is
+  `<bash-input>`, `<bash-stdout>`, `<bash-stderr>` or `[Request interrupted by user`
+  (slash commands, shell escapes and the marker Claude Code writes when Escape stops the
+  agent are not interventions; the message typed next is); or an `attachment` of type `queued_command` whose `origin.kind` is
   `human` (typed while the agent was working);
 - a **user answer**: a `tool_result` for a `tool_use` named `AskUserQuestion` or
   `ExitPlanMode`, or one whose `permissionDecision.source` is `user_temporary` (the only
-  value observed): the agent was waiting for the user;
+  value observed) or whose `toolUseResult` is `User rejected tool use`: the agent was
+  waiting for the user;
 - a **notification**: any other `user` entry without a `tool_result` block, except a
   compaction summary: a task notification, a message from another session or agent, a
   slash command, a shell escape, a usage-limit notice. They often arrive after hours of
@@ -544,8 +548,9 @@ group, `output_tokens`, `input_tokens`, `cache_creation_input_tokens`,
 `cache_read_input_tokens`. A message written over several lines carries partial counts on
 the first ones, so each field is the maximum seen for its `message.id`, across every
 file. Messages whose model is `<synthetic>` (written by Claude Code, not by a model) are
-left out. Claude Code's side calls (titles, summaries) do not appear in transcripts and are
-not counted.
+left out. Claude Code's side calls (titles, summaries, and above all the summary a
+compaction writes) do not appear in transcripts and are not counted: on a compacted
+session, output tokens read a quarter to a half below Claude Code's own record.
 
 **Version and sanity checks.** The `Source` line names the Claude Code versions found in
 the counted entries' `version` field (`2.1.296`, or the lowest and highest compared
@@ -600,7 +605,8 @@ blocks nothing and writes nothing.
 - Stats across tickets (per project, per stage, per size): once about ten journals are
   archived, from their `## Stats` sections. A figure joins only to answer a question.
 - In `stats`: dollars; the `start` stage, run by the main session before the worktree
-  exists; a session that moves into the worktree from elsewhere; worktree paths whose
+  exists; a session that moves into the worktree from elsewhere, or that starts in a
+  subdirectory of it (Claude Code files it under another directory); worktree paths whose
   directory name Claude Code shortens (beyond 200 characters); other agents than Claude
   Code. A worktree path reused by an earlier ticket mixes both tickets' figures.
 
@@ -697,7 +703,8 @@ Fixture transcripts are written under a temporary `CLAUDE_CONFIG_DIR`.
     without `.meta.json` is `unknown`; a subagent with no counted entry is not a run.
 28. Prompts: a typed prompt, a prompt with only an image, and a human `queued_command`
     count; `isMeta`, `isCompactSummary`, `promptSource: system`, a task notification,
-    `/clear` (`<command-name>`), a `<bash-stdout>` line and a tool result do not; an
+    `/clear` (`<command-name>`), a `<bash-stdout>` line, an Escape marker
+    (`[Request interrupted by user…]`) and a tool result do not; an
     `AskUserQuestion` result is an answer; a subagent's first entry is not a prompt; a
     session with an `entrypoint: sdk-cli` entry is left out.
 29. A truncated JSON line and an entry without `timestamp` are skipped; no transcript, or
@@ -731,8 +738,10 @@ Fixture transcripts are written under a temporary `CLAUDE_CONFIG_DIR`.
 - Every test above passes in CI, and `ruff check` is clean.
 - On a real repository: `key`, `init`, `set`, `stop`, `next`, `resume` and `list` run on a
   ticket branch, and the session-start hook shows the resume block after a `/clear`.
-- On a real ticket that was not resumed, computed without a bound: output tokens, main
+- On a real ticket that was neither resumed nor compacted, computed without a bound: output tokens, main
   sessions and subagents together, within 5 % of the sum of each counted session's last
-  `cost-state` record (which includes its subagents); the main sessions' agent time
-  within 10 % of the union of the `[timestamp − durationMs, timestamp]` ranges of their
-  `turn_duration` entries, minus the waits for answers that fall inside those ranges.
+  `cost-state` record (which includes its subagents); agent time, main sessions and
+  subagents together, within 10 % of the sum of `totalAPIDuration` and
+  `totalToolDuration` in those same records, Claude Code's own measure of time spent in
+  the model and in tools. Measured on three tickets: tokens −0.4 % to −1.0 %, time
+  −0.5 % to −2.3 %. Time also held within 1 % on two compacted ones.

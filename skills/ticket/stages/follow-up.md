@@ -10,7 +10,8 @@ Before any `/clear` or end of session, the journal is up to date: stage, `Resume
   acceptance and delivery, which then only pushes.
 - The merge is the user's. Once merged: `JOURNAL close`, with one `--pending "…"` per
   thing still open outside the code. Use `--force` only when the user asks for it
-  explicitly; a refused close shows its reason. Then give the commands to run from the main session, and run none of them:
+  explicitly; a refused close shows its reason. Pass on to the user any `jam:` warning
+  it prints (stats that could not be read, a failing `PR size command`). Then give the commands to run from the main session, and run none of them:
 
   ```
   git worktree remove <path>

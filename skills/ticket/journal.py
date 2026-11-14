@@ -11,12 +11,14 @@ import argparse
 import contextlib
 import hashlib
 import io
+import json
 import os
 import re
 import subprocess
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 GIT_TIMEOUT = 3
@@ -34,7 +36,10 @@ STAGE_NAMES = [name for name, _ in STAGES]
 CLOSED = "closed"
 
 FIELDS = ["Stage", "Size", "Sensitive", "Branch", "Worktree", "PR", "Updated"]
-SECTIONS = ["Goal", "Done when", "Plan", "Decisions", "Resume here", "Lessons", "Log"]
+# Stats is written by `close` only: it exists in archived journals, and in an active one
+# left at `closed` when the move to the archive failed.
+SECTIONS = ["Goal", "Done when", "Plan", "Decisions", "Resume here", "Lessons", "Stats",
+            "Log"]
 SIZES = ["small", "medium"]  # "large" comes with its workflow
 YES_NO = ["yes", "no"]
 VERDICTS = ["seen", "corrected", "explained"]
@@ -209,6 +214,8 @@ class Journal:
         out = [f"# {self.key} · {self.title}", ""]
         out += [f"- **{name}**: {self.fields.get(name, NONE)}" for name in FIELDS]
         for name in SECTIONS:
+            if name == "Stats" and not self.sections[name]:
+                continue  # never rendered empty: an active journal has no stats
             out += ["", f"## {name}"] + ([self.sections[name]] if self.sections[name] else [])
         return "\n".join(out) + "\n"
 
@@ -487,7 +494,7 @@ def cmd_list(ctx, args):
         print("  ".join(cell.ljust(w) for cell, w in zip(row, widths)) + "  " + row[3])
 
 
-def gather_jam_lessons(journal, ctx, key, day):
+def gather_jam_lessons(journal, ctx, key, day, extra=()):
     """Copy the lessons about jam itself to one file, across every repository.
 
     They belong to jam, not to the project: the journal keeps their context, and jam's
@@ -498,6 +505,7 @@ def gather_jam_lessons(journal, ctx, key, day):
     lessons = [item.strip() for item in journal.items("Lessons")
                if item.strip().lower().startswith("jam:")
                and item.strip().lower() != "jam: nothing to report"]
+    lessons += list(extra)  # what close itself noticed about jam (stats it could not read)
     if not lessons:
         return
     text = "".join(f"- {day} · {ctx.repo_id}#{key} · {lesson}\n" for lesson in lessons)
@@ -537,16 +545,479 @@ def cmd_close(ctx, args):
         [f"Closed on {day}."] + [f"- {item}" for item in pending])
     journal.log(f"closed{' (forced)' if args.force else ''} · {len(pending)} pending")
     journal.fields["Updated"] = now()
+    # The figures are recorded now: transcripts do not last. Replaces the section a
+    # previous close may have written before its move failed.
+    body, tr, diff_reason = compute_stats(journal, ctx, datetime.now(timezone.utc))
+    journal.sections["Stats"] = body
     # Written in place, then moved: if the move fails, the journal stays active at
     # `closed` and a second `close` finishes the job.
     write_atomic(ctx.journal(key), journal.render())
     ctx.archive(key).parent.mkdir(parents=True, exist_ok=True)
     os.replace(ctx.journal(key), ctx.archive(key))
     print(f"archived={ctx.archive(key)}")
-    gather_jam_lessons(journal, ctx, key, day)
+    problem = stats_problem(tr)
+    if problem:
+        print(problem, file=sys.stderr)
+    if diff_reason and diff_reason.startswith(("PR size command", "unexpected output")):
+        # The project file is at fault, not jam: shown, never gathered.
+        print(f"jam: Diff unavailable: {diff_reason}", file=sys.stderr)
+    # Written after the move, with the lessons: a second close cannot repeat it.
+    gather_jam_lessons(journal, ctx, key, day, extra=[problem] if problem else [])
     if journal.fields["Worktree"] != NONE:
         print(f"worktree={journal.fields['Worktree']} (ask the user before removing it)")
     stage_command(journal, ctx)
+
+
+# --- stats -------------------------------------------------------------------
+# A ticket's figures, from its journal and from Claude Code's transcripts. The
+# transcript format belongs to Claude Code and changes without notice: everything that
+# reads it lives in read_transcripts and below, and degrades instead of raising.
+
+ASK_TOOLS = {"AskUserQuestion", "ExitPlanMode"}
+# Text a user entry starts with when it is not the user stepping in.
+NOT_PROMPTS = ("<task-notification>", "<local-command", "<command-name>", "<command-message>",
+               "<bash-input>", "<bash-stdout>", "<bash-stderr>",
+               "[Request interrupted by user")  # Escape: the next message is the prompt
+CLEAR = "<command-name>/clear</command-name>"
+TOKEN_FIELDS = ("output_tokens", "input_tokens", "cache_creation_input_tokens",
+                "cache_read_input_tokens")
+REVIEW_PART = re.compile(r"review: (\d+) blocking, (\d+) other\b")
+INNER_PARENS = re.compile(r"\s*\([^()]*\)")
+
+
+class Transcripts:
+    """What the transcripts tell; `problem` is None or (unavailable|suspect, reason)."""
+
+    def __init__(self, problem=None):
+        self.problem = problem
+        self.agent_seconds, self.prompts, self.answers = 0.0, 0, 0
+        self.compactions = self.auto_compactions = self.clears = 0
+        self.runs, self.tokens, self.versions, self.first = {}, {}, set(), None
+
+
+def transcripts_root():
+    config = os.environ.get("CLAUDE_CONFIG_DIR")
+    return Path(config) if config else Path.home() / ".claude"
+
+
+def entry_time(entry):
+    try:
+        stamp = datetime.fromisoformat(entry["timestamp"].replace("Z", "+00:00"))
+    except (AttributeError, KeyError, TypeError, ValueError):
+        return None
+    return stamp if stamp.tzinfo else None
+
+
+def read_entries(path):
+    """The entries of a JSONL transcript that have a usable timestamp, sorted by it."""
+    entries = []
+    with open(path, encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(entry, dict) and entry_time(entry):
+                entries.append(entry)
+    return sorted(entries, key=entry_time)
+
+
+def inside(path, worktree):
+    path = os.path.realpath(path)
+    return path == worktree or path.startswith(worktree.rstrip("/") + "/")
+
+
+def user_text(content):
+    """(text, has_image) of a user message's content; text is None if not a message."""
+    if isinstance(content, str):
+        return content, False
+    if not isinstance(content, list):
+        return None, False
+    blocks = [block for block in content if isinstance(block, dict)]
+    text = "".join(b["text"] for b in blocks
+                   if b.get("type") == "text" and isinstance(b.get("text"), str))
+    return text, any(b.get("type") == "image" for b in blocks)
+
+
+def classify(entry, asks, main):
+    """prompt, answer, notification, work, or None (neutral). See the spec, `stats`."""
+    kind = entry.get("type")
+    message = entry.get("message") if isinstance(entry.get("message"), dict) else {}
+    content = message.get("content")
+    if kind == "assistant":
+        for block in content if isinstance(content, list) else []:
+            if isinstance(block, dict) and block.get("type") == "tool_use" \
+                    and block.get("name") in ASK_TOOLS:
+                asks.add(block.get("id"))
+        return "work"
+    if kind == "attachment":
+        attachment = entry.get("attachment") if isinstance(entry.get("attachment"), dict) else {}
+        origin = attachment.get("origin") if isinstance(attachment.get("origin"), dict) else {}
+        typed_meanwhile = attachment.get("type") == "queued_command" \
+            and origin.get("kind") == "human"
+        return "prompt" if typed_meanwhile and main else None
+    if kind != "user" or entry.get("isCompactSummary"):
+        return None
+    blocks = content if isinstance(content, list) else []
+    results = [b for b in blocks if isinstance(b, dict) and b.get("type") == "tool_result"]
+    if results:
+        decision = entry.get("permissionDecision")
+        # The user granted or refused a permission: the agent was waiting for them.
+        asked = isinstance(decision, dict) and decision.get("source") == "user_temporary" \
+            or entry.get("toolUseResult") == "User rejected tool use"
+        return "answer" if asked or any(b.get("tool_use_id") in asks for b in results) \
+            else "work"
+    text, image = user_text(content)
+    # A subagent's first entry is its parent's request, never the user.
+    if main and not entry.get("isMeta") and entry.get("promptSource") != "system" \
+            and (text or image) and not (text or "").startswith(NOT_PROMPTS):
+        return "prompt"
+    return "notification"  # it often arrives after hours: it must end a wait
+
+
+def union_seconds(intervals):
+    """Total length covered by the intervals, overlaps counted once: a reviewer working
+    in the background while the main session waits must not double the time."""
+    total, current = 0.0, None
+    for start, end in sorted(intervals):
+        if current and start <= current[1]:
+            current = (current[0], max(current[1], end))
+            continue
+        if current:
+            total += (current[1] - current[0]).total_seconds()
+        current = (start, end)
+    if current:
+        total += (current[1] - current[0]).total_seconds()
+    return total
+
+
+class Reader:
+    """Accumulates the counted entries of every transcript of one ticket."""
+
+    def __init__(self, bound):
+        self.bound, self.out = bound, Transcripts()
+        self.seen, self.usage, self.group = set(), {}, {}
+        self.intervals, self.assistants = [], 0
+
+    def once(self, entry):
+        """True the first time an entry is met: a forked session repeats its uuids."""
+        uuid = entry.get("uuid")
+        if not isinstance(uuid, str):
+            return True
+        if uuid in self.seen:
+            return False
+        self.seen.add(uuid)
+        return True
+
+    def scan(self, entries, agent):
+        """Count one transcript; return whether any of its entries was counted."""
+        out, asks, kept, any_counted = self.out, set(), [], False
+        for entry in entries:
+            stamp = entry_time(entry)
+            if self.bound and stamp > self.bound:
+                continue
+            any_counted = True
+            if isinstance(entry.get("version"), str):
+                out.versions.add(entry["version"])
+            kind = classify(entry, asks, agent == "main")
+            if entry.get("type") == "assistant":
+                self.add_usage(entry, agent)
+            if entry.get("type") == "system" and entry.get("subtype") == "compact_boundary" \
+                    and self.once(entry):
+                meta = entry.get("compactMetadata")
+                out.compactions += 1
+                out.auto_compactions += isinstance(meta, dict) and meta.get("trigger") == "auto"
+                continue
+            if kind is None:
+                continue
+            kept.append((stamp, kind))
+            out.first = min(out.first, stamp) if out.first else stamp
+            if not self.once(entry):
+                continue
+            out.prompts += kind == "prompt"
+            out.answers += kind == "answer"
+            text, _ = user_text((entry.get("message") or {}).get("content")) \
+                if entry.get("type") == "user" and isinstance(entry.get("message"), dict) \
+                else (None, False)
+            out.clears += bool(text and text.startswith(CLEAR))
+        # Busy while the model answers or a foreground tool runs: a gap ending in work.
+        self.intervals += [(a, b) for (a, _), (b, kind) in zip(kept, kept[1:])
+                           if kind == "work"]
+        return any_counted
+
+    def add_usage(self, entry, agent):
+        self.assistants += 1
+        message = entry.get("message") if isinstance(entry.get("message"), dict) else {}
+        usage, mid, model = message.get("usage"), message.get("id"), message.get("model")
+        if not isinstance(usage, dict) or not isinstance(mid, str) or model == "<synthetic>":
+            return
+        # A message written over several lines carries partial counts on the first ones.
+        # A value of the wrong type is skipped, keeping what was already seen.
+        previous = self.usage.get(mid, {})
+        self.usage[mid] = {f: max(previous.get(f, 0),
+                                  usage[f] if isinstance(usage.get(f), int) else 0)
+                           for f in TOKEN_FIELDS}
+        self.group.setdefault(mid, (agent, model if isinstance(model, str) else "unknown"))
+
+    def finish(self):
+        out = self.out
+        out.agent_seconds = union_seconds(self.intervals)
+        for mid, usage in self.usage.items():
+            totals = out.tokens.setdefault(self.group[mid], [0] * len(TOKEN_FIELDS))
+            for i, name in enumerate(TOKEN_FIELDS):
+                totals[i] += usage.get(name, 0)
+        # Checked across the whole ticket: an empty session on its own is normal.
+        reasons = [reason for reason, missing in (
+            ("no assistant entry", not self.assistants), ("no usage", not self.usage),
+            ("no busy interval", not self.intervals)) if missing]
+        if reasons:
+            out.problem = ("suspect", "; ".join(reasons))
+        return out
+
+
+def read_transcripts(worktree, bound):
+    """The ticket's transcript figures; never raises."""
+    try:
+        worktree = os.path.realpath(worktree)
+        # Claude Code's naming, observed and not documented; the cwd check decides.
+        folder = transcripts_root() / "projects" / re.sub(r"[^A-Za-z0-9]", "-", worktree)
+        if not folder.is_dir():
+            return Transcripts(("unavailable", "no transcript"))
+        reader, belongs, done = Reader(bound), False, set()
+        for path in sorted(folder.glob("*.jsonl")):
+            entries = read_entries(path)
+            located = [e for e in entries if isinstance(e.get("cwd"), str)]
+            if not located or not inside(located[0]["cwd"], worktree):
+                continue
+            if any(e.get("entrypoint") == "sdk-cli" for e in entries):
+                continue  # another program calling Claude Code, such as a chat namer
+            belongs = True
+            reader.scan(entries, "main")
+            for sub in sorted((path.parent / path.stem / "subagents").glob("agent-*.jsonl")):
+                if sub.name in done:
+                    continue
+                done.add(sub.name)
+                try:
+                    meta = json.loads(sub.with_suffix(".meta.json").read_text(encoding="utf-8"))
+                    agent = meta.get("agentType") or "unknown"
+                except (OSError, ValueError, AttributeError):
+                    agent = "unknown"
+                if reader.scan(read_entries(sub), str(agent)):
+                    reader.out.runs[str(agent)] = reader.out.runs.get(str(agent), 0) + 1
+        if not belongs:
+            return Transcripts(("unavailable", "no session in the worktree"))
+        return reader.finish()
+    except Exception as exc:  # the format moved: degrade, never fail a close
+        return Transcripts(("unavailable", f"unreadable transcripts: {one_line_error(exc)}"))
+
+
+def one_line_error(exc):
+    """An exception as one line: the Stats section has a fixed line format."""
+    return " ".join(f"{type(exc).__name__}: {exc}".split())[:160]
+
+
+def log_entries(journal):
+    """(local time, text) of every log line."""
+    out = []
+    for item in journal.items("Log"):
+        stamp, _, text = item.partition(" · ")
+        try:
+            out.append((datetime.strptime(stamp, "%Y-%m-%d %H:%M"), text))
+        except ValueError:
+            continue
+    return out
+
+
+def journal_figures(journal):
+    """The figures the journal alone gives."""
+    entries = log_entries(journal)
+    created = next((t for t, text in entries if text.startswith("created at ")), None)
+    closed = [t for t, text in entries if text.split(" · ")[0] in ("closed", "closed (forced)")]
+    stops = [STOP_LINE.match(item) for item in journal.items("Decisions")]
+    stops = [match.group(1) for match in stops if match]
+    blocking = other = logged = 0
+    for _, text in entries:
+        for part in text.split(" · "):
+            # Details in parentheses, possibly nested, go before matching.
+            stripped = None
+            while stripped != part:
+                stripped, part = part, INNER_PARENS.sub("", part)
+            match = REVIEW_PART.match(part)
+            if match:
+                blocking, other = blocking + int(match.group(1)), other + int(match.group(2))
+                logged += 1
+    return {"created": created, "closed": closed[-1] if closed else None,
+            "stops": (stops.count("corrected"), len(stops)),
+            "findings": (blocking, other, logged)}
+
+
+def archive_bound(closed):
+    """Start of the minute of the close (a local time from the log), as UTC: the exchange
+    that follows a close falls in the same minute, the close's own turn is the price."""
+    return closed.astimezone(timezone.utc)
+
+
+def half_up(value, places=0):
+    return Decimal(str(value)).quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP)
+
+
+def duration(seconds):
+    total = int(half_up(seconds / 60))
+    if total < 60:
+        return f"{total} min"
+    if total < 1440:
+        return f"{total // 60} h {total % 60:02d}"
+    return f"{total // 1440} d {total % 1440 // 60} h"
+
+
+def token_count(count):
+    if count < 1000:
+        return str(count)
+    # The unit is chosen after rounding: 999 600 is 1.0M, never 1000k.
+    if half_up(count / 1000, 1) < 100:
+        return f"{half_up(count / 1000, 1)}k"
+    if half_up(count / 1000) < 1000:
+        return f"{half_up(count / 1000)}k"
+    return f"{half_up(count / 1_000_000, 1)}M"
+
+
+def quantity(number, word):
+    return f"{number} {word}" + ("" if number == 1 else "s")
+
+
+def version_range(versions):
+    def numeric(version):
+        return [int(part) for part in re.findall(r"\d+", version)]
+    ordered = sorted(versions, key=numeric)
+    if not ordered:
+        return None
+    return ordered[0] if len(ordered) == 1 else f"{ordered[0]}–{ordered[-1]}"
+
+
+def diff_figure(journal, ctx):
+    """(text, None) or (None, reason): the ticket's size, from its PR."""
+    command = ctx.project.get("PR size command")
+    if journal.fields.get("PR", NONE) == NONE:
+        return None, "no PR"
+    if not command:
+        return None, "no PR size command"
+    try:
+        result = run_command(command, journal, ctx, PR_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        return None, "PR size command timed out"
+    except (OSError, subprocess.SubprocessError):
+        return None, "PR size command failed"
+    if result.returncode != 0:
+        return None, "PR size command failed"
+    numbers = result.stdout.strip().split()
+    if len(numbers) != 3 or not all(n.isdigit() for n in numbers):
+        return None, "unexpected output"
+    added, removed, files = (int(n) for n in numbers)
+    return f"+{added} −{removed} · {quantity(files, 'file')}", None
+
+
+def stats_lines(journal, tr, diff, read_at):
+    """The body of `## Stats`, in its fixed, parseable format."""
+    figs = journal_figures(journal)
+    lines = []
+    starts = [figs["created"]] if figs["created"] else []
+    if tr.problem is None and tr.first:
+        starts.append(tr.first.astimezone().replace(tzinfo=None))
+    if starts:
+        start = min(starts).replace(second=0, microsecond=0)
+        end = (figs["closed"] or datetime.now()).replace(second=0, microsecond=0)
+        lines.append(f"- **Elapsed**: {duration((end - start).total_seconds())} "
+                     f"({start:%Y-%m-%d %H:%M} → {end:%Y-%m-%d %H:%M})")
+    else:
+        lines.append("- **Elapsed**: unavailable (no creation line)")
+    corrected, stops = figs["stops"]
+    blocking, other, logged = figs["findings"]
+    stops_text = f"stops: {corrected} corrected of {stops}"
+    findings = f"{logged} logged · {blocking} blocking, {other} other"
+    if tr.problem:
+        why = f"{tr.problem[0]} ({tr.problem[1]})"
+        lines += [f"- **Agent time**: {why}",
+                  f"- **User**: prompts {why} · {stops_text}",
+                  f"- **Reviews**: runs {why}, {findings}",
+                  f"- **Tokens**: {why}"]
+    else:
+        runs = tr.runs.get("jam:reviewer", 0)
+        lines += [f"- **Agent time**: {duration(tr.agent_seconds)}",
+                  f"- **User**: {quantity(tr.prompts, 'prompt')}, "
+                  f"{quantity(tr.answers, 'answer')} · {stops_text}",
+                  f"- **Reviews**: {quantity(runs, 'run')}, {findings}",
+                  "- **Tokens** (out · in · cache write · cache read):"]
+        groups = sorted(tr.tokens, key=lambda g: (g[0] != "main", g[0], g[1]))
+        for agent, model in groups:
+            label = agent if agent == "main" else f"{agent} ×{tr.runs.get(agent, 0)}"
+            values = " · ".join(token_count(n) for n in tr.tokens[(agent, model)])
+            lines.append(f"  - {label} · {model}: {values}")
+    text, reason = diff
+    lines.append(f"- **Diff**: {text}" if text else f"- **Diff**: unavailable ({reason})")
+    if tr.problem:
+        lines.append(f"- **Context**: {tr.problem[0]} ({tr.problem[1]})")
+    else:
+        auto = f" ({tr.auto_compactions} automatic)" if tr.auto_compactions else ""
+        lines.append(f"- **Context**: {quantity(tr.compactions, 'compaction')}{auto}, "
+                     f"{quantity(tr.clears, 'clear')}")
+    if tr.problem and tr.problem[0] == "unavailable":
+        lines.append("- **Source**: none")
+    else:
+        # Kept when suspect: the version is what tells which update moved the format.
+        versions = version_range(tr.versions)
+        name = f"Claude Code {versions}" if versions else "Claude Code"
+        lines.append(f"- **Source**: {name} transcripts, read {read_at} (local time)")
+    return lines
+
+
+def compute_stats(journal, ctx, bound):
+    """(body of `## Stats`, transcripts, diff reason or None)."""
+    worktree = journal.fields.get("Worktree", NONE)
+    if worktree == NONE:
+        tr = Transcripts(("unavailable", "no worktree"))
+    else:
+        try:
+            tr = read_transcripts(worktree, bound)
+        except Exception as exc:  # belt and braces: a close never fails on stats
+            tr = Transcripts(("unavailable", f"unreadable transcripts: {one_line_error(exc)}"))
+    try:
+        diff = diff_figure(journal, ctx)
+    except Exception as exc:
+        diff = (None, f"PR size command failed: {one_line_error(exc)}")
+    body = "\n".join(stats_lines(journal, tr, diff, now()))
+    return body, tr, diff[1]
+
+
+def stats_problem(tr):
+    """The lesson about jam when the transcripts could not be trusted, else None.
+
+    `no worktree` says nothing about jam; any other problem at close, `no transcript`
+    included, means Claude Code's format or naming moved: the close itself runs in a
+    session inside the worktree.
+    """
+    if not tr.problem or tr.problem == ("unavailable", "no worktree"):
+        return None
+    reason = f"{tr.problem[0]} ({' '.join(tr.problem[1].split())[:200]})"
+    versions = version_range(tr.versions) or "version unknown"
+    return f"jam: stats {reason} (Claude Code {versions})"
+
+
+def cmd_stats(ctx, args):
+    key = ctx.resolve_key(args.key)
+    if ctx.journal(key).is_file():
+        journal, bound = load(ctx.journal(key)), None
+    elif ctx.archive(key).is_file():
+        journal = load(ctx.archive(key))
+        if journal.sections["Stats"]:
+            # Transcripts get deleted after a while: the figures recorded at close last.
+            sys.stdout.write(f"## Stats\n{journal.sections['Stats']}\n")
+            return
+        closed = journal_figures(journal)["closed"]
+        bound = archive_bound(closed) if closed else None
+    else:
+        raise JamError(f"no journal at {ctx.journal(key)}")
+    body = compute_stats(journal, ctx, bound)[0]
+    sys.stdout.write(f"## Stats\n{body}\n")
 
 
 # --- command line ------------------------------------------------------------
@@ -560,7 +1031,7 @@ def build_parser():
     common.add_argument("--cwd", default=".")
     parser = argparse.ArgumentParser(prog="journal.py", description=__doc__.split("\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
-    for name in ("show", "next", "resume", "list"):
+    for name in ("show", "next", "resume", "list", "stats"):
         sub.add_parser(name, parents=[common])
     key = sub.add_parser("key", parents=[common])
     key.add_argument("--branch")

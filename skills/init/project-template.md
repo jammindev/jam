@@ -13,6 +13,7 @@
 - Run: `make dev`
 - Open a PR: `gh pr create --base main`
 - **PR state command**: `gh pr view "$JAM_PR" --json state --jq .state`
+- **PR size command**: `gh pr view "$JAM_PR" --json additions,deletions,changedFiles --jq '"\(.additions) \(.deletions) \(.changedFiles)"'`
 
 ## Sensitive (one extra review pass)
 - Payment calculations, accounts and permissions, personal data, migrations
