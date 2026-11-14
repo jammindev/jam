@@ -7,15 +7,18 @@ decisions, and `Resume here` (one or two sentences a new session can act on) whe
 next step changed; nothing changed, nothing to write. After a `/clear` or a closed
 window, no turn is left to do it.
 
-The single green light of a small ticket. Show, in one message of plain text, never
-inside a question tool's form (the text before a form can be hidden), and wait for the
-user's answer as text:
+The green light before the pull request (a medium ticket's second). Show, in one message
+of plain text, never inside a question tool's form (the text before a form can be
+hidden), and wait for the user's answer as text:
 
-- the goal, and the criterion with its test;
+- the goal, and the criteria with their tests;
 - the decisions the code made on its own, to settle;
-- what the review found, what was fixed, what was left;
-- if the change is visible: at most three points for the user to check, and how to see
-  them (the project file's `Run` command, a page, a command).
+- what the review found, what was fixed, what was left: from the reports in
+  `reports=` (`JOURNAL key`);
+- if the change is visible: at most three points for the user to check (five for a
+  medium ticket), and how to see them (the project file's `Run` command, a page, a
+  command). When the project file's `Links` names an acceptance procedure, follow it to
+  prepare them.
 
 Record the answer with `JOURNAL stop`:
 

@@ -25,7 +25,9 @@ cleared. Its memory is a journal kept outside the conversation, not a pipeline o
   suite and CI; one non-blocking `SessionStart` hook that
   prints the current ticket's resume block. Nothing else until it has been used.
   (Amended 2026-11-11: `implementer` waits for the medium ticket; `docs/specs/ticket.md`
-  builds the small ticket first.)
+  builds the small ticket first. Amended 2026-11-14: the medium ticket's code is written
+  by the session too; a `framing-reviewer` subagent reviews its framing; whether code
+  moves to an `implementer` is decided at step 3, see `docs/specs/ticket.md`, "Scope".)
 - **Journals live outside the repository**, under `~/.jam/<repo-id>/`, so that every
   worktree of a repository sees the same journal and nothing about a ticket is committed.
   A project file is either committed (`.jam/project.md`, shared) or kept outside the

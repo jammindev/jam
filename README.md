@@ -5,10 +5,10 @@ ticket: framed with you, tests before code, reviewed by a fresh agent, checked, 
 pull request. Its memory is a journal kept outside the conversation, so a ticket survives
 `/clear`, compaction, and days between sessions. Built to fit any stack and any tracker.
 
-> **Status: early.** `/jam:init` and the journal script are written; the script is tested.
-> `/jam:ticket`, its review subagent and the session-start hook are being written, small
-> tickets first: the part of "How jam works" from "Starting a ticket" on describes what
-> they will do. jam runs on Claude Code today.
+> **Status: early.** `/jam:init`, `/jam:ticket`, its two review subagents, the journal
+> script (tested) and the session-start hook are written. Small tickets have run on real
+> repositories; the medium and sensitive ones are being tried. jam runs on Claude Code
+> today.
 
 ## Where it is going
 
@@ -75,23 +75,26 @@ A **medium** ticket, the usual case, goes through six stages:
    short multiple-choice questions, recommended answer first, each with its cost. A fresh
    agent reviews the framing, with the same stopping rule as the code review below. You
    give the first green light: your explicit go-ahead.
-2. **Code.** A subagent writes the tests first, checks that they fail, then writes the
-   code. It lists the decisions the code made on its own; you settle them.
+2. **Code.** The session writes the tests first, checks that they fail, then writes the
+   code, step by step along the plan; when the plan does not fit the code, it stops and
+   asks you. It lists the decisions the code made on its own; you settle them.
 3. **Review.** The session updates the journal and asks you to run `/clear`, then
    `/jam:ticket`. The session that wrote the code would judge it by what it meant to do; a
    fresh one can only judge it by the ticket. A fresh agent reviews the diff against the
-   plan and the criteria, and each finding is checked in the code before it is fixed. A
+   ticket and the criteria, and each finding is checked in the code before it is fixed. A
    finding is blocking only if it describes a concrete failure scenario or breaks a done
    criterion. The
    loop stops when a pass finds nothing blocking, after three rounds at most (a starting
    value, to be tuned on real tickets); then you decide.
-4. **Acceptance.** `/clear` and `/jam:ticket` again. If the change is visible, an agent
-   goes through it in a browser and attaches screenshots; then you get at most five
-   points to check. You give the second green light.
+4. **Acceptance.** `/clear` and `/jam:ticket` again. If the change is visible, you get
+   at most five points to check and how to see them, prepared with your project's
+   acceptance procedure if you link one in the project file. You give the second green
+   light. A change you ask for goes back to the code, then through a targeted review
+   and acceptance again, each after a `/clear`.
 5. **Delivery.** The session pushes and opens the pull request, asking you first.
 6. **Follow-up.** The session watches CI and tells you its result. A comment from a
    human reviewer on the pull request sends the ticket back to the code. The merge is
-   yours. Once merged, the session brings the journal up to date (the done criterion
+   yours. Once merged, the session brings the journal up to date (the done criteria
    ticked, the last decisions) and writes the ticket's lessons, from two questions: a
    trap in the code, and a friction with jam itself (both noted as they happen, during
    the whole ticket). A lesson about the code can be moved to `CLAUDE.md` or the project
@@ -112,21 +115,22 @@ and data.
 
 ### An example
 
-Ticket 142 asks for a CSV export of a month's stock movements. The session reads it and the code, and
-proposes *medium*, not sensitive: the export holds no personal data; you confirm. During framing it asks one question: semicolon or comma
-as separator? You pick semicolon. The done criteria name two tests. A fresh agent finds a
-gap (cancelled movements), which you settle; first green light. The subagent writes both
-tests, sees them fail, writes the export, and notes one decision it made alone: an empty
-month gives a file with only the header. You accept it. `/clear`, `/jam:ticket`: the
-review finds nothing blocking. `/clear`, `/jam:ticket`: the acceptance agent opens the
-export page, downloads the file and attaches a screenshot; you check three points; second green light. The session
-asks before pushing, opens the pull request and checks CI; you merge; the session writes
-one lesson, and the journal is archived.
+Ticket 142 asks for a CSV export of a month's stock movements. The session reads it and
+the code, and proposes *medium*, not sensitive: the export holds no personal data; you
+confirm. During framing it asks one question: semicolon or comma as separator? You pick
+semicolon. The done criteria name two tests. A fresh agent finds a gap (cancelled
+movements), which you settle; first green light. The session writes both tests, sees
+them fail, writes the export, and notes one decision it made alone: an empty month gives
+a file with only the header. You accept it. `/clear`, `/jam:ticket`: the review finds
+nothing blocking. `/clear`, `/jam:ticket`: you get three points to check, with the page
+to open; second green light. The session asks before pushing, opens the pull request and
+watches CI; you merge; the session writes one lesson, and the journal is archived.
 
 ### What jam asks of you
 
 On a medium ticket: confirm the size, frame it with the session, settle the decisions the
-code made, run `/clear` twice, give two green lights, decide when a loop reaches three
+code made, run `/clear` twice (twice more for each change asked at acceptance or by a
+human reviewer), give two green lights, decide when a loop reaches three
 rounds, agree to the push and the pull request, and merge.
 
 At each pause, jam notes whether you accepted, corrected, or asked for an explanation. How

@@ -100,7 +100,7 @@ the others.
 |---|---|---|
 | 1. Skeleton | journal script, `init`, `ticket`, the reviewer subagent, the hook, README, CI; sizes small and medium; then the repository goes public after a secret scan of its history | `init` fills the project file of a real repository without manual correction up to its first ticket, and a first small real ticket reaches its green light before the pull request |
 | 2. Real tickets | three tickets on a real personal project: one small, two medium, one of them sensitive; frictions noted in the lessons; for each, how often the developer corrected, review rounds, token use per subagent | the three pull requests are merged and their lessons written |
-| 3. Corrections | only what step 2 showed: the level above the ticket as soon as two tickets of one subject need it; the large size; whether plan and test plan stay merged, and whether the implementer stays a subagent | every addition answers a friction seen in step 2 |
+| 3. Corrections | only what step 2 showed: the level above the ticket as soon as two tickets of one subject need it; the large size; whether plan and test plan stay merged, and whether code moves to an implementer subagent | every addition answers a friction seen in step 2 |
 | 4. A team repository | installed in personal mode on a team repository with another forge and tracker; three tickets, next to the team's own tooling, without replacing it | installing needed changes to the project file only, none to the plugin |
 | 5. The other branches | bug and support, specification, product rules drawn from the journals; then, if wanted, other agent tools | not before step 4 is passed |
 

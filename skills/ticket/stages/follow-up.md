@@ -12,9 +12,10 @@ window, no turn is left to do it.
   their result when they finish; no check reported yet: try again a minute later. When
   resumed or asked: show the checks again. A failing check is fixed on the branch,
   pushed with the user's agreement, and watched again.
-- A human reviewer asks for a change: record it with `JOURNAL set --decision "<request> (to settle)"`, then
-  `JOURNAL set --stage code` and read `code.md`. The flow comes back through review,
-  acceptance and delivery, which then only pushes.
+- A human reviewer asks for a change: record it with
+  `JOURNAL set --decision "<request> (to settle)"`, then `JOURNAL set --stage code` and
+  read `code.md`. The flow comes back through review, acceptance and delivery, which
+  then only pushes.
 - The merge is the user's. Once merged, and before closing, one pass on the journal;
   follow-up teaches things too (a red CI, a merge order changed):
   1. Tick each box of `Done when` whose proof holds now, with `JOURNAL set --done-when`
@@ -35,12 +36,12 @@ window, no turn is left to do it.
        question. At close, the script copies them to `jam-lessons.md` in jam's home
        (`~/.jam` by default), where jam's maintainer reads them; removing a rule is as
        good an outcome as adding one. This question has no recommended answer.
-  4. **What remains open** outside the code: review findings left aside (in the
-     reviewer's answers), decisions still "to settle", remarks out of the ticket's
-     scope. In one question listing them, ask the user which become an issue now: draft
-     each, show it, and once they agree create it with the CLI the project file's
-     commands use (`gh issue create`, `glab issue create`; none: hand the draft to the
-     user), then `JOURNAL set --log "issue <id>: <title>"`. The others become a
+  4. **What remains open** outside the code: review findings left aside (in the reports
+     of `reports=`, `JOURNAL key`), decisions still "to settle", remarks out of the
+     ticket's scope. In one question listing them, ask the user which become an issue
+     now: draft each, show it, and once they agree create it with the CLI the project
+     file's commands use (`gh issue create`, `glab issue create`; none: hand the draft
+     to the user), then `JOURNAL set --log "issue <id>: <title>"`. The others become a
      `--pending` at the close.
 
   Then `JOURNAL close`, with one `--pending "…"` per item kept open. An archive is never

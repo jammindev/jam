@@ -48,13 +48,21 @@ start from the base branch, each in its own worktree, and stop.
   the same options.
 - A journal: run `JOURNAL show`, say where things stand in three sentences (the goal,
   the stage, what `Resume here` says to do next), and wait for the user's go-ahead.
-  Then read the file of the journal's stage and follow it.
+  Then read the file of the journal's stage and follow it. At `framing`, the journal
+  already exists: never run `init` again; a medium ticket reads
+  `stages/framing-medium.md`, which says how to resume.
 
 ## Move on
 
-At the end of a stage: run `JOURNAL next`, then `JOURNAL set --stage <next>`, then read
-the next stage's file and follow it. A small ticket never clears the conversation
-(`clear_first=no`): go straight on. At `follow-up`, `next` answers `closed`: never set
-that stage; the ticket ends with `JOURNAL close` once the PR is merged.
+At the end of a stage: run `JOURNAL next`, then `JOURNAL set --stage <next>`.
+- `clear_first=no`: read the next stage's file and follow it.
+- `clear_first=yes` (a medium ticket, before review and acceptance): write `Resume here`
+  so that a new session can start that stage from the journal alone, then ask the user
+  to run `/clear`, then `/jam:ticket`, and stop. The session that wrote the code must
+  not review it or accept it: it would judge it by what it meant to do.
 
-Read only the current stage's file: each one holds everything that stage needs.
+At `follow-up`, `next` answers `closed`: never set that stage; the ticket ends with
+`JOURNAL close` once the PR is merged.
+
+Read only the current stage's file: each one holds everything that stage needs
+(`framing.md` sends a medium ticket on to `framing-medium.md`).

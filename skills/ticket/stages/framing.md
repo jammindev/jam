@@ -20,13 +20,16 @@ window, no turn is left to do it.
    of one, proven or only suspected: give it in one to three lines with what shows it,
    and ask the user whether to go on; stop if they say no. Write nothing to the
    tracker. The worktree stays: removing it is the user's call.
-2. Read the code the ticket touches. Propose a size, `small` or `medium`, with one
-   sentence of reason, and say whether it is sensitive: it is when it touches an area
-   listed under `Sensitive` in the project file.
-   - Sensitive: say that a sensitive ticket needs the medium flow, which does not exist
-     yet in jam, and stop.
-   - Medium: say that only the small flow exists yet. The user may run it as small, or
-     stop.
+2. Read the code the ticket touches. Propose a size with one sentence of reason, and
+   say whether it is sensitive: it is when it touches an area listed under `Sensitive`
+   in the project file.
+   - Small: one done criterion is enough, no product rule needs settling beyond one
+     question, and the diff reads in one sitting.
+   - Medium: anything else. A sensitive ticket is always medium, and never runs as
+     small: the user who disagrees is disputing the sensitivity, not the size.
+   The user confirms. Medium: read `framing-medium.md` in this folder and follow it
+   instead of steps 3 to 5. Small, or a medium ticket the user wants run as small: go
+   on.
 3. Agree with the user on three lines: the goal, one done criterion, and the test that
    proves it. Their agreement is the go-ahead to write code, and the question says
    so. A product question the code cannot answer is asked as a short
@@ -38,11 +41,13 @@ window, no turn is left to do it.
      --done-when "- [ ] <criterion> · proof: <test id>" --resume "<next action>"
    ```
 
-   `--resume` is the next action, such as "Write the failing test of …". Then record, with
+   `--resume` is the next action, such as "Write the failing test of …". With no ticket
+   behind the branch, the goal holds what the user said it is for. Then record, with
    `JOURNAL set --decision "…"`, the choice to run a medium ticket as small if made,
    and each product answer.
-5. Run the project file's `Tests` once on the untouched branch. A failure is not this
-   ticket's: record it with `JOURNAL set --log "…"`, and agree with the user how to go
-   on (a `.env` or dependency missing from the new worktree, a red base branch).
+5. Run the project file's `Tests` once on the untouched branch, in the background (a
+   base suite can outlast a foreground command), and read its result. A failure is not
+   this ticket's: record it with `JOURNAL set --log "…"`, and agree with the user how to
+   go on (a `.env` or dependency missing from the new worktree, a red base branch).
 
 Then move on, as the skill says.

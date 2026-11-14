@@ -31,8 +31,8 @@ first. The model writes the content; the script owns the format.
 
 - **Ticket**: the unit of work, usually an issue in the tracker. Its **key** names its journal.
 - **Stage**: where the ticket stands (table below).
-- **Stop**: a moment where the session waits for the user, either a green light or a
-  request to run `/clear`. The user's answer is recorded with `stop`.
+- **Stop**: a green light, a moment where the session waits for the user's agreement.
+  The user's answer is recorded with `stop`. A request to run `/clear` is not a stop.
 - **Project file**: Markdown file describing the project for the model and the script.
 
 ## Where things live
@@ -43,8 +43,8 @@ $JAM_HOME (default ~/.jam)/
   <repo-id>/
     project.md            personal project file (optional)
     journals/<KEY>.md     one active journal per ticket
-    reports/<KEY>/        review reports, written by the skill, not by the script
-                          (the small ticket writes none; kept for the medium one)
+    reports/<KEY>/        the reviewer's answers, review-<N>.md, saved by the skill,
+                          not by the script: read again after a /clear
     archive/<KEY>.md      closed journals
 ```
 
@@ -206,7 +206,7 @@ Run the code review on the branch, then check each finding in the code before fi
 
 ## Log
 - 2026-11-11 20:40 · created at framing
-- 2026-11-11 21:30 · framing review, round 1: 1 blocking, 2 suggestions
+- 2026-11-11 21:30 · framing review: 1 blocking, 2 other
 - 2026-11-11 21:50 · stop at framing: corrected
 - 2026-11-11 21:55 · framing → code (+2 decisions)
 - 2026-11-12 21:10 · code → review (+1 decision)

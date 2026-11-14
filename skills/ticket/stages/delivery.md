@@ -15,7 +15,7 @@ The journal already has a PR (`JOURNAL show`, field `PR`): skip step 3, push onl
    title and a body: `--title "…" --body-file -` with the body on stdin for `gh`,
    `--title "…" --description "…"` for `glab`. Never write the body to a file inside the
    repository. The body follows the PR template under the project file's `Links` if
-   there is one, and holds the goal, the criterion and its test, the product decisions,
+   there is one, and holds the goal, the criteria and their tests, the product decisions,
    and `Closes #<id>` when the tracker is the forge's: the journal stays on this machine,
    the PR is where others see the decisions. Then `JOURNAL set --pr <number>`, the bare
    number read from the command's output.
