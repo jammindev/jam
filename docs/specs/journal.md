@@ -393,7 +393,7 @@ guessed. Each figure answers one question:
 | User prompts, answers | How often did the user have to step in? | transcripts |
 | Corrected stops | How often did the user rework the agent's output? | journal |
 | Reviews | Is the reviewer worth what it costs? | both |
-| Tokens per agent and model | What did each agent consume? | transcripts |
+| Tokens per agent, model and effort | What did each agent consume, at which setting? | transcripts |
 | Diff | Was the ticket costly because it was big, or because the work went badly? | PR |
 | Context | Do sessions saturate their context? | transcripts |
 
@@ -402,7 +402,9 @@ resets when a session is resumed, and a price table in the script would go stale
 nothing on a subscription. Tokens are the honest unit.
 
 **Output.** Fixed format, parseable for a later aggregation across tickets. The figures
-were measured on a real ticket:
+are those a close would have written for a real ticket, at the second it ran (recomputed
+later from the archive, bounded at the start of that minute, the close's own turn drops
+out: 6 prompts, 113k cache write for `main`):
 
 ```markdown
 ## Stats
@@ -411,8 +413,8 @@ were measured on a real ticket:
 - **User**: 7 prompts, 3 answers · stops: 0 corrected of 1
 - **Reviews**: 1 run, 1 logged · 1 blocking, 6 other
 - **Tokens** (out · in · cache write · cache read):
-  - main · claude-opus-5-5: 33.4k · 190 · 217k · 8.6M
-  - jam:reviewer ×1 · claude-opus-5-5: 44.7k · 58 · 111k · 2.0M
+  - main · claude-opus-5-5 · medium: 33.4k · 190 · 217k · 8.6M
+  - jam:reviewer ×1 · claude-opus-5-5 · xhigh: 44.7k · 58 · 111k · 2.0M
 - **Diff**: +62 −1 · 3 files
 - **Context**: 0 compactions, 0 clears
 - **Source**: Claude Code 2.1.296 transcripts, read 2026-11-13 22:01 (local time)
@@ -543,7 +545,9 @@ and subagents together: a background reviewer working while the main session wai
 counted once.
 
 **Tokens.** From the `message.usage` of counted `assistant` entries, grouped by agent
-(`main`, or the subagent type with its number of runs) and by `message.model`: within a
+(`main`, or the subagent type with its number of runs), by `message.model` and by the
+entry's `effort` (left out of the label when absent; efforts listed weakest first), so
+that a setting can be compared with what it costs and what it finds: within a
 group, `output_tokens`, `input_tokens`, `cache_creation_input_tokens`,
 `cache_read_input_tokens`. A message written over several lines carries partial counts on
 the first ones, so each field is the maximum seen for its `message.id`, across every
@@ -697,7 +701,8 @@ Fixture transcripts are written under a temporary `CLAUDE_CONFIG_DIR`.
     in a prompt, an `AskUserQuestion` answer, a `user_temporary` permission result, a
     notification or an `isMeta` message from another session is not; a background
     subagent overlapping the main session is counted once (union).
-27. Tokens: three lines with one `message.id` and growing `output_tokens` count the
+27. Tokens: groups split by effort (`main · <model> · medium`, a group without effort
+    has no third part); three lines with one `message.id` and growing `output_tokens` count the
     maximum; a forked session in a second file of the same directory counts its shared
     messages and entries once; groups `main` and `jam:reviewer ×N` per model; a subagent
     without `.meta.json` is `unknown`; a subagent with no counted entry is not a run.

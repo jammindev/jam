@@ -579,12 +579,14 @@ class Transcript:
     def prompt(self, t, text="do it", **extra):
         return self.add(t, "user", message={"role": "user", "content": text}, **extra)
 
-    def assistant(self, t, mid=None, usage=None, tool=None, model="claude-opus-5-5"):
+    def assistant(self, t, mid=None, usage=None, tool=None, model="claude-opus-5-5",
+                  effort="medium"):
         content = [{"type": "tool_use", "id": tool[0], "name": tool[1], "input": {}}] \
             if tool else [{"type": "text", "text": "ok"}]
         message = {"id": mid or f"m{len(self.entries)}", "model": model, "content": content,
                    "usage": dict(usage or USAGE)}
-        return self.add(t, "assistant", message=message)
+        extra = {"effort": effort} if effort else {}
+        return self.add(t, "assistant", message=message, **extra)
 
     def result(self, t, tool_id="t1", **extra):
         block = {"type": "tool_result", "tool_use_id": tool_id, "content": "done"}
@@ -685,25 +687,28 @@ def test_27_tokens(tmp_path, claude):
     session = Transcript(wt).prompt(0)
     for output in (2, 2, 1604, None):  # one message over lines, partial counts first
         session.assistant(10, mid="msg1", usage=dict(USAGE, output_tokens=output))
+    session.assistant(15, mid="msg2", effort="high")  # /effort changed mid-session
     session.assistant(20, mid="syn", model="<synthetic>")
     session.write(folder / "a.jsonl")
     session.write(folder / "fork.jsonl")  # a forked copy: same messages, same uuids
-    sub = Transcript(wt, "r").prompt(1, "review").assistant(5, mid="r1")
+    sub = Transcript(wt, "r").prompt(1, "review").assistant(5, mid="r1", effort="xhigh")
     sub.write(folder / "a" / "subagents" / "agent-r.jsonl")
     (folder / "a" / "subagents" / "agent-r.meta.json").write_text(
         '{"agentType": "jam:reviewer"}', encoding="utf-8")
-    Transcript(wt, "u").prompt(1, "x").assistant(5, mid="u1").write(
+    Transcript(wt, "u").prompt(1, "x").assistant(5, mid="u1", effort=None).write(
         folder / "a" / "subagents" / "agent-u.jsonl")  # no meta: unknown
     Transcript(wt, "l").prompt(99999, "late").write(
         folder / "a" / "subagents" / "agent-late.jsonl")
     tr = figures(wt, T0 + timedelta(seconds=600))
-    assert tr.tokens[("main", "claude-opus-5-5")] == [1604, 2, 1000, 5000]
-    assert ("main", "<synthetic>") not in tr.tokens and tr.problem is None
+    assert tr.tokens[("main", "claude-opus-5-5", "medium")] == [1604, 2, 1000, 5000]
+    assert all(g[1] != "<synthetic>" for g in tr.tokens) and tr.problem is None
     assert tr.runs == {"jam:reviewer": 1, "unknown": 1}  # the late one never ran in time
     assert tr.prompts == 1  # the fork counts once, subagent requests never
     lines = journal.stats_lines(journal.Journal.parse(JOURNAL_TEXT), tr, NO_PR, "now")
-    assert "  - main · claude-opus-5-5: 1.6k · 2 · 1.0k · 5.0k" in lines
-    assert "  - jam:reviewer ×1 · claude-opus-5-5: 100 · 2 · 1.0k · 5.0k" in lines
+    assert lines.index("  - main · claude-opus-5-5 · medium: 1.6k · 2 · 1.0k · 5.0k") \
+        < lines.index("  - main · claude-opus-5-5 · high: 100 · 2 · 1.0k · 5.0k")
+    assert "  - jam:reviewer ×1 · claude-opus-5-5 · xhigh: 100 · 2 · 1.0k · 5.0k" in lines
+    assert "  - unknown ×1 · claude-opus-5-5: 100 · 2 · 1.0k · 5.0k" in lines
 
 
 def test_28_prompts_and_answers(tmp_path, claude):

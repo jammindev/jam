@@ -579,6 +579,7 @@ NOT_PROMPTS = ("<task-notification>", "<local-command", "<command-name>", "<comm
                "<bash-input>", "<bash-stdout>", "<bash-stderr>",
                "[Request interrupted by user")  # Escape: the next message is the prompt
 CLEAR = "<command-name>/clear</command-name>"
+EFFORTS = ("low", "medium", "high", "xhigh", "max")  # weakest first, for reading
 TOKEN_FIELDS = ("output_tokens", "input_tokens", "cache_creation_input_tokens",
                 "cache_read_input_tokens")
 REVIEW_PART = re.compile(r"review: (\d+) blocking, (\d+) other\b")
@@ -757,7 +758,10 @@ class Reader:
         self.usage[mid] = {f: max(previous.get(f, 0),
                                   usage[f] if isinstance(usage.get(f), int) else 0)
                            for f in TOKEN_FIELDS}
-        self.group.setdefault(mid, (agent, model if isinstance(model, str) else "unknown"))
+        # The effort is the setting a ticket's size may one day choose: kept to compare.
+        effort = entry.get("effort") if isinstance(entry.get("effort"), str) else None
+        self.group.setdefault(mid, (agent, model if isinstance(model, str) else "unknown",
+                                    effort or None))
 
     def finish(self):
         out = self.out
@@ -947,11 +951,14 @@ def stats_lines(journal, tr, diff, read_at):
                   f"{quantity(tr.answers, 'answer')} · {stops_text}",
                   f"- **Reviews**: {quantity(runs, 'run')}, {findings}",
                   "- **Tokens** (out · in · cache write · cache read):"]
-        groups = sorted(tr.tokens, key=lambda g: (g[0] != "main", g[0], g[1]))
-        for agent, model in groups:
+        groups = sorted(tr.tokens, key=lambda g: (g[0] != "main", g[0], g[1],
+                                                  EFFORTS.index(g[2]) if g[2] in EFFORTS
+                                                  else len(EFFORTS), g[2] or ""))
+        for agent, model, effort in groups:
             label = agent if agent == "main" else f"{agent} ×{tr.runs.get(agent, 0)}"
-            values = " · ".join(token_count(n) for n in tr.tokens[(agent, model)])
-            lines.append(f"  - {label} · {model}: {values}")
+            setting = f"{model} · {effort}" if effort else model
+            values = " · ".join(token_count(n) for n in tr.tokens[(agent, model, effort)])
+            lines.append(f"  - {label} · {setting}: {values}")
     text, reason = diff
     lines.append(f"- **Diff**: {text}" if text else f"- **Diff**: unavailable ({reason})")
     if tr.problem:
