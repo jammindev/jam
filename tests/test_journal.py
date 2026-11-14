@@ -467,6 +467,7 @@ def test_24_close(tmp_path, capsys, ticket, monkeypatch):
         assert code == 1 and reason in err and "nothing was written" in err
         assert path.read_bytes() == before
     personal_project(ticket, **{"PR state command": 'test "$JAM_PR" = "#12" && echo MERGED'})
+    run(capsys, ticket, "set", "--done-when", "- [x] columns · proof: test_columns")
     code, _, err = run(capsys, ticket, "close", "--pending", "tell the manager")
     assert code == 0, err
     assert not path.exists()
@@ -478,6 +479,21 @@ def test_24_close(tmp_path, capsys, ticket, monkeypatch):
     code, _, err = run(capsys, ticket, "close", "--force")
     assert code == 1 and str(archive) in err
     assert path.read_text(encoding="utf-8") == text
+
+
+def test_24c_close_refuses_an_unticked_criterion(capsys, ticket):
+    # A box left open at close is a forgotten journal update, or a decision for the user.
+    personal_project(ticket, **{"PR state command": "echo MERGED"})
+    run(capsys, ticket, "set", "--pr", "12", "--done-when",
+        "- [x] columns · proof: test_columns\n  - [ ] cancelled rows left out\n- [ ] totals")
+    path = journal_path(capsys, ticket)
+    before = path.read_bytes()
+    code, _, err = run(capsys, ticket, "close")
+    assert code == 1 and "nothing was written" in err
+    assert "- [ ] cancelled rows left out" in err and "- [ ] totals" in err
+    assert "columns" not in err and "--force" in err
+    assert path.read_bytes() == before
+    assert run(capsys, ticket, "close", "--force")[0] == 0  # the user's decision
 
 
 def test_24b_close_gathers_jam_lessons(capsys, ticket):

@@ -48,6 +48,7 @@ DEFAULT_PATTERN = r"(?:^|/)(\d+)(?=-|$)"
 FIELD_LINE = re.compile(r"^- \*\*(.+?)\*\*: ?(.*)$")
 STOP_IMITATION = re.compile(r"^stop at \S+.*:\s*(seen|corrected|explained)\b", re.IGNORECASE)
 STOP_LINE = re.compile(r"^Stop at \S+(?: \([^()]*\))?: (seen|corrected|explained)(, .*)?$")
+UNTICKED = re.compile(r"^\s*- \[ \]")
 
 
 class JamError(Exception):
@@ -470,7 +471,8 @@ def cmd_resume(ctx, args):
         head += ["Recent decisions:"] + [f"- {d}" for d in decisions]
     head.append("Resume here:")
     tail = [f"Journal: {path}",
-            "Update the journal (journal.py set) before any /clear."]
+            "Update the journal (journal.py set) before handing back to the user:"
+            " after a /clear, no turn is left to do it."]
     resume = journal.sections["Resume here"].splitlines()
     room = RESUME_MAX_LINES - len(head) - len(tail)
     if len(resume) > room:
@@ -539,6 +541,15 @@ def cmd_close(ctx, args):
         state = result.stdout.strip().lower()
         if state != "merged":
             raise JamError(f"the PR is not merged (state: {state or 'empty'})")
+        # A box still open at close is a journal update forgotten after the merge, or a
+        # decision that belongs to the user: never closed over in silence.
+        unticked = [line.strip() for line in journal.sections["Done when"].splitlines()
+                    if UNTICKED.match(line)]
+        if unticked:
+            raise JamError("the done criterion has unticked boxes: " + "; ".join(unticked)
+                           + ". Before closing: tick each box whose proof holds "
+                           "(set --done-when), record the decisions since delivery and "
+                           "the lessons; or close --force if the user decides so")
     day = f"{datetime.now():%Y-%m-%d}"
     journal.fields["Stage"] = CLOSED
     journal.sections["Resume here"] = "\n".join(

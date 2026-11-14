@@ -88,14 +88,15 @@ A **medium** ticket, the usual case, goes through six stages:
 4. **Acceptance.** `/clear` and `/jam:ticket` again. If the change is visible, an agent
    goes through it in a browser and attaches screenshots; then you get at most five
    points to check. You give the second green light.
-5. **Delivery.** The session writes the ticket's lessons in the journal, from two
-   questions: a trap in the code, and a friction with jam itself (noted as it happens,
-   during the whole ticket). A lesson about the code can be moved to `CLAUDE.md` or the
-   project file, with your agreement; those about jam are how jam improves. Then the
-   session pushes and opens the pull request, asking you first.
+5. **Delivery.** The session pushes and opens the pull request, asking you first.
 6. **Follow-up.** The session checks CI. A comment from a human reviewer on the pull
-   request sends the ticket back to the code. The merge is yours. Once merged, the journal
-   is archived and jam gives you the commands to remove the working copy.
+   request sends the ticket back to the code. The merge is yours. Once merged, the
+   session brings the journal up to date (the done criterion ticked, the last decisions)
+   and writes the ticket's lessons, from two questions: a trap in the code, and a
+   friction with jam itself (both noted as they happen, during the whole ticket). A lesson
+   about the code can be moved to `CLAUDE.md` or the project file, with your agreement;
+   those about jam are how jam improves. Then the journal is archived and jam gives you
+   the commands to remove the working copy.
 
 A **small** ticket gets three lines of framing (goal, done criterion, test). The session
 writes the test, then the code itself; one quick review pass follows; there is no
@@ -118,8 +119,8 @@ tests, sees them fail, writes the export, and notes one decision it made alone: 
 month gives a file with only the header. You accept it. `/clear`, `/jam:ticket`: the
 review finds nothing blocking. `/clear`, `/jam:ticket`: the acceptance agent opens the
 export page, downloads the file and attaches a screenshot; you check three points; second green light. The session
-writes one lesson, asks before pushing, opens the pull request and checks CI; you merge,
-and the journal is archived.
+asks before pushing, opens the pull request and checks CI; you merge; the session writes
+one lesson, and the journal is archived.
 
 ### What jam asks of you
 

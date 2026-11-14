@@ -1,7 +1,9 @@
 # Stage: acceptance
 
-Before any `/clear` or end of session, the journal is up to date: stage, `Resume here`
-(one or two sentences a new session can act on), new decisions.
+Before handing back to the user, the journal holds what changed in this turn: new
+decisions, and `Resume here` (one or two sentences a new session can act on) when the
+next step changed; nothing changed, nothing to write. After a `/clear` or a closed
+window, no turn is left to do it.
 
 The single green light of a small ticket. Show, in one message:
 

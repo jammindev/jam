@@ -334,7 +334,7 @@ The block injected by the session-start hook. Built in memory, printed in one wr
 
 Content, in order: the title line; stage, size and PR if any; the first line of `Goal`;
 the last three decisions that are not routine stops; `Resume here`; the journal's path
-with a reminder to update the journal before any `/clear`.
+with a reminder to update the journal before handing back to the user.
 
 - A routine stop is a `seen` or `explained` stop without a note. A `corrected` stop is
   always kept.
@@ -358,6 +358,11 @@ Checks, in this order, before anything is written:
 2. Without `--force`: the journal has a PR, a `PR state command` is set, and its output,
    stripped and lowercased, is `merged`. A command that fails or times out refuses the
    close and says so.
+3. Without `--force`: no box of `Done when` is left unticked (a line starting, after
+   spaces, with `- [ ]`). The refusal lists them and says to tick each one whose proof
+   holds, or to close with `--force` if the user decides so. On a real ticket the
+   session closed right after the merge with the box still open (see the ticket spec,
+   follow-up).
 
 Then, in this order: the stage becomes `closed`; `Resume here` becomes
 `Closed on YYYY-MM-DD.` followed by one `- <item>` line per pending item; the log line
@@ -687,6 +692,8 @@ suite on Python 3.9 and 3.13, with `ruff check`.
 24. `close`: refused without a PR; refused when the state command prints `OPEN`, fails or
     times out, or when no `PR state command` is set; archives when it prints `MERGED`; `--force` archives without a PR; an
     existing archive refuses before anything is written.
+24c. `close` with a merged PR and unticked boxes (one nested) is refused, lists only the
+    unticked ones, mentions `--force` and writes nothing; `--force` closes.
 
 **Stats**
 

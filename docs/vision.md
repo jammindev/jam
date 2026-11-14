@@ -85,8 +85,8 @@ The main session starts with the project's context: `CLAUDE.md`, the list of ski
 memory index. A ticket gets one session of its own, in its own worktree, and every
 decision is written to its journal. Its path: open a worktree; frame and plan, with a
 review loop; tests first, then the code; a code review by a fresh agent, sized to the
-ticket; a check of the interface; the pull request, with the lessons learned; follow-up
-until the merge. The README describes it stage by stage.
+ticket; a check of the interface; the pull request; follow-up until the merge, then
+the lessons learned. The README describes it stage by stage.
 
 The product rules settled in tickets connect the branches: they become the material for
 support answers and new specifications. Journals live on the developer's machine, so

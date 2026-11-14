@@ -91,9 +91,13 @@ back is named in a stage file: acceptance → code, follow-up → code. At `foll
 `next` answers `closed`: never `set --stage closed`; the ticket ends with `JOURNAL close`
 once the PR is merged.
 
-**Before any `/clear` or end of session**, the journal is up to date: stage, `Resume
-here` (one or two sentences a new session can act on), new decisions. Every stage file
-of the ticket session repeats this rule: a stale journal is the only way to lose work.
+**Before handing back to the user**, the journal holds what changed in the turn: new
+decisions, and `Resume here` (one or two sentences a new session can act on) when the
+next step changed; nothing changed, nothing to write. Every stage file of the ticket
+session repeats this rule: a stale journal is the only way to lose work. It is tied to
+the end of a turn, not to the `/clear`: after a `/clear` or a closed window the model
+gets no turn, and no hook gives it one (`SessionEnd` runs a command, cannot block, and
+the model never sees it).
 
 ## Stages
 
@@ -218,19 +222,9 @@ Each decision to settle gets one line, since `Decisions` only grows:
 
 ### delivery
 
-1. **Lessons**, with `set --lesson`, from two separate questions. About the code or the
-   project: a trap met on this ticket, which may be promoted, with the user's agreement,
-   to `CLAUDE.md`, to the project file's `Review: project checks`, or to a linter rule.
-   About jam: an instruction that failed, had to be worked around, or served no
-   purpose, each lesson starting with `jam:`; none at all is written
-   `jam: nothing to report`. At close, `journal.py` copies the others to
-   `$JAM_HOME/jam-lessons.md` for the maintainer: removing a rule is as valid an
-   outcome as adding one. A single question about "a friction in
-   the workflow" was tried on the first real ticket: the session wrote only lessons
-   about the code, while jam had failed four times.
-2. Ask the user, then push the branch: `git push -u origin <branch>`. jam sets no
+1. Ask the user, then push the branch: `git push -u origin <branch>`. jam sets no
    permission rule: the skill itself asks, here and before the PR.
-3. No PR yet: ask the user, then open it with the project file's `Open a PR` command, adding a title and a
+2. No PR yet: ask the user, then open it with the project file's `Open a PR` command, adding a title and a
    body (`--title` and `--body-file -` reading stdin for `gh`, `--title` and
    `--description` for `glab`; never a body file inside the repository).
    The body follows the PR template under `Links` if there is one, and holds the goal,
@@ -238,7 +232,7 @@ Each decision to settle gets one line, since `Decisions` only grows:
    tracker is the forge's. Decisions live in the journal, on this machine only: the PR
    is where others see them. Then `set --pr <number>`, the bare number read from the
    command's output.
-4. A PR already exists (back from follow-up): skip lessons and the PR, push only.
+3. A PR already exists (back from follow-up): skip the PR, push only.
 
 ### follow-up
 
@@ -247,9 +241,32 @@ Each decision to settle gets one line, since `Decisions` only grows:
 - A human reviewer asks for a change: `set --decision` with the request, to settle, then
   `set --stage code`; the flow comes back through review, acceptance and delivery, which
   then only pushes.
-- The merge is the user's. Once merged: `JOURNAL close`, with `--pending` for what remains
-  open outside the code. `close --force` only on the user's explicit request. Then give
-  the commands to run from the main session to remove the worktree and the branch
+- The merge is the user's. Once merged, before closing, one pass on the journal:
+  - tick each box of `Done when` whose proof holds now (`set --done-when`); one that
+    cannot be ticked is said to the user; if they decide to close anyway, its reason
+    goes in with `set --decision`, then, at the close below,
+    `--force --pending "<the box>"`;
+  - the decisions taken since delivery (a merge order changed), and a red CI fixed
+    with `set --log`;
+  - **lessons**, with `set --lesson`, starting from those already noted during the
+    ticket (`set --lesson` cannot take one back), from two separate questions. About
+    the code or the project: a trap met on this ticket, which may be promoted, with the
+    user's agreement, to `CLAUDE.md`, to the project file's `Review: project checks`, or
+    to a linter rule. About jam: an instruction that failed, had to be worked around, or
+    served no purpose, each lesson starting with `jam:`; none at all is written
+    `jam: nothing to report`. At close, `journal.py` copies the others to
+    `$JAM_HOME/jam-lessons.md` for the maintainer: removing a rule is as valid an
+    outcome as adding one. A single question about "a friction in the workflow" was
+    tried on the first real ticket: the session wrote only lessons about the code,
+    while jam had failed four times. They are asked here, not at delivery: on a later
+    ticket, the session closed straight after the merge, with the done criterion still
+    unticked, and missed what follow-up had taught (a red CI, a merge order changed),
+    then edited the archive by hand.
+
+  Then `JOURNAL close`, with `--pending` for what remains open outside the code. An
+  archive is never edited: what was forgotten is told to the user. `close --force` only
+  on the user's explicit request. Then give the commands to run from the main session to
+  remove the worktree and the branch
   (`git worktree remove <path>`, `git branch -D <branch>`, since a squash merge leaves
   it unmerged locally), and run nothing.
 
@@ -275,7 +292,9 @@ Each decision to settle gets one line, since `Decisions` only grows:
 - Journal content in the user's language; field names and section titles in English.
 - Nothing is written to the tracker, except what the PR's closing line does on merge.
 - A jam instruction that fails, is worked around or serves no purpose is recorded at
-  once as a `jam:` lesson, in any stage: by delivery it would be forgotten.
+  once as a `jam:` lesson, in any stage: by the close it would be forgotten. A trap met
+  in the project's code is recorded at once too, without `jam:`: with a single channel,
+  a session filed a code trap under `jam:`, and `set --lesson` cannot take it back.
 
 ## Out of scope for this version
 
