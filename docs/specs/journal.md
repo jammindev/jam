@@ -546,7 +546,7 @@ gap between an entry and the next is a busy interval when the next one is work: 
 was answering or a foreground tool was running. A gap that ends in a prompt, an answer or
 a notification is a wait; a tool running in the background is not counted. Agent time is
 the length of the union of the busy intervals of every counted transcript, main sessions
-and subagents together: a background reviewer working while the main session waits is
+and subagents together: a reviewer working while the main session waits on it is
 counted once.
 
 **Tokens.** From the `message.usage` of counted `assistant` entries, grouped by agent

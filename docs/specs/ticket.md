@@ -192,13 +192,25 @@ tracker and sorts no backlog: closing the ticket is the user's call.
 
 ### review
 
-1. One pass by the `reviewer` subagent, given: the goal, the done criterion, the diff
-   `origin/<base>...HEAD`, the project file's `Review: project checks`, and the paths
-   under its `Links` that serve a review (agent instructions, a review grid).
-2. Check each finding in the code before acting on it. A finding is blocking only if it
+1. The working tree must be clean (the code stage commits before review); otherwise
+   the diff is shown to the user: a change the code stage did not make (a mutation left
+   by an interrupted review, found by a later session) is restored, never committed;
+   the rest is committed with their agreement, or the stage stops. One pass by the `reviewer`
+   subagent, in the foreground: the session touches nothing in the worktree until it
+   answers, since the reviewer may change and restore files. It is given: the goal, the
+   done criterion, the diff
+   `origin/<base>...HEAD`, the project file's `Tests` command, its `Review: project
+   checks`, and the paths under its `Links` that serve a review (agent instructions, a
+   review grid).
+2. Then `git status --porcelain` again: anything listed comes from the review (a
+   mutation left behind by an interrupted reviewer, files the tests wrote); it is shown
+   to the user, and tracked files are restored once they agree. The reviewer's own
+   check only holds if it runs to the end; this one does not depend on it.
+3. Check each finding in the code before acting on it. A finding is blocking only if it
    describes a concrete failure scenario or breaks the done criterion. Fix the blocking
-   ones, rerun the tests, commit. A small ticket gets no second pass.
-3. `set --log "review: N blocking, M other"`.
+   ones, rerun the tests, commit. A small ticket gets no second pass; any other pass
+   goes through steps 1 and 2 again.
+4. `set --log "review: N blocking, M other"`.
 
 ### acceptance
 
@@ -275,8 +287,20 @@ Each decision to settle gets one line, since `Decisions` only grows:
 `agents/reviewer.md` in the plugin.
 
 - Fresh context: it receives only what the review stage gives it, never the conversation.
-- Tools: `Read`, `Grep`, `Glob`, and `Bash` for `git diff` and `git log`. It is told to
-  modify nothing; `Bash` itself is not restricted.
+- Tools: `Read`, `Grep`, `Glob`, and `Bash`, to read git and to run the project's tests.
+  It may prove that a test guards a line by changing it, running the tests that cover
+  it and restoring the file with `git restore`: one mutation at a time, only on a clean
+  working tree, tracked files only, and only if the tests run on the worktree's own
+  files. It never commits, pushes, switches branch, starts anything beyond the `Tests`
+  command, or runs `git clean`, `git stash`, `git reset`, `git checkout` or `git add`
+  (a model told to leave the tree clean could reach for them, discard work, or with
+  `git clean -x` delete `.env` or `.venv`); what remains at the end is listed, never
+  deleted. `Bash` itself is not
+  restricted. Limiting it to `git diff`
+  and `git log` was tried first: on a real ticket it ran none of the tests and
+  mutations it was asked for and deduced them instead, and the session had to replay
+  them. Each finding says whether it was proved by running something or deduced, and
+  the answer ends with the tests and mutations run and the last `git status`.
 - `model: opus`, `effort: xhigh`: review is where judgment is needed (`docs/vision.md`,
   principle 10). The alias follows the latest Opus; a subagent that applies a plan,
   such as the future `implementer`, gets `effort: medium`, with one rule: when the plan
