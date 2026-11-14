@@ -11,9 +11,11 @@ command, never through a shell variable (zsh would not split it). Stage files ar
 `${CLAUDE_PLUGIN_ROOT}/skills/ticket/stages/`. "The project file" is what `JOURNAL key`
 lists under `project_files`; a personal file overrides the shared one, field by field.
 
-- Talk to the user in their language. The journal's content is in that language too;
-  its field names and section titles stay in English.
-- Nothing is written to the tracker, except what the PR's closing line does on merge.
+- Talk to the user in their language, short status lines included: these files are in
+  English, which is no reason to answer in English. The journal's content is in that
+  language too; its field names and section titles stay in English.
+- Nothing is written to the tracker, except what the PR's closing line does on merge,
+  and an issue the user agrees to at follow-up.
 - Record a lesson at once, when it happens; by the close it would be forgotten. When
   an instruction of jam fails, has to be worked around, or serves no purpose:
   `JOURNAL set --lesson "jam: …"`. A trap met in the project's code: `JOURNAL set

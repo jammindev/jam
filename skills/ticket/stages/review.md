@@ -1,5 +1,7 @@
 # Stage: review
 
+Every line shown to the user is in their language.
+
 Before handing back to the user, the journal holds what changed in this turn: new
 decisions, and `Resume here` (one or two sentences a new session can act on) when the
 next step changed; nothing changed, nothing to write. After a `/clear` or a closed
@@ -11,7 +13,10 @@ window, no turn is left to do it.
    commit the rest with their agreement, or stop. Never review an uncommitted diff.
    Then run the `reviewer` subagent once, in the foreground, and wait
    for its answer: it may change and restore files to test them, so touch no file in
-   the worktree and run nothing on it until it has answered. Give it, and nothing else:
+   the worktree and run nothing on it until it has answered. Give it, and nothing else
+   (no tracker command to run; a review grid by its path, its steps never copied in):
+   - the ticket's text, as the project file's `Read a ticket` command prints it, or
+     what the user gave at framing;
    - the goal and the done criterion, from the journal;
    - the diff to review: `git diff origin/<base>...HEAD`, with `<base>` the project
      file's `Base branch`;
@@ -23,8 +28,11 @@ window, no turn is left to do it.
    and restore tracked files with `git restore` once they agree.
 3. Check each finding in the code before acting on it. A finding is blocking only if it
    describes a concrete failure scenario or breaks the done criterion. Fix the blocking
-   ones, run the tests again, commit. A small ticket gets no second pass; any other
-   pass goes through steps 1 and 2 again.
+   ones, run the tests again, commit. A blocking fix gets a targeted pass: steps 1 and
+   2 again, with the same brief, except the finding and the fix's diff
+   (`git diff <HEAD when the previous pass ran>..HEAD`) in place of the whole diff.
+   Repeat while a fix is blocking, three reviewer runs at most; then the user decides.
+   The other findings, fixed or not, get no second pass.
 4. `JOURNAL set --log "review: <N> blocking, <M> other"`, once per reviewer run, a
    targeted second review included, in exactly that form: the ticket's stats count it.
 

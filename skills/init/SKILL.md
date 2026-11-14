@@ -49,8 +49,14 @@ Never commit, push, create a journal, or write to the tracker or forge. `JOURNAL
    `<jam-dir>` is the grandparent directory of the `journal=` path of
    `JOURNAL key --key setup`; create it if needed. Write nothing else: no permission
    rule, no settings file.
-5. **Summarize** in three lines: what was written; in the repository, to commit on the
-   base branch so that new worktrees have it; next step `/jam:ticket <id>`.
+5. **Summarize**: what was written, then the user's steps before the first ticket,
+   in this order:
+   - the current branch is not the base branch: `git switch <base>` (an uncommitted
+     file follows; the base checked out in another worktree: move the file there and
+     work there instead);
+   - in the repository: commit the file on the base branch, and push it, since new
+     worktrees start from `origin/<base>`;
+   - `/jam:ticket <id>`, from a session on the base branch.
 
 ## Rules
 

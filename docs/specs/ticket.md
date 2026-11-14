@@ -13,8 +13,8 @@ what it writes to the journal, and when it stops.
 ## Scope of this first version
 
 The path of a **small** ticket, end to end: starting it from the main session; three
-lines of framing, the test then the code, one review pass by a fresh agent, one green
-light; delivery, follow-up and closing.
+lines of framing, the test then the code, one review pass by a fresh agent (and a
+targeted one after a blocking fix), one green light; delivery, follow-up and closing.
 
 The roadmap's first criterion is exactly this: a first small real ticket reaches its
 green light before the pull request (`docs/vision.md`, step 1). The **medium** ticket
@@ -117,8 +117,8 @@ question. Any sign of one, proven or only suspected: one to three lines with wha
 it, and the user decides whether to go on.
 This is a check inside start and framing, not a stage. When start ran, framing checks
 again: a cheap repeat, kept for worktrees made without start, and because start may
-read a base branch older than the worktree's. jam writes nothing to the
-tracker and sorts no backlog: closing the ticket is the user's call.
+read a base branch older than the worktree's. jam closes no ticket and sorts no
+backlog: closing the ticket is the user's call.
 
 ### start (main session)
 
@@ -130,9 +130,11 @@ tracker and sorts no backlog: closing the ticket is the user's call.
    say so. A real run had two main sessions start the same ticket three minutes apart;
    only one worktree survived, by luck.
 2. Build the branch name from `Ticket branch`: `{id}` is the ticket's id without `#`,
-   `{slug}` a few words of the title in lowercase ASCII joined by `-`, and `{type}`, when
-   the format has it, the kind of change (`feat`, `fix`…) among those seen in the
-   repository's branches. Propose the name to the user.
+   `{slug}` a few words of the title in lowercase ASCII joined by `-`, and `{type}`,
+   when the format has it, the kind of change (`feat`, `fix`…) among those seen in the
+   repository's branches. Announce the name and go on, without waiting. On six real
+   tickets the proposed name was asked about and
+   accepted six times out of six, once after a minute's wait.
 3. Check with `JOURNAL key --branch <name>` (without `--key`, which would win) that it
    gives the ticket's key. If not, typically a tracker key such as `ENG-142` without a
    `Ticket pattern`, say so and propose either rerunning `/jam:init` to add the pattern,
@@ -167,8 +169,10 @@ tracker and sorts no backlog: closing the ticket is the user's call.
    - Medium: say that only the small flow exists yet; the user may run it as small (a
      decision recorded once the journal exists) or stop.
 3. Agree with the user on three lines: the goal, one done criterion, the test that proves
-   it. A product question the code cannot answer is asked as a short multiple-choice
-   question, recommended answer first.
+   it. The agreement is the go-ahead to write code, and the question says so: on a real
+   ticket, the session went from framing to code while the project wanted an explicit
+   go-ahead first. A product question the code cannot answer is asked as a short
+   multiple-choice question, recommended answer first.
 4. `JOURNAL init --size small --sensitive no` with `--title`, `--goal`,
    `--done-when "- [ ] <criterion> · proof: <test id>"` and `--resume` (the next action,
    such as "Write the failing test of …"); then the size decision, if any, and each
@@ -192,29 +196,43 @@ tracker and sorts no backlog: closing the ticket is the user's call.
 
 ### review
 
-1. The working tree must be clean (the code stage commits before review); otherwise
-   the diff is shown to the user: a change the code stage did not make (a mutation left
-   by an interrupted review, found by a later session) is restored, never committed;
-   the rest is committed with their agreement, or the stage stops. One pass by the `reviewer`
-   subagent, in the foreground: the session touches nothing in the worktree until it
-   answers, since the reviewer may change and restore files. It is given: the goal, the
-   done criterion, the diff
-   `origin/<base>...HEAD`, the project file's `Tests` command, its `Review: project
-   checks`, and the paths under its `Links` that serve a review (agent instructions, a
-   review grid).
+1. The working tree must be clean (the code stage commits before review); otherwise the
+   diff is shown to the user: a change the code stage did not make (a mutation left by
+   an interrupted review, found by a later session) is restored, never committed; the
+   rest is committed with their agreement, or the stage stops. One pass by the
+   `reviewer` subagent, in the foreground: the session touches nothing in the worktree
+   until it answers, since the reviewer may change and restore files. It is given: the
+   ticket's text as `Read a ticket` prints it (or what the user gave at framing), the
+   goal, the done criterion, the diff `origin/<base>...HEAD`, the project file's `Tests`
+   command, its `Review: project checks`, and the paths under its `Links` that serve a
+   review (agent instructions, a review grid, by its path; its steps are never copied
+   in). Nothing else: on real tickets, sessions added "read the issue" or a project's
+   review steps to the brief, which the reviewer's rules exclude, and it refused them;
+   the ticket's text is now given instead.
 2. Then `git status --porcelain` again: anything listed comes from the review (a
    mutation left behind by an interrupted reviewer, files the tests wrote); it is shown
    to the user, and tracked files are restored once they agree. The reviewer's own
    check only holds if it runs to the end; this one does not depend on it.
 3. Check each finding in the code before acting on it. A finding is blocking only if it
    describes a concrete failure scenario or breaks the done criterion. Fix the blocking
-   ones, rerun the tests, commit. A small ticket gets no second pass; any other pass
-   goes through steps 1 and 2 again.
-4. `set --log "review: N blocking, M other"`.
+   ones, rerun the tests, commit. A blocking fix gets a targeted pass, through steps 1
+   and 2: the same brief, with the finding and the fix's diff (from the commit the
+   previous pass reviewed, its `HEAD` then, to `HEAD`) in place of the whole diff.
+   Repeat while a fix is blocking, three reviewer runs at most (`docs/vision.md`,
+   principle 7); then the user decides. On a real ticket, the fix of a blocking finding
+   changed approach and went to the PR unreviewed. The other findings, fixed or not, get
+   no second pass.
+4. `set --log "review: N blocking, M other"`, once per reviewer run, the targeted pass
+   included.
 
 ### acceptance
 
-The single green light of a small ticket, in one message:
+The single green light of a small ticket, in one message of plain text, never inside
+a question tool's form, and its answer is awaited as text. On five real tickets out of
+six the acceptance came as a form alone: the text before a form can be hidden, and the
+user asked how to log in to check the change.
+
+The message holds:
 
 - the goal and the criterion with its test;
 - the decisions made by the code, to settle;
@@ -226,7 +244,8 @@ The answer is recorded with `JOURNAL stop`:
 
 - accepted as is: `stop seen` (or `explained` after an explanation); that is the green
   light;
-- changed: `stop corrected --note "…"`, then back to code (`set --stage code`); the flow
+- changed, or accepted with something to add: `stop corrected --note "…"`, then back
+  to code (`set --stage code`); the flow
   comes back here with a new message and a new stop.
 
 Each decision to settle gets one line, since `Decisions` only grows:
@@ -234,22 +253,27 @@ Each decision to settle gets one line, since `Decisions` only grows:
 
 ### delivery
 
-1. Ask the user, then push the branch: `git push -u origin <branch>`. jam sets no
-   permission rule: the skill itself asks, here and before the PR.
-2. No PR yet: ask the user, then open it with the project file's `Open a PR` command, adding a title and a
-   body (`--title` and `--body-file -` reading stdin for `gh`, `--title` and
-   `--description` for `glab`; never a body file inside the repository).
-   The body follows the PR template under `Links` if there is one, and holds the goal,
-   the criterion and its test, the product decisions, and `Closes #<id>` when the
-   tracker is the forge's. Decisions live in the journal, on this machine only: the PR
-   is where others see them. Then `set --pr <number>`, the bare number read from the
-   command's output.
+1. Ask the user once, for the push and, if there is none yet, the PR: two separate
+   agreements were asked on a real ticket, for one decision. jam sets no permission
+   rule: the skill itself asks.
+2. Push the branch: `git push -u origin <branch>`. No PR yet: open it with the project
+   file's `Open a PR` command, adding a title and a body (`--title` and `--body-file -`
+   reading stdin for `gh`, `--title` and `--description` for `glab`; never a body file
+   inside the repository). The body follows the PR template under `Links` if there is
+   one, and holds the goal, the criterion and its test, the product decisions, and
+   `Closes #<id>` when the tracker is the forge's. Decisions live in the journal, on
+   this machine only: the PR is where others see them. Then `set --pr <number>`, the
+   bare number read from the command's output.
 3. A PR already exists (back from follow-up): skip the PR, push only.
 
 ### follow-up
 
-- On resume or when asked: the PR's checks with the forge CLI (`gh pr checks`,
-  `glab ci status`). A failing check is fixed on the branch.
+- Right after delivery, the PR's checks are watched in the background with the forge
+  CLI (`gh pr checks <PR> --watch`, `glab ci status --live`), and their result is told
+  to the user when they finish (no check reported yet: again a minute later). On two
+  real tickets the user was the one who saw the CI fail, ten to twenty minutes after
+  the PR. On resume or when asked: the checks again. A failing check is fixed on the
+  branch, pushed with the user's agreement, and watched again.
 - A human reviewer asks for a change: `set --decision` with the request, to settle, then
   `set --stage code`; the flow comes back through review, acceptance and delivery, which
   then only pushes.
@@ -261,32 +285,47 @@ Each decision to settle gets one line, since `Decisions` only grows:
   - the decisions taken since delivery (a merge order changed), and a red CI fixed
     with `set --log`;
   - **lessons**, with `set --lesson`, starting from those already noted during the
-    ticket (`set --lesson` cannot take one back), from two separate questions. About
-    the code or the project: a trap met on this ticket, which may be promoted, with the
+    ticket (`set --lesson` cannot take one back), from two separate questions. About the
+    code or the project: a trap met on this ticket, which may be promoted, with the
     user's agreement, to `CLAUDE.md`, to the project file's `Review: project checks`, or
     to a linter rule. About jam: an instruction that failed, had to be worked around, or
     served no purpose, each lesson starting with `jam:`; none at all is written
     `jam: nothing to report`. At close, `journal.py` copies the others to
     `$JAM_HOME/jam-lessons.md` for the maintainer: removing a rule is as valid an
-    outcome as adding one. A single question about "a friction in the workflow" was
-    tried on the first real ticket: the session wrote only lessons about the code,
-    while jam had failed four times. They are asked here, not at delivery: on a later
-    ticket, the session closed straight after the merge, with the done criterion still
-    unticked, and missed what follow-up had taught (a red CI, a merge order changed),
-    then edited the archive by hand.
+    outcome as adding one. The jam question recommends no answer: offered "nothing to
+    add" as the recommended one, a session lost a friction the user had just met. A
+    single question about "a friction in the workflow" was tried on the first real
+    ticket: the session wrote only lessons about the code, while jam had failed four
+    times. They are asked here, not at delivery: on a later ticket, the session closed
+    straight after the merge, with the done criterion still unticked, and missed what
+    follow-up had taught (a red CI, a merge order changed), then edited the archive by
+    hand.
+  - **what remains open** outside the code (review findings left aside, in the
+    reviewer's answers; decisions still "to settle"; remarks out of the ticket's scope):
+    one question lists them, and the user picks those that become an issue now. The
+    session drafts each, shows it, and once they agree creates it with the CLI the
+    project file's commands use (none: the draft goes to the user), then logs
+    `issue <id>: <title>`. The others become `--pending` at the close. On a real ticket,
+    two errors found by the review left as pending were never followed up.
 
-  Then `JOURNAL close`, with `--pending` for what remains open outside the code. An
-  archive is never edited: what was forgotten is told to the user. `close --force` only
-  on the user's explicit request. Then give the commands to run from the main session to
-  remove the worktree and the branch
-  (`git worktree remove <path>`, `git branch -D <branch>`, since a squash merge leaves
-  it unmerged locally), and run nothing.
+  Then `JOURNAL close`. An archive is never edited: what was forgotten is told to the
+  user. `close --force` only on the user's explicit request. Then the worktree and the
+  branch are removed, from this session, once the user agrees, as its last action: the
+  way the project's own instructions say (as in start, step 4), else, with
+  `<main worktree>` read first from `git worktree list` (it fails once the session's
+  folder is gone), in one command:
+  `git -C <main worktree> worktree remove <path> && git -C <main worktree> branch -D <branch>` (`-D`, since a squash merge leaves it
+  unmerged locally). Modified or untracked files, not ignored ones, make
+  `worktree remove` refuse: they are shown, and `--force` waits for the user's
+  agreement. The commands used to be given to the user, to run from the main session:
+  on six real tickets out of six, the user handed the task back to the ticket session.
 
 ## The `reviewer` subagent
 
 `agents/reviewer.md` in the plugin.
 
 - Fresh context: it receives only what the review stage gives it, never the conversation.
+  The ticket's text comes in that brief: the reviewer runs no tracker command.
 - Tools: `Read`, `Grep`, `Glob`, and `Bash`, to read git and to run the project's tests.
   It may prove that a test guards a line by changing it, running the tests that cover
   it and restoring the file with `git restore`: one mutation at a time, only on a clean
@@ -314,7 +353,12 @@ Each decision to settle gets one line, since `Decisions` only grows:
 
 - The session-start hook, exactly as the journal spec defines it.
 - Journal content in the user's language; field names and section titles in English.
-- Nothing is written to the tracker, except what the PR's closing line does on merge.
+  Everything shown to the user is in their language, short status lines included: the
+  skill's files are in English, and on six real tickets out of six the first line the
+  user saw was English ("No journal: framing stage."). The router says it, and every
+  stage file repeats it in its first line, start included.
+- Nothing is written to the tracker, except what the PR's closing line does on merge,
+  and an issue the user agrees to (see follow-up, what remains open).
 - A jam instruction that fails, is worked around or serves no purpose is recorded at
   once as a `jam:` lesson, in any stage: by the close it would be forgotten. A trap met
   in the project's code is recorded at once too, without `jam:`: with a single channel,

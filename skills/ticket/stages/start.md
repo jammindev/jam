@@ -1,5 +1,7 @@
 # Stage: start (main session)
 
+Every line shown to the user is in their language.
+
 This session writes no journal: it creates the ticket's branch and worktree, then hands
 over to a new session there.
 
@@ -25,7 +27,7 @@ over to a new session there.
    - `{slug}`: a few words of the title, lowercase ASCII, joined by `-`;
    - `{type}`, when the format has it: the kind of change (`feat`, `fix`…), among those
      seen in the repository's branches (`git branch -a`).
-   Propose the name to the user and wait for their answer.
+   Announce the name and go on, without waiting.
 3. Run `JOURNAL key --branch <name>` (never with `--key`, which would win). Its `key=`
    must equal the ticket's key from the router. If not (a tracker key such as `ENG-142`
    with no `Ticket pattern`, typically), say so and propose either `/jam:init` again to

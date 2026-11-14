@@ -1,5 +1,7 @@
 # Stage: framing
 
+Every line shown to the user is in their language.
+
 Before handing back to the user, the journal holds what changed in this turn: new
 decisions, and `Resume here` (one or two sentences a new session can act on) when the
 next step changed; nothing changed, nothing to write. After a `/clear` or a closed
@@ -26,7 +28,8 @@ window, no turn is left to do it.
    - Medium: say that only the small flow exists yet. The user may run it as small, or
      stop.
 3. Agree with the user on three lines: the goal, one done criterion, and the test that
-   proves it. A product question the code cannot answer is asked as a short
+   proves it. Their agreement is the go-ahead to write code, and the question says
+   so. A product question the code cannot answer is asked as a short
    multiple-choice question, recommended answer first.
 4. Create the journal:
 

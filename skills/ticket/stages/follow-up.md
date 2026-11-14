@@ -1,12 +1,17 @@
 # Stage: follow-up
 
+Every line shown to the user is in their language.
+
 Before handing back to the user, the journal holds what changed in this turn: new
 decisions, and `Resume here` (one or two sentences a new session can act on) when the
 next step changed; nothing changed, nothing to write. After a `/clear` or a closed
 window, no turn is left to do it.
 
-- When resumed or asked: show the PR's checks with the forge CLI (`gh pr checks <PR>`,
-  `glab ci status`). A failing check is fixed on the branch, then pushed.
+- On arriving here from delivery: watch the PR's checks in the background with the
+  forge CLI (`gh pr checks <PR> --watch`, `glab ci status --live`), and tell the user
+  their result when they finish; no check reported yet: try again a minute later. When
+  resumed or asked: show the checks again. A failing check is fixed on the branch,
+  pushed with the user's agreement, and watched again.
 - A human reviewer asks for a change: record it with `JOURNAL set --decision "<request> (to settle)"`, then
   `JOURNAL set --stage code` and read `code.md`. The flow comes back through review,
   acceptance and delivery, which then only pushes.
@@ -29,18 +34,31 @@ window, no turn is left to do it.
        `jam: nothing to report`, so that a silent answer is told from a forgotten
        question. At close, the script copies them to `jam-lessons.md` in jam's home
        (`~/.jam` by default), where jam's maintainer reads them; removing a rule is as
-       good an outcome as adding one.
+       good an outcome as adding one. This question has no recommended answer.
+  4. **What remains open** outside the code: review findings left aside (in the
+     reviewer's answers), decisions still "to settle", remarks out of the ticket's
+     scope. In one question listing them, ask the user which become an issue now: draft
+     each, show it, and once they agree create it with the CLI the project file's
+     commands use (`gh issue create`, `glab issue create`; none: hand the draft to the
+     user), then `JOURNAL set --log "issue <id>: <title>"`. The others become a
+     `--pending` at the close.
 
-  Then `JOURNAL close`, with one `--pending "…"` per thing still open outside the code.
-  An archive is never edited, by hand or otherwise: what was forgotten is told to the
-  user. Use `--force` only when the user asks for it explicitly; a refused close shows
-  its reason. Pass on to the user any `jam:` warning it prints (stats that could not be
-  read, a failing `PR size command`). Then give the commands to run from the main
-  session, and run none of them:
+  Then `JOURNAL close`, with one `--pending "…"` per item kept open. An archive is never
+  edited, by hand or otherwise: what was forgotten is told to the user. Use `--force`
+  only when the user asks for it explicitly; a refused close shows its reason. Pass on
+  to the user any `jam:` warning it prints (stats that could not be read, a failing
+  `PR size command`). Then ask the user, and once they agree, remove the worktree and
+  the branch from this session, as its last action (say so: the session's folder
+  disappears with it). Do it the way the project's own instructions say (`CLAUDE.md`,
+  the project's memory); otherwise read `<main worktree>`, the first path of
+  `git worktree list`, then run, in one command:
 
   ```
-  git worktree remove <path>
-  git branch -D <branch>
+  git -C <main worktree> worktree remove <path> && git -C <main worktree> branch -D <branch>
   ```
 
-  `<path>` and `<branch>` are the journal's `Worktree` and `Branch`. `-D`, because a squash merge leaves the local branch unmerged in git's eyes.
+  `<path>` and `<branch>` are the journal's `Worktree` and `Branch`. `-D`, because a
+  squash merge leaves the local branch unmerged in git's eyes. `worktree remove`
+  refuses when files are modified, or untracked and not ignored: show them, and add
+  `--force` only once the user agrees. Ignored files (`.env`, dependencies) go with
+  the worktree.

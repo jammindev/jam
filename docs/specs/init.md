@@ -77,8 +77,15 @@ returns when a real ticket shows the need. The first version stays in git histor
    sits in the `preview` of the option that writes it: a test run cut the text before
    the question down to one sentence and the file was never shown), corrections applied before
    writing (the changed lines are shown again).
-5. **Summarize**: the file written, whether to commit it (in the repository, on the base
-   branch, so that new worktrees have it), next step `/jam:ticket <id>`.
+5. **Summarize**: the file written, then the user's steps before the first ticket, in
+   order (`init` itself never commits or pushes). When the current branch is not the
+   base branch: `git switch <base>` (an uncommitted file follows; with the base checked
+   out in another worktree, the file moves there, and so does the work). In the
+   repository: commit the file on the base branch and push it, since `start` creates
+   worktrees from `origin/<base>`. Then `/jam:ticket <id>`, from a session on the base
+   branch. On a real repository, `init` ran on a branch other than the base, and gave
+   `/jam:ticket <id>` as the next step, which the router refuses there; on another, the
+   file was committed on the local base branch but not pushed.
 
 ## The project file
 

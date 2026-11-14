@@ -1,5 +1,7 @@
 # Stage: code
 
+Every line shown to the user is in their language.
+
 Before handing back to the user, the journal holds what changed in this turn: new
 decisions, and `Resume here` (one or two sentences a new session can act on) when the
 next step changed; nothing changed, nothing to write. After a `/clear` or a closed

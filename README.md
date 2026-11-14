@@ -42,10 +42,10 @@ It asks you where to keep the file and what is sensitive in your code, and only 
 about the rest when it hesitates, with what it detected as the recommended answer. It
 runs none of the commands: the first ticket does, and a wrong one is fixed in the file.
 Then it shows you the whole file and, once you confirm, writes it, either in the
-repository (`.jam/project.md`, for you to commit on your base branch, so that new
-worktrees have it) or outside it (`~/.jam/<repo-id>/project.md`), as you choose. It
-touches no permission setting: the session asks you before each push and each pull
-request.
+repository (`.jam/project.md`, for you to commit and push on your base branch, since new
+worktrees start from it on `origin`) or outside it (`~/.jam/<repo-id>/project.md`), as
+you choose. It touches no permission setting: the session asks you before pushing and
+opening the pull request.
 
 It never commits, never pushes, never writes to your tracker or code host.
 
@@ -89,19 +89,20 @@ A **medium** ticket, the usual case, goes through six stages:
    goes through it in a browser and attaches screenshots; then you get at most five
    points to check. You give the second green light.
 5. **Delivery.** The session pushes and opens the pull request, asking you first.
-6. **Follow-up.** The session checks CI. A comment from a human reviewer on the pull
-   request sends the ticket back to the code. The merge is yours. Once merged, the
-   session brings the journal up to date (the done criterion ticked, the last decisions)
-   and writes the ticket's lessons, from two questions: a trap in the code, and a
-   friction with jam itself (both noted as they happen, during the whole ticket). A lesson
-   about the code can be moved to `CLAUDE.md` or the project file, with your agreement;
-   those about jam are how jam improves. Then the journal is archived and jam gives you
-   the commands to remove the working copy.
+6. **Follow-up.** The session watches CI and tells you its result. A comment from a
+   human reviewer on the pull request sends the ticket back to the code. The merge is
+   yours. Once merged, the session brings the journal up to date (the done criterion
+   ticked, the last decisions) and writes the ticket's lessons, from two questions: a
+   trap in the code, and a friction with jam itself (both noted as they happen, during
+   the whole ticket). A lesson about the code can be moved to `CLAUDE.md` or the project
+   file, with your agreement; those about jam are how jam improves. What is still open
+   becomes an issue or stays noted in the journal, as you choose. Then the journal is
+   archived and, with your agreement, the session removes the working copy.
 
 A **small** ticket gets three lines of framing (goal, done criterion, test). The session
-writes the test, then the code itself; one quick review pass follows; there is no
-`/clear`; you check the change if it is visible, and give one green light before the
-pull request.
+writes the test, then the code itself; one quick review pass follows (and a targeted
+one after a blocking fix); there is no `/clear`; you check the change if it is visible,
+and give one green light before the pull request.
 
 A **large** ticket is not available yet.
 
