@@ -9,7 +9,8 @@ window, no turn is left to do it.
 
 1. Write the test of the done criterion. Run it and check that it fails, for the reason
    the criterion gives. Then write the code until it passes. A medium ticket follows
-   its `Plan`, one criterion at a time, test first. When the plan does not fit the code,
+   its `Plan`, one criterion at a time, test first; a criterion proved by a check at
+   acceptance has no test to write. When the plan does not fit the code,
    stop, say what does not fit, and agree the change with the user:
    `JOURNAL set --plan "…"`, and a decision. Never force the plan through (a weakened
    test, a workaround).

@@ -43,8 +43,9 @@ $JAM_HOME (default ~/.jam)/
   <repo-id>/
     project.md            personal project file (optional)
     journals/<KEY>.md     one active journal per ticket
-    reports/<KEY>/        the reviewer's answers, review-<N>.md, saved by the skill,
-                          not by the script: read again after a /clear
+    reports/<KEY>/        the reviewers' answers, framing-review-<N>.md and
+                          review-<N>.md, saved by the skill, not by the script:
+                          read again after a /clear
     archive/<KEY>.md      closed journals
 ```
 
@@ -350,7 +351,8 @@ Outside a git repository: error.
 
 ### `close`
 
-Options: the repeatable `--pending` (what remains open outside the code) and `--force`.
+Options: the repeatable `--pending` (what stays open: a done box closed anyway) and
+`--force`.
 
 Checks, in this order, before anything is written:
 

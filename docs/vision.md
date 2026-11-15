@@ -42,7 +42,8 @@ bugs and support, specifications.
    stopping rule: no blocking finding, three rounds at most. And the session that wrote
    the code of a medium ticket clears its conversation before review and acceptance: it
    would judge the code by what it meant to do, not by the ticket.
-8. **Tests come from the request**, before the code, each done criterion naming its test.
+8. **Tests come from the request**, before the code, each done criterion naming its test,
+   or a check at acceptance for what no test shows at a fair cost.
 9. **Process in proportion.** The ticket's size, decided at the start, sets the amount
    of framing, review and acceptance.
 10. **Spend effort where it matters**: subagents run on Opus, at `xhigh` effort where

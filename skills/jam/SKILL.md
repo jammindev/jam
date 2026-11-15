@@ -15,7 +15,9 @@ lists under `project_files`; a personal file overrides the shared one, field by 
   English, which is no reason to answer in English. The journal's content is in that
   language too; its field names and section titles stay in English.
 - Nothing is written to the tracker, except what the PR's closing line does on merge,
-  and an issue the user agrees to at follow-up.
+  and the issues the user agrees to at follow-up.
+- A subagent may answer as a notification, after the turn: wait for it, and never
+  schedule a wake-up to check on it.
 - Record a lesson at once, when it happens; by the close it would be forgotten. When
   an instruction of jam fails, has to be worked around, or serves no purpose:
   `JOURNAL set --lesson "jam: …"`. A trap met in the project's code: `JOURNAL set

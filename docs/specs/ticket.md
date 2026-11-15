@@ -20,7 +20,7 @@ The roadmap's first criterion: a first small real ticket reaches its green light
 the pull request (`docs/vision.md`, step 1). Six real small tickets have run since.
 
 The **medium** ticket, specified from what they showed, adds to that path: framing with
-several criteria, the product rules and a plan, reviewed by a fresh agent before the
+several criteria, the product rules and a plan, reviewed by fresh agents before the
 user's first green light; a `/clear` before review and before acceptance; up to five
 points to check. A **sensitive** ticket is a medium one with one more review pass,
 focused on its sensitive areas. The roadmap's step 2 runs them on real tickets.
@@ -34,7 +34,9 @@ first announced:
   review. Whether code moves to a subagent stays an open question of the vision,
   decided at step 3 from token use and how often the user corrected.
 - **The framing has its own reviewer**, `framing-reviewer`: reviewing a plan against the
-  code and reviewing a diff by running tests and mutations are two different jobs.
+  code and reviewing a diff by running tests and mutations are two different jobs. It
+  runs as three passes in parallel, one per angle, then targeted passes on what the
+  fixes changed (M5).
 - **Acceptance stays in the conversation**, without a browser agent: browser tools differ
   from one machine to the next, and the user ran the acceptance of the small tickets
   without friction. A project that has an acceptance procedure links it.
@@ -120,7 +122,8 @@ router of the new session says where things stand and waits for the user's go-ah
 that summary lets the user check that the journal carried what the stage needs. No stop
 line is written for a clear: the stops measure green lights. What a later stage needs
 from the conversation is written down first: the decisions in the journal, the
-reviewer's answers in the ticket's reports folder (see review).
+reviewers' answers in the ticket's reports folder (see "framing, medium" and
+"review").
 
 Going back to code, from acceptance or from a human reviewer at follow-up, goes through
 review and acceptance again, so a medium ticket clears twice more: the session that
@@ -235,9 +238,10 @@ M1. Start the project file's `Tests` on the untouched branch in the background, 
     so that it runs during the framing: a base suite of six to twelve minutes, run in
     the foreground, blocked real sessions.
 M2. Draft, without asking yet, the goal (with no ticket behind the branch: what the user
-    said it is for); the done criteria, each naming the test that proves it; what the
-    ticket asks that this ticket leaves out; and the plan: the steps in order, the files
-    they touch, the tests first.
+    said it is for); the done criteria, each naming its proof: a test, or a check at
+    acceptance for what no test shows at a fair cost (a page's look, a deployment); what
+    the ticket asks that this ticket leaves out; and the plan: the steps in order, the
+    files they touch, the tests first.
 M3. `JOURNAL init --size medium --sensitive <yes|no>` with the draft: `--title`,
     `--goal`, the criteria in `--done-when` (one `- [ ] … · proof: …` line each),
     `--plan` and `--resume`; each thing left out with `set --decision`. The journal
@@ -247,22 +251,53 @@ M4. The product questions the code cannot answer, each a short multiple-choice
     recorded at once with `set --decision`, and the criteria or plan updated with `set`.
     The user agrees once, at M6, to a framing already reviewed: agreeing before the
     review too would ask twice for the same thing.
-M5. Run the `framing-reviewer` subagent once, in the foreground. It is given: the
-    ticket's text as `Read a ticket` prints it (or the journal's `Goal` when no ticket
-    is behind the branch), the goal, the done criteria, the plan, the decisions, and
-    the paths under the project file's `Links` that serve it (agent instructions,
-    specs). Check each finding in the code before acting on it. A finding is blocking
-    only if it shows a criterion no test can prove or whose test would pass without the
-    change, a plan step the code contradicts, something the ticket asks that no
-    criterion covers and no decision leaves out, or a product rule the plan decides that
-    is not among the decisions. Fix the blocking ones, with the user when a product rule
-    changes, then run it again while a finding is blocking, three runs at most; then the
-    user decides. Each run: `set --log "framing review: N blocking, M other"`, which the
-    stats do not count as a code review.
+M5. Run three `framing-reviewer` passes at once, one per angle, and wait for all three
+    answers. Each is given the same brief: the ticket's text as `Read a ticket` prints
+    it (or the journal's `Goal` when no ticket is behind the branch), the goal, the done
+    criteria, the plan, the decisions, the paths under the project file's `Links` that
+    serve it (agent instructions, specs), and its angle:
+    - `ticket`: each request of the ticket is covered by a criterion or left out by a
+      decision; each product rule the plan or the criteria decide is among the
+      decisions;
+    - `plan`: each plan step against the code it names or relies on;
+    - `proofs`: each criterion can be proved, its proof could not pass while the ticket
+      is not done, and it is the smallest that suffices.
+    Before anything else, even a question to the user, the three answers are saved, as
+    they came, to `<reports>/framing-review-<run>.md` (the run following the highest
+    already there, 1 the first time) and logged once, duplicates merged under the higher
+    class: `set --log "framing review: N blocking, M other"` (the stats do not count it
+    as a code review). A framing resumed after a `/clear` with reports already there
+    reads the highest one instead of running the passes again; each report of the angle
+    `changes` counts as a targeted pass made. Then each finding is checked in the code.
+    A finding is blocking only if it shows a criterion no proof can show, or whose proof
+    could pass while the ticket is not done, a plan step the code contradicts, something
+    the ticket asks that no criterion covers and no decision leaves out, or a product
+    rule the plan decides that is not among the decisions. The blocking ones are fixed,
+    with the user when a product rule changes; each other finding is taken or set aside,
+    in one line appended to the report, and shown at the green light. Then, if the
+    framing changed, one targeted pass: one `framing-reviewer`, angle `changes`, given
+    the brief as it is now and the last report, checks that the fixes hold and add no
+    new defect; a blocking finding from it is fixed and gets one more targeted pass at
+    most; then the user decides. Each pass is saved and logged the same way.
+
+    Why three angles and a targeted pass: on three real tickets, the second and third
+    full runs together found more real blocking findings than the first (10 against 6),
+    and 8 of those 10 were in the framing from the start: a run that reads the whole
+    framing does not go through every item. Replaying the first run of those tickets
+    against the 14 real blocking findings present from the start: the current
+    instructions found 7, one reviewer told to be exhaustive 9, three angles in parallel
+    all 14, with no false blocking finding, but marked only 8 of them blocking (hence
+    each other finding is taken or set aside) and gave 25 blocking findings to sort
+    instead of 6, one of them disproportionate, for about three times the tokens of one
+    run. The remaining 2 of the 10 were made by the fixes themselves, which only a pass
+    on the changes can see. The proportion rule (the smallest proof that suffices; more
+    tooling than a criterion needs is never blocking) comes from a real ticket whose
+    three runs grew its proofs into tooling the user then asked to remove.
 M6. Read the base tests' result (still running: wait), handled as in step 5. Then the
     first green light, in one message of plain text, as at acceptance: the goal, the
-    criteria and their tests, the product decisions and what is left out, the plan,
-    what the framing review found and what changed, the base tests' result. The answer,
+    criteria and their proofs, the product decisions and what is left out, the plan,
+    what the framing review found and what changed, each other finding taken or set
+    aside, and the base tests' result. The answer,
     awaited as text, is recorded with `JOURNAL stop` (at `framing`): `seen` or
     `explained` is the go-ahead to write code; `corrected --note` is applied with
     `set`, the changed lines shown, and the green light asked again, without another
@@ -271,8 +306,9 @@ M6. Read the base tests' result (still running: wait), handled as in step 5. The
 ### code
 
 1. Write the test of the done criterion, run it, and check that it fails for the right
-   reason. Then write the code until it passes. A medium ticket follows its `Plan`, one
-   criterion at a time, test first; when the plan does not fit the code, the session
+      reason. Then write the code until it passes. A medium ticket follows its `Plan`, one
+   criterion at a time, test first; a criterion proved by a check at acceptance has no
+   test to write. When the plan does not fit the code, the session
    stops, says what does not fit, and agrees the change with the user (`set --plan`,
    and a decision), instead of forcing its way.
 2. Run `Tests` (in the background, then read the result) and `Lint` from the project
@@ -291,7 +327,7 @@ M6. Read the base tests' result (still running: wait), handled as in step 5. The
    diff is shown to the user: a change the code stage did not make (a mutation left by
    an interrupted review, found by a later session) is restored, never committed; the
    rest is committed with their agreement, or the stage stops. One pass by the
-   `reviewer` subagent, in the foreground: the session touches nothing in the worktree
+   `reviewer` subagent, waited for: the session touches nothing in the worktree
    until it answers, since the reviewer may change and restore files. It is given: the
    ticket's text as `Read a ticket` prints it (or what the user gave at framing), the
    goal, the done criterion, the diff `origin/<base>...HEAD`, the project file's `Tests`
@@ -344,12 +380,14 @@ user asked how to log in to check the change.
 
 The message holds:
 
-- the goal and the criteria with their tests;
+- the goal and the criteria with their proofs;
 - the decisions made by the code, to settle;
 - what the review found, what was fixed, what was left, from the saved reports;
 - if the change is visible: at most three points to check (five for a medium ticket),
   and how to see them (the project file's `Run` command, a page, a command); when the
-  project file's `Links` names an acceptance procedure, it is followed to prepare them.
+    project file's `Links` names an acceptance procedure, it is followed to prepare them;
+- each criterion proved by a check at acceptance, with how to check it, beyond that
+  limit; ticked once the user accepts.
 
 The answer is recorded with `JOURNAL stop`:
 
@@ -388,7 +426,12 @@ Each decision to settle gets one line, since `Decisions` only grows:
 - A human reviewer asks for a change: `set --decision` with the request, to settle, then
   `set --stage code`; the flow comes back through review, acceptance and delivery, which
   then only pushes.
-- The merge is the user's. Once merged, before closing, one pass on the journal:
+- Once the PR can be merged (checks green, required approvals given), the session
+  offers to merge, in one question, the way the
+  project merges (its instructions, else the forge CLI's merge command with the method
+  its recent PRs used); the user merges or agrees. On five real tickets out of six, the
+  user asked the session to merge. Once merged, before closing, one pass on the
+  journal:
   - tick each box of `Done when` whose proof holds now (`set --done-when`); one that
     cannot be ticked is said to the user; if they decide to close anyway, its reason
     goes in with `set --decision`, then, at the close below,
@@ -411,13 +454,18 @@ Each decision to settle gets one line, since `Decisions` only grows:
     straight after the merge, with the done criterion still unticked, and missed what
     follow-up had taught (a red CI, a merge order changed), then edited the archive by
     hand.
-  - **what remains open** outside the code (review findings left aside, in the
-    reviewer's answers; decisions still "to settle"; remarks out of the ticket's scope):
-    one question lists them, and the user picks those that become an issue now. The
-    session drafts each, shows it, and once they agree creates it with the CLI the
-    project file's commands use (none: the draft goes to the user), then logs
-    `issue <id>: <title>`. The others become `--pending` at the close. On a real ticket,
-    two errors found by the review left as pending were never followed up.
+  - **what remains open** outside the code (code review findings left aside, in the
+    `review-*.md` reports; the framing review's were sorted at framing; decisions still
+    "to settle"; remarks out of the ticket's scope): the session sorts each one itself,
+    as an issue (a defect, a decision someone must take, something to watch) or as
+    dropped, with one line why. One question shows the list, the issues' titles and what
+    they say; one agreement creates them all with the CLI the project file's commands
+    use (none: the drafts go to the user), each logged `issue <id>: <title>`, and each
+    dropped item recorded once agreed, with `set --decision "Dropped: … (why)"`. Apart
+    from a done box closed with `--force`, nothing is left pending in the journal. On a
+    real ticket, two errors found by the review left as pending were never followed up;
+    on later ones, the user asked for the issues to be created without being asked one
+    by one, and for nothing to stay in the journal.
 
   Then `JOURNAL close`. An archive is never edited: what was forgotten is told to the
   user. `close --force` only on the user's explicit request. Then the worktree and the
@@ -471,10 +519,18 @@ Each decision to settle gets one line, since `Decisions` only grows:
   the most.
 - It returns findings, each with the criterion, plan step or product rule concerned,
   what in the code or the ticket shows the problem (file and line when there is one),
-  and `blocking` or `other`, by the rule of M5; or says there is none.
+    and `blocking` or `other`, by the rule of M5, after its checklist: it reviews the
+  angle it is given and goes through every item of it, one by one, with a verdict for
+  each, even "nothing to report". With the angle `changes` and the last report, it
+  reviews only what changed in the framing to answer the findings, and what it
+  touches.
 
 ## Also in this version
 
+- A subagent may come back as a notification rather than in the same turn: the session
+  waits for it and schedules no wake-up. On one real ticket, the session scheduled
+  wake-ups that came back as messages the user did not write; on another, it noted
+    that the old instruction "in the foreground" could not be followed.
 - The session-start hook, exactly as the journal spec defines it.
 - Journal content in the user's language; field names and section titles in English.
   Everything shown to the user is in their language, short status lines included: the
@@ -482,7 +538,7 @@ Each decision to settle gets one line, since `Decisions` only grows:
   user saw was English ("No journal: framing stage."). The router says it, and every
   stage file repeats it in its first line, start included.
 - Nothing is written to the tracker, except what the PR's closing line does on merge,
-  and an issue the user agrees to (see follow-up, what remains open).
+  and the issues the user agrees to (see follow-up, what remains open).
 - A jam instruction that fails, is worked around or serves no purpose is recorded at
   once as a `jam:` lesson, in any stage: by the close it would be forgotten. A trap met
   in the project's code is recorded at once too, without `jam:`: with a single channel,

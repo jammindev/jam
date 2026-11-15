@@ -16,8 +16,12 @@ window, no turn is left to do it.
   `JOURNAL set --decision "<request> (to settle)"`, then `JOURNAL set --stage code` and
   read `code.md`. The flow comes back through review, acceptance and delivery, which
   then only pushes.
-- The merge is the user's. Once merged, and before closing, one pass on the journal;
-  follow-up teaches things too (a red CI, a merge order changed):
+- Once the PR can be merged (checks green, required approvals given), offer to merge,
+  in one question: the way the project's
+  instructions say, else the forge CLI's merge command with the method its recent PRs
+  used. The user merges, or agrees and the session merges. Once merged, and before
+  closing, one pass on the journal; follow-up teaches things too (a red CI, a merge
+  order changed):
   1. Tick each box of `Done when` whose proof holds now, with `JOURNAL set --done-when`
      (the whole list). A box that cannot be ticked: say so. If the user decides to
      close anyway, record why with `JOURNAL set --decision "…"`; at the close below,
@@ -36,15 +40,18 @@ window, no turn is left to do it.
        question. At close, the script copies them to `jam-lessons.md` in jam's home
        (`~/.jam` by default), where jam's maintainer reads them; removing a rule is as
        good an outcome as adding one. This question has no recommended answer.
-  4. **What remains open** outside the code: review findings left aside (in the reports
-     of `reports=`, `JOURNAL key`), decisions still "to settle", remarks out of the
-     ticket's scope. In one question listing them, ask the user which become an issue
-     now: draft each, show it, and once they agree create it with the CLI the project
-     file's commands use (`gh issue create`, `glab issue create`; none: hand the draft
-     to the user), then `JOURNAL set --log "issue <id>: <title>"`. The others become a
-     `--pending` at the close.
+  4. **What remains open** outside the code: code review findings left aside (in the
+     `review-*.md` reports of `reports=`, `JOURNAL key`; the framing's were sorted at
+     framing), decisions still "to settle", remarks out of the ticket's scope. Sort each
+     one yourself: an issue (a defect, a decision someone must take, something to watch)
+     or dropped, with one line why. In one question, show the list, and for each issue
+     its title and what it says; once the user agrees, create them all with the CLI the
+     project file's commands use (`gh issue create`, `glab issue create`; none: hand the
+     drafts to the user), each followed by `JOURNAL set --log "issue <id>: <title>"`,
+     and each dropped item by `JOURNAL set --decision "Dropped: … (why)"`. Apart from a
+     done box closed with `--force` (step 1), nothing stays pending in the journal.
 
-  Then `JOURNAL close`, with one `--pending "…"` per item kept open. An archive is never
+  Then `JOURNAL close`. An archive is never
   edited, by hand or otherwise: what was forgotten is told to the user. Use `--force`
   only when the user asks for it explicitly; a refused close shows its reason. Pass on
   to the user any `jam:` warning it prints (stats that could not be read, a failing

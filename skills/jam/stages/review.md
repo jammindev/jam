@@ -17,9 +17,9 @@ targeted on it too.
    Otherwise show the diff to the user: a change the code stage did not make (one left
    by an interrupted review, say) is restored with `git restore`, never committed;
    commit the rest with their agreement, or stop. Never review an uncommitted diff. Then
-   run the `reviewer` subagent once, in the foreground, and wait for its answer: it may
-   change and restore files to test them, so touch no file in the worktree and run
-   nothing on it until it has answered. Give it, and nothing else (no tracker command to
+   run the `reviewer` subagent once and wait for its answer: it may change and restore
+   files to test them, so touch no file in the worktree and run nothing on it until it
+   has answered. Give it, and nothing else (no tracker command to
    run; a review grid by its path, its steps never copied in):
    - the ticket's text, as the project file's `Read a ticket` command prints it, or
      the journal's `Goal` when no ticket is behind the branch;

@@ -73,10 +73,11 @@ sets how much process the ticket gets.
 A **medium** ticket, the usual case, goes through six stages:
 
 1. **Framing.** You and the session agree on the goal, the done criteria (each one names
-   the test that proves it), the product rules and the plan. Product questions come as
-   short multiple-choice questions, recommended answer first, each with its cost. A fresh
-   agent reviews the framing, with the same stopping rule as the code review below. You
-   give the first green light: your explicit go-ahead.
+   the test, or the check at acceptance, that proves it), the product rules and the
+   plan. Product questions come as short multiple-choice questions, recommended answer
+   first, each with its cost. Three fresh agents review the framing at once, each from
+   one angle (the ticket, the plan against the code, the proofs), then one checks the
+   fixes, if any. You give the first green light: your explicit go-ahead.
 2. **Code.** The session writes the tests first, checks that they fail, then writes the
    code, step by step along the plan; when the plan does not fit the code, it stops and
    asks you. It lists the decisions the code made on its own; you settle them.
@@ -95,14 +96,16 @@ A **medium** ticket, the usual case, goes through six stages:
    and acceptance again, each after a `/clear`.
 5. **Delivery.** The session pushes and opens the pull request, asking you first.
 6. **Follow-up.** The session watches CI and tells you its result. A comment from a
-   human reviewer on the pull request sends the ticket back to the code. The merge is
-   yours. Once merged, the session brings the journal up to date (the done criteria
-   ticked, the last decisions) and writes the ticket's lessons, from two questions: a
-   trap in the code, and a friction with jam itself (both noted as they happen, during
-   the whole ticket). A lesson about the code can be moved to `CLAUDE.md` or the project
-   file, with your agreement; those about jam are how jam improves. What is still open
-   becomes an issue or stays noted in the journal, as you choose. Then the journal is
-   archived and, with your agreement, the session removes the working copy.
+   human reviewer on the pull request sends the ticket back to the code. Once the pull
+   request can be merged (CI green, required approvals given), the session offers to
+   merge; you merge or let it. Once merged, the session brings the journal up to date
+   (the done criteria ticked, the last decisions) and writes the ticket's lessons, from
+   two questions: a trap in the code, and a friction with jam itself (both noted as they
+   happen, during the whole ticket). A lesson about the code can be moved to `CLAUDE.md`
+   or the project file, with your agreement; those about jam are how jam improves. What
+   is still open is sorted by the session into issues or dropped, with one line why; one
+   agreement creates the issues. Then the journal is archived and, with your agreement,
+   the session removes the working copy.
 
 A **small** ticket gets three lines of framing (goal, done criterion, test). The session
 writes the test, then the code itself; one quick review pass follows (and a targeted
@@ -120,20 +123,22 @@ and data.
 Ticket 142 asks for a CSV export of a month's stock movements. The session reads it and
 the code, and proposes *medium*, not sensitive: the export holds no personal data; you
 confirm. During framing it asks one question: semicolon or comma as separator? You pick
-semicolon. The done criteria name two tests. A fresh agent finds a gap (cancelled
+semicolon. The done criteria name two tests. The framing review finds a gap (cancelled
 movements), which you settle; first green light. The session writes both tests, sees
 them fail, writes the export, and notes one decision it made alone: an empty month gives
 a file with only the header. You accept it. `/clear`, `/jam`: the review finds
 nothing blocking. `/clear`, `/jam`: you get three points to check, with the page
 to open; second green light. The session asks before pushing, opens the pull request and
-watches CI; you merge; the session writes one lesson, and the journal is archived.
+watches CI, then offers to merge; you agree; the session writes one lesson, and the
+journal is archived.
 
 ### What jam asks of you
 
 On a medium ticket: confirm the size, frame it with the session, settle the decisions the
 code made, run `/clear` twice (twice more for each change asked at acceptance or by a
 human reviewer), give two green lights, decide when a loop reaches three
-rounds, agree to the push and the pull request, and merge.
+rounds, agree to the push and the pull request, to the merge, and to the issues opened
+for what remains.
 
 At each pause, jam notes whether you accepted, corrected, or asked for an explanation. How
 often you had to correct its work shows how well the workflow serves you.
